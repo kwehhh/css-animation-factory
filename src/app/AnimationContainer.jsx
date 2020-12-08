@@ -1,7 +1,7 @@
 import React from "react";
 // import "./App.scss";
 
-export default class ElementContainer extends React.Component {
+export default class AnimationContainer extends React.Component {
 
   constructor() {
     super();
@@ -19,6 +19,15 @@ export default class ElementContainer extends React.Component {
   }
 
   render() {
+
+
+    return (
+      <div>
+        container
+      </div>
+    );
+
+
     const { name } = this.state;
     const { visible, onSubmit } = this.props;
 
