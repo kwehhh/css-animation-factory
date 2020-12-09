@@ -1,4 +1,5 @@
 import React from "react";
+import {Helmet} from "react-helmet";
 import AnimationContainer from './app/AnimationContainer.jsx';
 import ElementContainer from './app/ElementContainer.jsx';
 import ElementsContainer from './app/ElementsContainer.jsx';
@@ -12,7 +13,8 @@ export default class App extends React.Component {
       activeElement: null,
       elements: [
         {
-          name: 'one'
+          name: 'ballz',
+          css: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
         },
         {
           name: 'two'
@@ -66,12 +68,19 @@ export default class App extends React.Component {
   render() {
     return (
       <div>    
+        <Helmet>
+          <style>{ this.state.elements[0].css }</style>
+          <meta charSet="utf-8" />
+          <title>My Title</title>
+          <link rel="canonical" href="http://mysite.com/example" />
+        </Helmet>
         <ElementsContainer 
           activeElement={ this.state.activeElement }
           onClick={ this.handleSelectElement }
           elements={ this.state.elements } 
         />
         <ElementContainer 
+          elementProps={ this.state.elements[0] }
           visible={ this.state.showElementContainer } 
           onSubmit={ this.handleUpdateElements } 
         />

@@ -1,4 +1,8 @@
 import React from "react";
+import {UnControlled as CodeMirror} from 'react-codemirror2';
+require('codemirror/mode/css/css');
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material.css';
 // import "./App.scss";
 
 export default class ElementContainer extends React.Component {
@@ -6,7 +10,8 @@ export default class ElementContainer extends React.Component {
   constructor() {
     super();
     this.state = {
-      name: 'ball'
+      name: 'ball',
+      value: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -20,14 +25,21 @@ export default class ElementContainer extends React.Component {
 
   render() {
     const { name } = this.state;
-    const { visible, onSubmit } = this.props;
+    const { elementProps, visible, onSubmit } = this.props;
+
+
+
+    
+
 
     if (visible) {
       return (
         <div>
+
+
           <div>
             Name
-            <input value={ name } />
+            <input value={ elementProps.name } />
           </div>
           <div>
             HTML
@@ -35,7 +47,22 @@ export default class ElementContainer extends React.Component {
           </div>
           <div>
             CSS
-            <input />
+            <CodeMirror
+              value={this.state.value}
+              options={{
+                mode: 'css',
+                theme: 'material',
+                lineNumbers: true
+              }}
+              onBeforeChange={(editor, data, value) => {
+            
+              }}
+              onChange={(editor, data, value) => {
+              }}
+            />
+          </div>
+          <div className={ this.state.name }>
+              preview
           </div>
           <button onClick={ this.handleSubmit }>
             Add Element
