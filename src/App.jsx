@@ -10,7 +10,8 @@ export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      activeElement: null,
+      // activeElement: null,
+      activeElement: 0,
       elements: [
         {
           name: 'ballz',
@@ -27,6 +28,7 @@ export default class App extends React.Component {
     this.handleShowContainer = this.handleShowContainer.bind(this);
     this.handleHideContainer = this.handleHideContainer.bind(this);
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
+    this.handleUpdateElement = this.handleUpdateElement.bind(this);
   }
 
   handleSelectElement(index) {
@@ -52,6 +54,7 @@ export default class App extends React.Component {
     this.setState({showElementContainer: false});
   }
 
+  // new
   handleUpdateElements(element) {
     this.handleHideContainer();
 
@@ -65,7 +68,28 @@ export default class App extends React.Component {
     });
   }
 
+  handleUpdateElement(element, index) {
+    // this.handleHideContainer();
+
+    this.setState((prevState) => {
+      const newElements = [
+        ...prevState.elements
+      ];
+
+      newElements[index] = {
+        ...newElements[index],
+        ...element
+      };
+      
+      return {
+        elements: newElements
+      };
+    });
+  }
+
   render() {
+    const { activeElement } = this.state;
+
     return (
       <div>    
         <Helmet>
@@ -75,13 +99,14 @@ export default class App extends React.Component {
           <link rel="canonical" href="http://mysite.com/example" />
         </Helmet>
         <ElementsContainer 
-          activeElement={ this.state.activeElement }
+          activeElement={ activeElement }
           onClick={ this.handleSelectElement }
           elements={ this.state.elements } 
         />
         <ElementContainer 
-          elementProps={ this.state.elements[0] }
+          elementProps={ this.state.elements[activeElement] }
           visible={ this.state.showElementContainer } 
+          onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
           onSubmit={ this.handleUpdateElements } 
         />
         <AnimationContainer />

@@ -45,5 +45,6 @@ module.exports = {
     new HtmlWebPackPlugin({
       templateContent: '<div id="container"></div>'
     })
-  ]
+  ],
+  devtool: "source-map"
 };

@@ -15,6 +15,15 @@ export default class ElementContainer extends React.Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(e) {
+
+    // console.log('handleChange');
+    this.props.onChange({
+      name: e.target.value
+    });
   }
 
   handleSubmit() {
@@ -39,7 +48,10 @@ export default class ElementContainer extends React.Component {
 
           <div>
             Name
-            <input value={ elementProps.name } />
+            <input 
+              value={ elementProps.name } 
+              onChange={ this.handleChange } 
+            />
           </div>
           <div>
             HTML
@@ -64,12 +76,15 @@ export default class ElementContainer extends React.Component {
           <div className={ this.state.name }>
               preview
           </div>
-          <button onClick={ this.handleSubmit }>
-            Add Element
-          </button>
+
         </div>
       );
     }
+
+   // Add Element
+  //   <button onClick={ this.handleSubmit }>
+  //   Add Element
+  // </button>
 
     return null;
   }
