@@ -15,7 +15,7 @@ export default class App extends React.Component {
       elements: [
         {
           name: 'ballz',
-          css: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
+          css: '.ballz {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
         },
         {
           name: 'two'

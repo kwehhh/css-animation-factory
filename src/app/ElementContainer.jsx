@@ -1,5 +1,5 @@
 import React from "react";
-import {UnControlled as CodeMirror} from 'react-codemirror2';
+import {Controlled as CodeMirror} from 'react-codemirror2';
 require('codemirror/mode/css/css');
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
@@ -9,20 +9,20 @@ export default class ElementContainer extends React.Component {
 
   constructor() {
     super();
-    this.state = {
-      name: 'ball',
-      value: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
-    };
+    // this.state = {
+    //   name: 'ball',
+    //   value: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
+    // };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(e) {
+  handleChange(value, key) {
 
     // console.log('handleChange');
     this.props.onChange({
-      name: e.target.value
+      [key]: value
     });
   }
 
@@ -33,7 +33,7 @@ export default class ElementContainer extends React.Component {
   }
 
   render() {
-    const { name } = this.state;
+    // const { name } = this.state;
     const { elementProps, visible, onSubmit } = this.props;
 
 
@@ -50,7 +50,7 @@ export default class ElementContainer extends React.Component {
             Name
             <input 
               value={ elementProps.name } 
-              onChange={ this.handleChange } 
+              onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
             />
           </div>
           <div>
@@ -60,20 +60,25 @@ export default class ElementContainer extends React.Component {
           <div>
             CSS
             <CodeMirror
-              value={this.state.value}
+              value={ elementProps.css }
               options={{
                 mode: 'css',
                 theme: 'material',
                 lineNumbers: true
               }}
               onBeforeChange={(editor, data, value) => {
-            
+                // this.setState({value});
+                console.log('onBeforeChange', editor, data, value);
+                this.handleChange(value, 'css')
               }}
               onChange={(editor, data, value) => {
+                console.log('onChange', editor, data, value);
+                // this.handleChange(value, 'css')
+
               }}
             />
           </div>
-          <div className={ this.state.name }>
+          <div className={ elementProps.name }>
               preview
           </div>
 
