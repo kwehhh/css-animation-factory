@@ -20,11 +20,9 @@ export default class AnimationContainer extends React.Component {
 
   render() {
 
-
+    // Animation Container
     return (
-      <div>
-        container
-      </div>
+      <div />
     );
 
 

@@ -1,12 +1,6 @@
 import React from "react";
-import {Helmet} from "react-helmet";
-import AnimationContainer from './app/AnimationContainer.jsx';
-import ElementContainer from './app/ElementContainer.jsx';
-import ElementsContainer from './app/ElementsContainer.jsx';
-import Preview from './app/Preview.jsx';
-import "./App.scss";
 
-export default class App extends React.Component {
+export default class Preview extends React.Component {
 
   constructor() {
     super();
@@ -15,12 +9,8 @@ export default class App extends React.Component {
       // activeElement: 0,
       elements: [
         {
-          name: 'ball',
-          css: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}',
-          animation: {
-            properties: {},
-            keyFrames: []
-          }
+          name: 'ballz',
+          css: '.ballz {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
         },
         {
           name: 'two'
@@ -105,29 +95,19 @@ export default class App extends React.Component {
     });
   }
 
-  render() {
-    const { activeElement, elements } = this.state;
+  renderElements() {
+    return this.props.elements.map((element) => {
+      const { name } = element;
+      return (
+        <div className={ name } />
+      );
+    });
+  }
 
+  render() {
     return (
-      <div>    
-        <Helmet>
-          <style>{ this.getCSS() }</style>
-          <meta charSet="utf-8" />
-          <title>CSS Animation Factory</title>
-        </Helmet>
-        <ElementsContainer 
-          activeElement={ activeElement }
-          onClick={ this.handleSelectElement }
-          elements={ elements } 
-        />
-        <ElementContainer 
-          elementProps={ elements[activeElement] }
-          visible={ this.state.showElementContainer } 
-          onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
-          onSubmit={ this.handleUpdateElements } 
-        />
-        <AnimationContainer />
-        <Preview elements={ elements }  />
+      <div>
+        { this.renderElements() }
       </div>
     );
   }

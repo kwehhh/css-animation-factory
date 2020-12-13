@@ -41,7 +41,8 @@ export default class ElementContainer extends React.Component {
     
 
 
-    if (visible) {
+    if (elementProps && visible) {
+      // console.log('ElementContainer', elementProps);
       return (
         <div>
 
@@ -78,10 +79,6 @@ export default class ElementContainer extends React.Component {
               }}
             />
           </div>
-          <div className={ elementProps.name }>
-              preview
-          </div>
-
         </div>
       );
     }
