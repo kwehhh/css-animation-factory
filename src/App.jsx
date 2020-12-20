@@ -11,15 +11,18 @@ export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      activeElement: null,
-      // activeElement: 0,
+      // activeElement: null,
+      activeElement: 0,
       elements: [
         {
           name: 'ball',
           css: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}',
           animation: {
             properties: {},
-            keyFrames: []
+            keyframes: [
+              'from {top: 0px;}',
+              'to {top: 200px;}'
+            ]
           }
         },
         {

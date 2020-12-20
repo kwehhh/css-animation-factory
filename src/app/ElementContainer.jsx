@@ -14,34 +14,59 @@ export default class ElementContainer extends React.Component {
     //   value: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
     // };
 
-    this.handleSubmit = this.handleSubmit.bind(this);
+    // this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(value, key) {
 
-    // console.log('handleChange');
+    console.log('handleChange', value, key);
     this.props.onChange({
       [key]: value
     });
   }
 
-  handleSubmit() {
-    this.props.onSubmit({
-      name: this.state.name
+  // handleSubmit() {
+  //   this.props.onSubmit({
+  //     name: this.state.name
+  //   });
+  // }
+
+  renderKeyFrames(keyframes) {
+    return keyframes.map((keyframe, i) => {
+      return (
+        <CodeMirror
+          value={ keyframe }
+          options={{
+            mode: 'css',
+            theme: 'material',
+            lineNumbers: true
+          }}
+          onBeforeChange={(editor, data, value) => {
+            // this.setState({value});
+            console.log('onBeforeChange', editor, data, value);
+            const key = `animation.keyframes[${i}]`;
+            this.handleChange(value, key)
+          }}
+        />
+      )
     });
   }
 
   render() {
     // const { name } = this.state;
     const { elementProps, visible, onSubmit } = this.props;
-
-
-
-    
-
-
     if (elementProps && visible) {
+
+      const { animation } = elementProps;
+
+
+      let elKeyframes = [];
+      if (animation && animation.keyframes) {
+        elKeyframes = animation.keyframes;
+      }
+
+
       // console.log('ElementContainer', elementProps);
       return (
         <div>
@@ -69,16 +94,12 @@ export default class ElementContainer extends React.Component {
               }}
               onBeforeChange={(editor, data, value) => {
                 // this.setState({value});
-                console.log('onBeforeChange', editor, data, value);
+                // console.log('onBeforeChange', editor, data, value);
                 this.handleChange(value, 'css')
-              }}
-              onChange={(editor, data, value) => {
-                console.log('onChange', editor, data, value);
-                // this.handleChange(value, 'css')
-
               }}
             />
           </div>
+          { this.renderKeyFrames(elKeyframes) }
         </div>
       );
     }
