@@ -69,7 +69,11 @@ export default class ElementContainer extends React.Component {
 
       // console.log('ElementContainer', elementProps);
       return (
-        <div>
+        <div style={{
+          position: 'absolute',
+          width: '200px',
+          right: 0
+        }}>
 
 
           <div>

@@ -16,9 +16,27 @@ export default class App extends React.Component {
       elements: [
         {
           name: 'ball',
-          css: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}',
+          css: '.ball {\n  position: relative; background: blue;\n  width: 50px;\n  height: 50px;\n}',
+          style: {
+            position: 'relative',
+            background: 'blue',
+            width: '50px',
+            height: '50px',
+            animationName: 'ball',
+            animationDuration: '4s'
+          },
+        
+          // flatten to soemthing like that...
+          // name,
+          // css,
+          // duration,
+          // keyframes,
+          
           animation: {
-            properties: {},
+            properties: {
+              name: 'ball',
+              duration: '4s'
+            },
             keyframes: [
               'from {top: 0px;}',
               'to {top: 200px;}'
@@ -39,14 +57,58 @@ export default class App extends React.Component {
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
   }
 
+  convertCamelToKebabCase() {
+    const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+console.log(camelToSnakeCase('animationName')); // <--- convert obs to this format... for style
+  }
+
+  convertStylePropsToStr(style) {
+    let css = '';
+    Object.keys(style).forEach((attr) => {
+      // console.log(attr);
+      css += `${attr}: ${style[attr]};`;
+    });
+
+    return css;
+  }
+
   getCSS() {
     let css = '';
     this.state.elements.forEach((element) => {
-      // const { }
-      if (element.css) {
+
+      if (element.style) {
+        css += `.${element.name} {`;
+        css += this.convertStylePropsToStr(element.style);
+        css += '}';
+      // deprecate
+      } else if (element.css) {
         css = `${css}\n${element.css}`;
       }
-      
+
+      // // css
+      // if (element.css) {
+      //   css = `${css}\n${element.css}`;
+      // }
+
+      // animation
+      if (element && element.animation && element.animation.properties) {
+        css += `.${element.name} { animation-name: ${element.name}; animation-duration: ${element.animation.properties.duration}; }`;
+      }
+
+      // keyframes
+      if (element && element.animation && element.animation.keyframes) {
+        css += `@keyframes ${element.name} { ${this.getKeyframes(element.animation.keyframes)} }`;
+      }
+    });
+
+    console.log('getCSS', css);
+    return css;
+  };
+
+    getKeyframes(keyframes) {
+    let css = '';
+    keyframes.forEach((keyframe) => {
+      css += keyframe;
     });
 
     return css;
