@@ -84,10 +84,6 @@ export default class ElementContainer extends React.Component {
             />
           </div>
           <div>
-            HTML
-            <input />
-          </div>
-          <div>
             CSS
             <CodeMirror
               value={ elementProps.css }
@@ -100,6 +96,22 @@ export default class ElementContainer extends React.Component {
                 // this.setState({value});
                 // console.log('onBeforeChange', editor, data, value);
                 this.handleChange(value, 'css')
+              }}
+            />
+          </div>
+          <div>
+            KEYFRAMES
+            <CodeMirror
+              value={ elementProps.keyframes }
+              options={{
+                mode: 'css',
+                theme: 'material',
+                lineNumbers: true
+              }}
+              onBeforeChange={(editor, data, value) => {
+                // this.setState({value});
+                // console.log('onBeforeChange', editor, data, value);
+                this.handleChange(value, 'keyframes')
               }}
             />
           </div>

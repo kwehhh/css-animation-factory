@@ -10,21 +10,47 @@ export default class App extends React.Component {
 
   constructor() {
     super();
+
+    // start here
+    const style = {
+      position: 'relative',
+      background: 'blue',
+      width: '50px',
+      height: '50px',
+      animationName: 'ball',
+      animationDuration: '4s',
+      animationIterationCount: 'infinite',
+      animationDirection: 'alternate'
+    };
+
+    const keyframes = {
+      from: {
+        top: '0px',
+        background: 'green'
+      },
+      to: {
+        top: '200px',
+        background: 'blue'
+      }
+    };
+
     this.state = {
       // activeElement: null,
       activeElement: 0,
       elements: [
         {
           name: 'ball',
-          css: '.ball {\n  position: relative; background: blue;\n  width: 50px;\n  height: 50px;\n}',
-          style: {
-            position: 'relative',
-            background: 'blue',
-            width: '50px',
-            height: '50px',
-            animationName: 'ball',
-            animationDuration: '4s'
-          },
+          css: this.getElementCSS('ball', style),
+          keyframes: this.getKeyframesCSS('ball', keyframes),
+          // ON INIT... CONVERT STYLE TO CSS DIRECTLY... (SEND THIS TO APP AS PROPS....)
+          // style: {
+          //   position: 'relative',
+          //   background: 'blue',
+          //   width: '50px',
+          //   height: '50px',
+          //   animationName: 'ball',
+          //   animationDuration: '4s'
+          // },
         
           // flatten to soemthing like that...
           // name,
@@ -57,16 +83,17 @@ export default class App extends React.Component {
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
   }
 
-  convertCamelToKebabCase() {
+  convertCamelToKebabCase(str) {
     const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
-console.log(camelToSnakeCase('animationName')); // <--- convert obs to this format... for style
+// console.log(camelToSnakeCase('animationName')); // <--- convert obs to this format... for style
+    return camelToSnakeCase(str);
   }
 
-  convertStylePropsToStr(style) {
+  getCSSfromStyleObj(style) {
     let css = '';
     Object.keys(style).forEach((attr) => {
       // console.log(attr);
-      css += `${attr}: ${style[attr]};`;
+      css += `  ${this.convertCamelToKebabCase(attr)}: ${style[attr]};\n`;
     });
 
     return css;
@@ -77,8 +104,8 @@ console.log(camelToSnakeCase('animationName')); // <--- convert obs to this form
     this.state.elements.forEach((element) => {
 
       if (element.style) {
-        css += `.${element.name} {`;
-        css += this.convertStylePropsToStr(element.style);
+        css += `.${element.name} {\n`;
+        css += this.getCSSfromStyleObj(element.style);
         css += '}';
       // deprecate
       } else if (element.css) {
@@ -91,9 +118,9 @@ console.log(camelToSnakeCase('animationName')); // <--- convert obs to this form
       // }
 
       // animation
-      if (element && element.animation && element.animation.properties) {
-        css += `.${element.name} { animation-name: ${element.name}; animation-duration: ${element.animation.properties.duration}; }`;
-      }
+      // if (element && element.animation && element.animation.properties) {
+      //   css += `.${element.name} { animation-name: ${element.name}; animation-duration: ${element.animation.properties.duration}; }`;
+      // }
 
       // keyframes
       if (element && element.animation && element.animation.keyframes) {
@@ -101,11 +128,56 @@ console.log(camelToSnakeCase('animationName')); // <--- convert obs to this form
       }
     });
 
-    console.log('getCSS', css);
+    // console.log('getCSS', css);
     return css;
   };
 
-    getKeyframes(keyframes) {
+  // getCSSfromStyleObj(styleProps) {
+  //   return this.getCSSfromStyleObj(styleProps);
+  // }
+
+  // here ....
+  getElementCSS(name, style) {
+    let css = '';
+    css += `.${name} {\n`;
+    css += this.getCSSfromStyleObj(style);
+    css += `}\n`; 
+
+    return css;
+  }
+
+  createCSSBlock(blockName, cssBlock) {
+    return `${blockName} {\n ${cssBlock} }`;
+  }
+
+  getKeyframesCSS(name, keyframes) {
+    let css = '';
+
+    Object.keys(keyframes).forEach((keyframe) => {
+      css += this.createCSSBlock(keyframe, this.getCSSfromStyleObj(keyframes[keyframe]));
+
+      // console.log('keyframeCSS', keyframeCSS, keyframe, keyframes, name);
+    });
+
+
+
+    css = this.createCSSBlock(`@keyframes ${name}`, css);
+
+
+    // css += `.${name} {\n`;
+    // css += this.getCSSfromStyleObj(style);
+    // css += `}\n`; 
+
+    console.log('getKeyframesCSS', css);
+
+    return css;
+  }
+
+  getElementCSSKeyframes() {
+
+  }
+
+  getKeyframes(keyframes) {
     let css = '';
     keyframes.forEach((keyframe) => {
       css += keyframe;
