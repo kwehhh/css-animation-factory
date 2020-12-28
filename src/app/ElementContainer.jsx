@@ -68,6 +68,9 @@ export default class ElementContainer extends React.Component {
 
 
       // console.log('ElementContainer', elementProps);
+
+      // SUGGESTIONS
+      // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
       return (
         <div style={{
           position: 'absolute',

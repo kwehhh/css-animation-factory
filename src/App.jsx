@@ -14,6 +14,7 @@ export default class App extends React.Component {
     // start here
     const style = {
       position: 'relative',
+      borderRadius: '100%',
       background: 'blue',
       width: '50px',
       height: '50px',
@@ -29,6 +30,8 @@ export default class App extends React.Component {
         background: 'green'
       },
       to: {
+        width: '80px',
+        height: '80px',
         top: '200px',
         background: 'blue'
       }
@@ -112,6 +115,11 @@ export default class App extends React.Component {
         css = `${css}\n${element.css}`;
       }
 
+
+      if (element.keyframes) {
+        css += element.keyframes;
+      }
+
       // // css
       // if (element.css) {
       //   css = `${css}\n${element.css}`;
@@ -123,9 +131,9 @@ export default class App extends React.Component {
       // }
 
       // keyframes
-      if (element && element.animation && element.animation.keyframes) {
-        css += `@keyframes ${element.name} { ${this.getKeyframes(element.animation.keyframes)} }`;
-      }
+      // if (element && element.animation && element.animation.keyframes) {
+      //   css += `@keyframes ${element.name} { ${this.getKeyframes(element.animation.keyframes)} }`;
+      // }
     });
 
     // console.log('getCSS', css);
