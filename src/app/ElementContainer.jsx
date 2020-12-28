@@ -55,7 +55,7 @@ export default class ElementContainer extends React.Component {
 
   render() {
     // const { name } = this.state;
-    const { elementProps, visible, onSubmit } = this.props;
+    const { elContainerWidth, elementProps, visible, onSubmit } = this.props;
     if (elementProps && visible) {
 
       const { animation } = elementProps;
@@ -72,16 +72,31 @@ export default class ElementContainer extends React.Component {
       // SUGGESTIONS
       // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
       return (
-        <div style={{
-          position: 'absolute',
-          width: '200px',
-          right: 0
+        <div 
+          className="stacking-10"        
+          style={{
+            color: 'white',
+            position: 'absolute',
+            width: elContainerWidth,
+            background: 'purple',
+            top: '20px',
+            padding: '20px',
+            right: '20px',
+            borderRadius: '10px'
         }}>
 
 
           <div>
             Name
             <input 
+              style={{
+                display: 'block',
+                background: 'hsl(280deg 100% 20%)',
+                width: '100%',
+                padding: '10px',
+                border: 'none',
+                color: 'white'
+              }}
               value={ elementProps.name } 
               onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
             />
@@ -118,7 +133,6 @@ export default class ElementContainer extends React.Component {
               }}
             />
           </div>
-          { this.renderKeyFrames(elKeyframes) }
         </div>
       );
     }

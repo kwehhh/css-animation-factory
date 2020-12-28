@@ -105,8 +105,20 @@ export default class Preview extends React.Component {
   }
 
   render() {
+    const { previewContainerWidth } = this.props;
     return (
-      <div>
+      <div 
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          bottom: '0',
+          right: previewContainerWidth
+        }}
+        className="preview">
         { this.renderElements() }
       </div>
     );

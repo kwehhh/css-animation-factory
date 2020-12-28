@@ -253,6 +253,11 @@ export default class App extends React.Component {
   render() {
     const { activeElement, elements } = this.state;
 
+    const containerSpacing = 20;
+    const elContainerWidth = 350;
+    const previewContainerWidth = elContainerWidth - containerSpacing;
+
+
     return (
       <div>    
         <Helmet>
@@ -266,13 +271,14 @@ export default class App extends React.Component {
           elements={ elements } 
         />
         <ElementContainer 
+          elContainerWidth={ elContainerWidth }
           elementProps={ elements[activeElement] }
           visible={ this.state.showElementContainer } 
           onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
           onSubmit={ this.handleUpdateElements } 
         />
         <AnimationContainer />
-        <Preview elements={ elements }  />
+        <Preview previewContainerWidth={ previewContainerWidth } elements={ elements }  />
       </div>
     );
   }

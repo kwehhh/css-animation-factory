@@ -1,5 +1,14 @@
 $body-color: red;
 
 body {
-  color: $body-color;
+  // reset
+  margin: 0;
+  // color: $body-color;
+  background: #440066;
+}
+
+.stacking-10 {
+  > * + * {
+    margin-top: 10px;
+  }
 }
