@@ -1,29 +1,176 @@
 import React from "react";
+import _ from 'lodash';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 require('codemirror/mode/css/css');
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 // import "./App.scss";
 
+
+  // global util
+  const isEven = (value) => {
+    if (value%2 == 0)
+      return true;
+    else
+      return false;
+  };
+
+  function camelize(str){
+    let arr = str.split('-');
+    let capital = arr.map((item, index) => index ? item.charAt(0).toUpperCase() + item.slice(1).toLowerCase() : item.toLowerCase());
+    // ^-- change here.
+    let capitalString = capital.join("");
+  
+    // console.log(capitalString);
+    return capitalString;
+  }
+  
 export default class ElementContainer extends React.Component {
 
   constructor() {
     super();
-    // this.state = {
-    //   name: 'ball',
-    //   value: '.ball {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
-    // };
+    this.state = {
+      editor: {}
+    };
 
-    // this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(value, key) {
+  getPropsFromMap(src, map) {
+    // console.log('getPropsFromMap', src, map);
 
-    console.log('handleChange', value, key);
+    if (src && map) {
+      const newMap = [];
+      src.forEach((item, i) => {
+      const index = i % 3;
+  
+      if (index === 1) {
+        map.forEach((thing, j) => {
+          if (item === thing.index) {
+            newMap.push({
+              ...map[j],
+              value: src[i + 1].data
+            });
+          }
+        });
+      }
+  
+        // if (_.isObject(item)) {
+        //   console.log(item, index);
+        // }
+      });
+  
+      
+      if (newMap.length > 0) {
+              // now extract
+        const prop = {
+          [camelize(newMap[0].value)]: newMap[1].value
+        };
+
+        // console.log('getPropsFromMap', prop); 
+        return prop;
+      }
+
+
+    }
+
+    return null;
+
+  }
+
+  getStyleObjFromCM(editor) {
+    // console.log('getStyleObjFromCM', editor);
+
+    if (editor && editor.display && editor.display.renderedView) {
+      let obj = {};
+      const renderedView = editor.display.renderedView;
+
+      renderedView.forEach((view) => {
+        const { line, measure } = view;
+        
+        const indexes = this.getPropsFromLine(line);
+
+        if (indexes && !isEven(indexes.length)) {
+          // TODO: Add this to state flag at end..... Cannot toggle away from code view until resolved
+          console.error('!!! MISMATCH', line);
+        } else {
+          const prop = this.getPropsFromMap(measure.map, indexes);
+
+          // Note: This method corrects duplicates...
+          if (prop) {
+            obj = {
+              ...obj,
+              ...prop
+            }
+          }
+        }
+
+        
+      });
+
+      // TODO: Handle multi key value .. border: 1px solid white;   
+      console.log('getStyleObjFromCM', obj);
+    }
+  }
+
+  getPropsFromLine({ styles }) {
+    if (styles) {
+      // const tags = [];
+      // const variables = [];
+      const markers = [];
+      styles.forEach((item, i) => {
+        if (item === 'tag') {
+          // console.log('getPropsFromLine', styles[i - 1]);
+          // tags.push(styles[i - 1]);
+          markers.push({
+            name: 'key',
+            index: styles[i - 1]
+          });
+        }
+        if (item === 'variable-3' || item === 'number') {
+          // console.log('getPropsFromLine', styles[i - 1]);
+          // variables.push(styles[i - 1]);
+          markers.push({
+            name: 'value',
+            index: styles[i - 1]
+          });
+        }
+        // if (item === 'number') {
+        //   // console.log('getPropsFromLine', styles[i - 1]);
+        //   // variables.push(styles[i - 1]);
+        //   markers.push({
+        //     name: 'value',
+        //     index: styles[i - 1]
+        //   });
+        // }
+      });
+
+      return markers;
+    }
+
+    return null;
+  }
+
+  handleChange(value, key) {
+    // console.log('handleChange', value, key);
     this.props.onChange({
       [key]: value
     });
+  }
+
+  handleEditorChange(value, key) {
+    if (key === 'css') {
+      this.setState((prevState) => {
+
+        return {
+          editor: {
+            ...prevState.editor,
+            ...value
+          }
+        }
+      });
+    }
   }
 
   // handleSubmit() {
@@ -54,7 +201,7 @@ export default class ElementContainer extends React.Component {
   }
 
   render() {
-    // const { name } = this.state;
+    const { editor } = this.state;
     const { elContainerWidth, elementProps, visible, onSubmit } = this.props;
     if (elementProps && visible) {
 
@@ -67,7 +214,8 @@ export default class ElementContainer extends React.Component {
       }
 
 
-      // console.log('ElementContainer', elementProps);
+      // console.log('ElementContainer', editor);
+      this.getStyleObjFromCM(editor);
 
       // SUGGESTIONS
       // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
@@ -95,7 +243,7 @@ export default class ElementContainer extends React.Component {
             />
           </div>
           <div>
-            CSS
+            PROPERTIES <span>TOGGLE CODE VIEW</span>
             <CodeMirror
               value={ elementProps.css }
               options={{
@@ -106,7 +254,8 @@ export default class ElementContainer extends React.Component {
               onBeforeChange={(editor, data, value) => {
                 // this.setState({value});
                 console.log('onBeforeChange', editor, data, value);
-                this.handleChange(value, 'css')
+                this.handleChange(value, 'css');
+                this.handleEditorChange(editor, 'css');
               }}
             />
           </div>
@@ -122,7 +271,7 @@ export default class ElementContainer extends React.Component {
               onBeforeChange={(editor, data, value) => {
                 // this.setState({value});
                 // console.log('onBeforeChange', editor, data, value);
-                this.handleChange(value, 'keyframes')
+                this.handleChange(value, 'keyframes');
               }}
             />
           </div>

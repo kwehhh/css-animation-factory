@@ -202,7 +202,7 @@ export default class App extends React.Component {
     // css += this.getCSSfromStyleObj(style);
     // css += `}\n`; 
 
-    console.log('getKeyframesCSS', css);
+    // console.log('getKeyframesCSS', css);
 
     return css;
   }
