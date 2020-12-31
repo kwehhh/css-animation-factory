@@ -12,30 +12,47 @@ export default class App extends React.Component {
     super();
 
     // start here
-    const style = {
-      position: 'relative',
-      borderRadius: '100%',
-      background: 'blue',
-      width: '50px',
-      height: '50px',
-      animationName: 'ball',
-      animationDuration: '4s',
-      animationIterationCount: 'infinite',
-      animationDirection: 'alternate'
-    };
+    // const style = {
+    //   position: 'absolute',
+    //   borderRadius: '100%',
+    //   background: 'blue',
+    //   width: '50px',
+    //   height: '50px',
+    //   animationName: 'ball',
+    //   animationDuration: '4s',
+    //   animationIterationCount: 'infinite',
+    //   animationDirection: 'normal',
+    //   animationTimingFunction: 'linear'
+    // };
 
-    const keyframes = {
-      from: {
-        top: '0px',
-        background: 'green'
-      },
-      to: {
-        width: '80px',
-        height: '80px',
-        top: '200px',
-        background: 'blue'
-      }
-    };
+    // const style2 = {
+    //   position: 'absolute',
+    //   borderRadius: '100%',
+    //   background: 'red',
+    //   width: '50px',
+    //   height: '50px',
+    //   animationName: 'ball',
+    //   animationDuration: '4s',
+    //   animationDelay: '2s',
+    //   animationIterationCount: 'infinite',
+    //   animationDirection: 'normal',
+    //   animationTimingFunction: 'linear'
+    // };
+
+    // const keyframes = {
+    //   '0%': {
+    //     background: 'blue',
+    //     transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
+    //   },
+    //   '50%': {
+    //     background: 'purple',
+    //     transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
+    //   },
+    //   '100%': {
+    //     background: 'blue',
+    //     transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
+    //   }
+    // };
 
     this.state = {
       // activeElement: null,
@@ -43,37 +60,48 @@ export default class App extends React.Component {
       elements: [
         {
           name: 'ball',
-          css: this.getElementCSS('ball', style),
-          keyframes: this.getKeyframesCSS('ball', keyframes),
-          // ON INIT... CONVERT STYLE TO CSS DIRECTLY... (SEND THIS TO APP AS PROPS....)
-          // style: {
-          //   position: 'relative',
-          //   background: 'blue',
-          //   width: '50px',
-          //   height: '50px',
-          //   animationName: 'ball',
-          //   animationDuration: '4s'
-          // },
-        
-          // flatten to soemthing like that...
-          // name,
-          // css,
-          // duration,
-          // keyframes,
-          
-          animation: {
-            properties: {
-              name: 'ball',
-              duration: '4s'
+          css: this.getElementCSS('ball', {
+            position: 'absolute',
+            borderRadius: '100%',
+            background: 'blue',
+            width: '50px',
+            height: '50px',
+            animationName: 'ball',
+            animationDuration: '4s',
+            animationIterationCount: 'infinite',
+            animationDirection: 'normal',
+            animationTimingFunction: 'linear'
+          }),
+          keyframes: this.getKeyframesCSS('ball', {
+            '0%': {
+              background: 'blue',
+              transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
             },
-            keyframes: [
-              'from {top: 0px;}',
-              'to {top: 200px;}'
-            ]
-          }
+            '50%': {
+              background: 'purple',
+              transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
+            },
+            '100%': {
+              background: 'blue',
+              transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
+            }
+          })          
         },
         {
-          name: 'two'
+          name: 'ball2',
+          css: this.getElementCSS('ball2', {
+            position: 'absolute',
+            borderRadius: '100%',
+            background: 'red',
+            width: '50px',
+            height: '50px',
+            animationName: 'ball',
+            animationDuration: '4s',
+            animationDelay: '2s',
+            animationIterationCount: 'infinite',
+            animationDirection: 'normal',
+            animationTimingFunction: 'linear'
+          })
         }
       ],
       showElementContainer: true
@@ -92,52 +120,43 @@ export default class App extends React.Component {
     return camelToSnakeCase(str);
   }
 
-  getCSSfromStyleObj(style) {
+  getCSSfromStyleObj(style, formatter) {
     let css = '';
     Object.keys(style).forEach((attr) => {
       // console.log(attr);
-      css += `  ${this.convertCamelToKebabCase(attr)}: ${style[attr]};\n`;
+      if (formatter) {
+        css += formatter(this.convertCamelToKebabCase(attr), style[attr]);
+      } else {
+        css += `${this.convertCamelToKebabCase(attr)}: ${style[attr]};\n`;
+      }
+      // css += `  ${this.convertCamelToKebabCase(attr)}: ${style[attr]};\n`;
     });
 
     return css;
   }
 
-  getCSS() {
-    let css = '';
+
+  
+  // CSS goes into app HEAD STYLE tag
+  getDisplayCSS() {
+    let displayCSS = '';
     this.state.elements.forEach((element) => {
+      const { css, keyframes, name } = element;
 
-      if (element.style) {
-        css += `.${element.name} {\n`;
-        css += this.getCSSfromStyleObj(element.style);
-        css += '}';
-      // deprecate
-      } else if (element.css) {
-        css = `${css}\n${element.css}`;
+      // cssgetCSSfromStyleObj
+      if (css) {
+        // css = `${css}\n${element.css}`;
+        displayCSS += this.createCSSBlock(`.${name}`, css);
       }
-
-
-      if (element.keyframes) {
-        css += element.keyframes;
-      }
-
-      // // css
-      // if (element.css) {
-      //   css = `${css}\n${element.css}`;
-      // }
-
-      // animation
-      // if (element && element.animation && element.animation.properties) {
-      //   css += `.${element.name} { animation-name: ${element.name}; animation-duration: ${element.animation.properties.duration}; }`;
-      // }
 
       // keyframes
-      // if (element && element.animation && element.animation.keyframes) {
-      //   css += `@keyframes ${element.name} { ${this.getKeyframes(element.animation.keyframes)} }`;
-      // }
+      if (keyframes) {
+        displayCSS += this.createCSSBlock(`@keyframes ${name}`, keyframes);
+      }
     });
 
     // console.log('getCSS', css);
-    return css;
+    return displayCSS;
   };
 
   // getCSSfromStyleObj(styleProps) {
@@ -147,29 +166,36 @@ export default class App extends React.Component {
   // here ....
   getElementCSS(name, style) {
     let css = '';
-    css += `.${name} {\n`;
+    // css += `.${name} {\n`;
     css += this.getCSSfromStyleObj(style);
-    css += `}\n`; 
+    // css += `}\n`; 
 
     return css;
   }
 
   createCSSBlock(blockName, cssBlock) {
-    return `${blockName} {\n ${cssBlock} }`;
+    return `${blockName} {\n${cssBlock}}\n`;
   }
 
   getKeyframesCSS(name, keyframes) {
     let css = '';
 
-    Object.keys(keyframes).forEach((keyframe) => {
-      css += this.createCSSBlock(keyframe, this.getCSSfromStyleObj(keyframes[keyframe]));
+    Object.keys(keyframes).forEach((keyframe, i) => {
+      const formatter = (attr, value) => {
+        return `  ${attr}: ${value};\n`;
+      };
+
+      if (i > 0) {
+        css += '\n';
+      }
+      css += this.createCSSBlock(keyframe, this.getCSSfromStyleObj(keyframes[keyframe], formatter));
 
       // console.log('keyframeCSS', keyframeCSS, keyframe, keyframes, name);
     });
 
 
 
-    css = this.createCSSBlock(`@keyframes ${name}`, css);
+    // css = this.createCSSBlock(`@keyframes ${name}`, css);
 
 
     // css += `.${name} {\n`;
@@ -261,10 +287,11 @@ export default class App extends React.Component {
     return (
       <div>    
         <Helmet>
-          <style>{ this.getCSS() }</style>
+          <style>{ this.getDisplayCSS() }</style>
           <meta charSet="utf-8" />
           <title>CSS Animation Factory</title>
         </Helmet>
+        <Preview previewContainerWidth={ previewContainerWidth } elements={ elements }  />
         <ElementsContainer 
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
@@ -278,7 +305,7 @@ export default class App extends React.Component {
           onSubmit={ this.handleUpdateElements } 
         />
         <AnimationContainer />
-        <Preview previewContainerWidth={ previewContainerWidth } elements={ elements }  />
+        
       </div>
     );
   }

@@ -73,19 +73,12 @@ export default class ElementContainer extends React.Component {
       // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
       return (
         <div 
-          className="stacking-10"        
-          style={{
-            color: 'white',
-            position: 'absolute',
+          className="stacking-10 container"        
+          style={ {
             width: elContainerWidth,
-            background: 'purple',
-            top: '20px',
-            padding: '20px',
             right: '20px',
-            borderRadius: '10px'
-        }}>
-
-
+          } }
+        >
           <div>
             Name
             <input 
@@ -112,7 +105,7 @@ export default class ElementContainer extends React.Component {
               }}
               onBeforeChange={(editor, data, value) => {
                 // this.setState({value});
-                // console.log('onBeforeChange', editor, data, value);
+                console.log('onBeforeChange', editor, data, value);
                 this.handleChange(value, 'css')
               }}
             />

@@ -11,7 +11,7 @@ export default class ElementSContainer extends React.Component {
   }
 
   renderElements() {
-    console.log('renderElements', this.props);
+    // console.log('renderElements', this.props);
     return this.props.elements.map((element, i) => {
       
       if (element) {
@@ -39,7 +39,13 @@ export default class ElementSContainer extends React.Component {
   render() {
     // console.log(this.props);
     return (
-      <div>
+      <div
+        className="stacking-10 container"        
+        style={ {
+          width: '100px',
+          left: '20px',
+        } }
+      >
         { this.renderElements() }
       </div>
     );
