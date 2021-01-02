@@ -1,12 +1,18 @@
 import React from "react";
 import _ from 'lodash';
-import { Button , Select, MenuItem, Tooltip } from '@material-ui/core';
+import { 
+  Button, 
+  Divider,
+  Select, 
+  Slider,
+  MenuItem, 
+  TextField,
+  Tooltip 
+} from '@material-ui/core';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 require('codemirror/mode/css/css');
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
-// import "./App.scss";
-
 
   // global util
   const isEven = (value) => {
@@ -155,7 +161,7 @@ export default class ElementContainer extends React.Component {
   }
 
   handleChange(value, key) {
-    // console.log('handleChange', value, key);
+    console.log('handleChange', value, key);
     this.props.onChange({
       [key]: value
     });
@@ -227,20 +233,35 @@ export default class ElementContainer extends React.Component {
     // TODO: CONVERT PROPS TO FORM HERE!!
     } else {
 
-      let position = null;
-      if (css.position) {
-        // let age = 0;
-        const handleChange = (event) => {
-          this.setState({
-            position: event.target.value
-          });
-        };
-        position = (
+      const handleChange = (event) => {
+        this.setState({
+          position: event.target.value
+        });
+      };
+
+      const {
+         position,
+         background,
+         borderRadius,
+         width,
+         height,
+         animationName,
+         animationDirection,
+         animationIterationCount,
+         animationTimingFunction
+      } = css;
+
+      const updateProp = () => {
+
+      };
+
+      propContainer = (
+        <React.Fragment>
           <div>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
-              value={this.state.position}
+              value={ position }
               onChange={handleChange}
             >
               <MenuItem value="none">None</MenuItem>
@@ -251,12 +272,51 @@ export default class ElementContainer extends React.Component {
             </Select>
               <Tooltip title="static -- Default value. Elements render in order, as they appear in the document flow. absolute ....."><span>?</span></Tooltip>
           </div>
-        );
-      }
-
-      propContainer = (
-        <React.Fragment>
-          { position }
+          <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, borderRadius: e.target.value }, 'props') } } 
+            value={ borderRadius } 
+            id="standard-basic" 
+            label="Border Radius" />
+          <Slider value={ parseInt(borderRadius, 10) } onChange={ (e, value) => { this.handleChange({ ...css, borderRadius: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
+          <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, background: e.target.value }, 'props') } } 
+            value={ background } 
+            id="standard-basic" 
+            label="Background" />
+            { /* TODO: OPTION TO LOCK ASPECT RATIO for W/H */ }
+          <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, width: e.target.value }, 'props') } } 
+            value={ width } 
+            id="standard-basic" 
+            label="Width" />
+          <Slider value={ parseInt(width, 10) } onChange={ (e, value) => { this.handleChange({ ...css, width: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
+          <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, height: e.target.value }, 'props') } } 
+            value={ height } 
+            id="standard-basic" 
+            label="Height" />
+          <Slider value={ parseInt(height, 10) } onChange={ (e, value) => { this.handleChange({ ...css, height: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
+          <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, animationName: e.target.value }, 'props') } } 
+            value={ animationName } 
+            id="standard-basic" 
+            label="Animation Name" />
+          <Divider />
+          <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, animationDirection: e.target.value }, 'props') } } 
+            value={ animationDirection } 
+            id="standard-basic" 
+            label="Animation Direction" />
+          <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, animationIterationCount: e.target.value }, 'props') } } 
+            value={ animationIterationCount } 
+            id="standard-basic" 
+            label="Animation Iteration Count" />
+          <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, animationTimingFunction: e.target.value }, 'props') } } 
+            value={ animationTimingFunction } 
+            id="standard-basic" 
+            label="Animation Timing Function" />
         </React.Fragment>
       );
     }
@@ -337,7 +397,7 @@ export default class ElementContainer extends React.Component {
               onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
             />
           </div>
-          { this.renderElementProperties(elementProps.css) }
+          { this.renderElementProperties(elementProps.props) }
           { this.renderElementKeyframes(elementProps.keyframes) }
         </div>
       );

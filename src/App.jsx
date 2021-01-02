@@ -57,10 +57,11 @@ export default class App extends React.Component {
     this.state = {
       // activeElement: null,
       activeElement: 0,
+      // Each Element and Keyfreames
       elements: [
         {
           name: 'ball',
-          css: {
+          props: {
             position: 'absolute',
             borderRadius: '100%',
             background: 'blue',
@@ -136,6 +137,7 @@ export default class App extends React.Component {
       showElementContainer: true
     };
 
+    // this.handleElementPropChange = this.handleElementPropChange.bind(this);
     this.handleSelectElement = this.handleSelectElement.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
     this.handleHideContainer = this.handleHideContainer.bind(this);
@@ -158,7 +160,6 @@ export default class App extends React.Component {
       } else {
         css += `${this.convertCamelToKebabCase(attr)}: ${style[attr]};\n`;
       }
-      // css += `  ${this.convertCamelToKebabCase(attr)}: ${style[attr]};\n`;
     });
 
     return css;
@@ -170,12 +171,16 @@ export default class App extends React.Component {
   getDisplayCSS() {
     let displayCSS = '';
     this.state.elements.forEach((element) => {
-      const { css, keyframes, name } = element;
+      const { css, keyframes, name, props } = element;
 
-      // cssgetCSSfromStyleObj
-      if (css) {
-        // css = `${css}\n${element.css}`;
-        displayCSS += this.createCSSBlock(`.${name}`, css);
+      // Convert props to CSS
+      if (props) {
+        let block = props;
+        if (!_.isString(props)) {
+          block = this.getCSSfromStyleObj(props);
+        } 
+        
+        displayCSS += this.createCSSBlock(`.${name}`, block);
       }
 
       // keyframes
