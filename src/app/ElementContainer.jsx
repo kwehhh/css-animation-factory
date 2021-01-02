@@ -1,5 +1,6 @@
 import React from "react";
 import _ from 'lodash';
+import { Button , Select, MenuItem, Tooltip } from '@material-ui/core';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 require('codemirror/mode/css/css');
 import 'codemirror/lib/codemirror.css';
@@ -30,7 +31,8 @@ export default class ElementContainer extends React.Component {
   constructor() {
     super();
     this.state = {
-      editor: {}
+      editor: {},
+      position: 'none'
     };
 
     this.handleEditorChange = this.handleEditorChange.bind(this);
@@ -200,6 +202,99 @@ export default class ElementContainer extends React.Component {
     });
   }
 
+  renderElementProperties(css) {
+
+    console.log('renderElementProperties', css);
+
+    let propContainer;
+    if (_.isString(css)) {
+      propContainer = (
+        <CodeMirror
+          value={ css }
+          options={{
+            mode: 'css',
+            theme: 'material',
+            lineNumbers: true
+          }}
+          onBeforeChange={(editor, data, value) => {
+            // this.setState({value});
+            console.log('onBeforeChange', editor, data, value);
+            this.handleChange(value, 'css');
+            this.handleEditorChange(editor, 'css');
+          }}
+        />
+      );
+    // TODO: CONVERT PROPS TO FORM HERE!!
+    } else {
+
+      let position = null;
+      if (css.position) {
+        // let age = 0;
+        const handleChange = (event) => {
+          this.setState({
+            position: event.target.value
+          });
+        };
+        position = (
+          <div>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={this.state.position}
+              onChange={handleChange}
+            >
+              <MenuItem value="none">None</MenuItem>
+              <MenuItem value="static">Static</MenuItem>
+              <MenuItem value="relative">Relative</MenuItem>
+              <MenuItem value="absolute">Absolute</MenuItem>
+              <MenuItem value="fixed">Fixed</MenuItem>
+            </Select>
+              <Tooltip title="static -- Default value. Elements render in order, as they appear in the document flow. absolute ....."><span>?</span></Tooltip>
+          </div>
+        );
+      }
+
+      propContainer = (
+        <React.Fragment>
+          { position }
+        </React.Fragment>
+      );
+    }
+
+    return (
+      <div>
+        PROPERTIES 
+        <Button color="primary">
+        TOGGLE CODE VIEW
+          </Button>
+        { propContainer }
+      </div>
+    );
+  }
+
+  renderElementKeyframes(keyframes) {
+    return;
+
+    return (
+      <div>
+        KEYFRAMES
+        <CodeMirror
+          value={ keyframes }
+          options={{
+            mode: 'css',
+            theme: 'material',
+            lineNumbers: true
+          }}
+          onBeforeChange={(editor, data, value) => {
+            // this.setState({value});
+            // console.log('onBeforeChange', editor, data, value);
+            this.handleChange(value, 'keyframes');
+          }}
+        />
+      </div>
+    );
+  }
+
   render() {
     const { editor } = this.state;
     const { elContainerWidth, elementProps, visible, onSubmit } = this.props;
@@ -242,39 +337,8 @@ export default class ElementContainer extends React.Component {
               onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
             />
           </div>
-          <div>
-            PROPERTIES <span>TOGGLE CODE VIEW</span>
-            <CodeMirror
-              value={ elementProps.css }
-              options={{
-                mode: 'css',
-                theme: 'material',
-                lineNumbers: true
-              }}
-              onBeforeChange={(editor, data, value) => {
-                // this.setState({value});
-                console.log('onBeforeChange', editor, data, value);
-                this.handleChange(value, 'css');
-                this.handleEditorChange(editor, 'css');
-              }}
-            />
-          </div>
-          <div>
-            KEYFRAMES
-            <CodeMirror
-              value={ elementProps.keyframes }
-              options={{
-                mode: 'css',
-                theme: 'material',
-                lineNumbers: true
-              }}
-              onBeforeChange={(editor, data, value) => {
-                // this.setState({value});
-                // console.log('onBeforeChange', editor, data, value);
-                this.handleChange(value, 'keyframes');
-              }}
-            />
-          </div>
+          { this.renderElementProperties(elementProps.css) }
+          { this.renderElementKeyframes(elementProps.keyframes) }
         </div>
       );
     }

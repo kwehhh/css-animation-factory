@@ -60,7 +60,7 @@ export default class App extends React.Component {
       elements: [
         {
           name: 'ball',
-          css: this.getElementCSS('ball', {
+          css: {
             position: 'absolute',
             borderRadius: '100%',
             background: 'blue',
@@ -71,8 +71,8 @@ export default class App extends React.Component {
             animationIterationCount: 'infinite',
             animationDirection: 'normal',
             animationTimingFunction: 'linear'
-          }),
-          keyframes: this.getKeyframesCSS('ball', {
+          },
+          keyframes: {
             '0%': {
               background: 'blue',
               transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
@@ -85,8 +85,37 @@ export default class App extends React.Component {
               background: 'blue',
               transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
             }
-          })          
+          }   
         },
+        // {
+        //   name: 'ball',
+        //   css: this.getElementCSS('ball', {
+        //     position: 'absolute',
+        //     borderRadius: '100%',
+        //     background: 'blue',
+        //     width: '50px',
+        //     height: '50px',
+        //     animationName: 'ball',
+        //     animationDuration: '4s',
+        //     animationIterationCount: 'infinite',
+        //     animationDirection: 'normal',
+        //     animationTimingFunction: 'linear'
+        //   }),
+        //   keyframes: this.getKeyframesCSS('ball', {
+        //     '0%': {
+        //       background: 'blue',
+        //       transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
+        //     },
+        //     '50%': {
+        //       background: 'purple',
+        //       transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
+        //     },
+        //     '100%': {
+        //       background: 'blue',
+        //       transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
+        //     }
+        //   })          
+        // },
         {
           name: 'ball2',
           css: this.getElementCSS('ball2', {

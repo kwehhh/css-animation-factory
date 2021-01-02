@@ -4,6 +4,7 @@
   "description": "CSS Animation Factory",
   "main": "index.js",
   "dependencies": {
+    "@material-ui/core": "^4.11.2",
     "codemirror": "^5.58.3",
     "lodash": "^4.17.20",
     "react": "^17.0.1",
