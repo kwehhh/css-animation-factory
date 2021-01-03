@@ -1,9 +1,10 @@
 import React from "react";
 import {Helmet} from "react-helmet";
 import AnimationContainer from './app/AnimationContainer.jsx';
-import ElementContainer from './app/ElementContainer.jsx';
+import ElementEditor from './app/ElementEditor.jsx';
 import ElementsContainer from './app/ElementsContainer.jsx';
 import Preview from './app/Preview.jsx';
+import { convertCamelToKebabCase } from './util/StringUtil.js';
 import "./App.scss";
 
 export default class App extends React.Component {
@@ -145,20 +146,20 @@ export default class App extends React.Component {
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
   }
 
-  convertCamelToKebabCase(str) {
-    const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
-// console.log(camelToSnakeCase('animationName')); // <--- convert obs to this format... for style
-    return camelToSnakeCase(str);
-  }
+//   convertCamelToKebabCase(str) {
+//     const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+// // console.log(camelToSnakeCase('animationName')); // <--- convert obs to this format... for style
+//     return camelToSnakeCase(str);
+//   }
 
   getCSSfromStyleObj(style, formatter) {
     let css = '';
     Object.keys(style).forEach((attr) => {
       // console.log(attr);
       if (formatter) {
-        css += formatter(this.convertCamelToKebabCase(attr), style[attr]);
+        css += formatter(convertCamelToKebabCase(attr), style[attr]);
       } else {
-        css += `${this.convertCamelToKebabCase(attr)}: ${style[attr]};\n`;
+        css += `${convertCamelToKebabCase(attr)}: ${style[attr]};\n`;
       }
     });
 
@@ -185,7 +186,12 @@ export default class App extends React.Component {
 
       // keyframes
       if (keyframes) {
-        displayCSS += this.createCSSBlock(`@keyframes ${name}`, keyframes);
+        let block = keyframes;
+        if (!_.isString(keyframes)) {
+          block = this.getKeyframesCSS(name, keyframes); 
+        }
+
+        displayCSS += this.createCSSBlock(`@keyframes ${name}`, block);
       }
     });
 
@@ -331,7 +337,7 @@ export default class App extends React.Component {
           onClick={ this.handleSelectElement }
           elements={ elements } 
         />
-        <ElementContainer 
+        <ElementEditor 
           elContainerWidth={ elContainerWidth }
           elementProps={ elements[activeElement] }
           visible={ this.state.showElementContainer } 

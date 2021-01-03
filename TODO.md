@@ -1,15 +1,16 @@
 # NEXT
-## TOGGLE CODE VIEW
-## BRING BACK KEYFRAMES ANIMATION PREVIEW
+## Option to Clone Element (use this for cascade effect)
+## Container to show 3 different demos (and more), or START NEW TEMPL
+## DESELECT ELEMENT: Hide panel/ stretch preview to more available space
 
 # FUTURE
 ## String Manipulation
 ### Option to auto format CSS
-### Option to convert CSS to style OBJ
+### Ability convert raw CSS to style OBJ (look online for utils... maybe this one: https://github.com/aramk/CSSJSON#readme)
 
 # UI
 ## Elements Panel
-### Option to Clone
+### Option to Clone Element
 ### Option to Add New Element
 ## Show Timeline Marker
 

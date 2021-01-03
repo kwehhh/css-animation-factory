@@ -20,16 +20,21 @@ export default class ElementSContainer extends React.Component {
 
 
         let className = '';
+        let style = {};
         if (i === this.props.activeElement) {
           className = 'active';
+          style = {
+            background: 'red'
+          };
         }
 
         return (
           <div 
             className={ className } 
             onClick={ () => { this.props.onClick(i) } }
+            style={ style }
           >
-            { name }
+            { name } [HIDE] [LOCK]
           </div>
         );
       }
@@ -38,6 +43,8 @@ export default class ElementSContainer extends React.Component {
 
   render() {
     // console.log(this.props);
+    // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
+    // ADD MULTI SELECT/DRAGGING/ ETC
     return (
       <div
         className="stacking-10 container"        
@@ -47,6 +54,10 @@ export default class ElementSContainer extends React.Component {
         } }
       >
         { this.renderElements() }
+        <div>
+          [CLONE ELEMENT] [ADD NEW ELEMENT] [GROUP ELEMENTS] [ADD NEW GROUP] [DELETE ELEMENT]
+        </div>
+
       </div>
     );
   }

@@ -10,6 +10,7 @@ import {
   Tooltip 
 } from '@material-ui/core';
 import {Controlled as CodeMirror} from 'react-codemirror2';
+import { getCSSfromStyleObj } from '../util/CSSUtil.js';
 require('codemirror/mode/css/css');
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
@@ -32,7 +33,7 @@ import 'codemirror/theme/material.css';
     return capitalString;
   }
   
-export default class ElementContainer extends React.Component {
+export default class ElementEditor extends React.Component {
 
   constructor() {
     super();
@@ -41,6 +42,7 @@ export default class ElementContainer extends React.Component {
       position: 'none'
     };
 
+    this.handleToggleCodeView = this.handleToggleCodeView.bind(this);
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
@@ -119,6 +121,8 @@ export default class ElementContainer extends React.Component {
 
       // TODO: Handle multi key value .. border: 1px solid white;   
       console.log('getStyleObjFromCM', obj);
+
+
     }
   }
 
@@ -158,6 +162,24 @@ export default class ElementContainer extends React.Component {
     }
 
     return null;
+  }
+
+  handleToggleCodeView() {
+
+    const props = this.props.elementProps.props;
+    let css;
+    if (!_.isString(props)) {
+      css = getCSSfromStyleObj(this.props.elementProps.props);
+    } else {
+      // this does not work if CM was not used...
+      css = this.getStyleObjFromCM(props);
+      console.log('handleToggleCodeView', css);
+    }
+
+
+    // const css = getCSSfromStyleObj(this.props.elementProps.props); 
+
+    this.handleChange(css, 'props');
   }
 
   handleChange(value, key) {
@@ -210,7 +232,7 @@ export default class ElementContainer extends React.Component {
 
   renderElementProperties(css) {
 
-    console.log('renderElementProperties', css);
+    // console.log('renderElementProperties', css);
 
     let propContainer;
     if (_.isString(css)) {
@@ -324,8 +346,8 @@ export default class ElementContainer extends React.Component {
     return (
       <div>
         PROPERTIES 
-        <Button color="primary">
-        TOGGLE CODE VIEW
+        <Button onClick={ this.handleToggleCodeView } color="primary">
+        TOGGLE CSS CODE VIEW
           </Button>
         { propContainer }
       </div>
@@ -333,7 +355,11 @@ export default class ElementContainer extends React.Component {
   }
 
   renderElementKeyframes(keyframes) {
-    return;
+    if (!_.isString(keyframes)) {
+      return (
+        <div>keyframes here</div>
+      );
+    }
 
     return (
       <div>
@@ -369,8 +395,11 @@ export default class ElementContainer extends React.Component {
       }
 
 
+      
+      // console.log(getCSSfromStyleObj(elementProps.props));
+
       // console.log('ElementContainer', editor);
-      this.getStyleObjFromCM(editor);
+      // this.getStyleObjFromCM(editor);
 
       // SUGGESTIONS
       // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
