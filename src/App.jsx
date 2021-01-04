@@ -15,6 +15,28 @@ export default class App extends React.Component {
     this.state = {
       // activeElement: null,
       activeElement: 0,
+      // Classes will be agnostic to elements, keeps true to orginal HTML/CSS Paradigms and also benefits of app flexibility
+      classes: {
+        'animation-std': {
+          animationName: 'basic',
+          animationDuration: '4s',
+          animationIterationCount: 'infinite',
+          animationDirection: 'normal',
+          animationTimingFunction: 'linear'
+        },
+        ball: {
+          position: 'absolute',
+          borderRadius: '100%',
+          background: 'blue',
+          width: '200px',
+          height: '200px',
+          animationName: 'ball',
+          animationDuration: '4s',
+          animationIterationCount: 'infinite',
+          animationDirection: 'normal',
+          animationTimingFunction: 'linear'
+        }
+      },
       // Each Element and Keyfreames
       elements: [
         {
@@ -23,6 +45,7 @@ export default class App extends React.Component {
           // Perhaps append multiple classes,
           // maybe then... if animation is attaached...., then automatically attach correct keyframe set (GOLD WINNING)
           name: 'ball',
+          classes: ['animation-std', 'ball'],
           props: {
             position: 'absolute',
             borderRadius: '100%',
@@ -269,13 +292,13 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { activeElement, elements } = this.state;
+    const { activeElement, classes, elements } = this.state;
 
     const containerSpacing = 20;
     const elContainerWidth = 350;
     const previewContainerWidth = elContainerWidth - containerSpacing;
 
-
+    // TODO: Keep everything OBJ based for now even if possible performance issues. Easier for devs and to work with function wise. Later look into optimatial performacne.
     return (
       <div>    
         <Helmet>
@@ -291,6 +314,7 @@ export default class App extends React.Component {
           elements={ elements } 
         />
         <ElementEditor 
+          classes={ classes }
           elContainerWidth={ elContainerWidth }
           elementProps={ elements[activeElement] }
           visible={ this.state.showElementContainer } 

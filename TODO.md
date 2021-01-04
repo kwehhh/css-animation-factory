@@ -1,4 +1,6 @@
 # NEXT
+## continue at  renderClassProperties() ..... for each class
+
 ## Option to Clone Element (use this for cascade effect)
 ### Keep playing with this pixel wheel concept
 ### Add All elements to group,

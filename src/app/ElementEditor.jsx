@@ -2,6 +2,7 @@ import React from "react";
 import _ from 'lodash';
 import { 
   Button, 
+  Chip,
   Divider,
   Select, 
   Slider,
@@ -389,9 +390,43 @@ export default class ElementEditor extends React.Component {
     );
   }
 
+  renderClassesTags(classes) {
+    if (classes) {
+      return (
+        <div>
+          {
+            Object.keys(classes).map((item) => (
+              <Chip size="small" label={ item } />
+            ))
+          }
+        </div>
+      );
+    }
+    
+    return null; 
+  }
+
+  renderClassProperties() {
+    if (classes) {
+
+      // renderProperties --- >>>> // REUSE THE EXISTING STUFF HERE
+      return (
+        <div>
+          {
+            Object.keys(classes).map((item) => (
+              <Chip size="small" label={ item } />
+            ))
+          }
+        </div>
+      );
+    }
+    
+    return null; 
+  }
+
   render() {
     const { editor } = this.state;
-    const { elContainerWidth, elementProps, visible, onSubmit } = this.props;
+    const { classes, elContainerWidth, elementProps, visible, onSubmit } = this.props;
     if (elementProps && visible) {
 
       const { animation } = elementProps;
@@ -436,6 +471,8 @@ export default class ElementEditor extends React.Component {
               onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
             />
           </div>
+          { this.renderClassesTags(classes) }
+          { this.renderClassProperties(classes) }
           { this.renderElementProperties(elementProps.props) }
           { this.renderElementKeyframes(elementProps.keyframes) }
         </div>
