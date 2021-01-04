@@ -12,55 +12,16 @@ export default class App extends React.Component {
   constructor() {
     super();
 
-    // start here
-    // const style = {
-    //   position: 'absolute',
-    //   borderRadius: '100%',
-    //   background: 'blue',
-    //   width: '50px',
-    //   height: '50px',
-    //   animationName: 'ball',
-    //   animationDuration: '4s',
-    //   animationIterationCount: 'infinite',
-    //   animationDirection: 'normal',
-    //   animationTimingFunction: 'linear'
-    // };
-
-    // const style2 = {
-    //   position: 'absolute',
-    //   borderRadius: '100%',
-    //   background: 'red',
-    //   width: '50px',
-    //   height: '50px',
-    //   animationName: 'ball',
-    //   animationDuration: '4s',
-    //   animationDelay: '2s',
-    //   animationIterationCount: 'infinite',
-    //   animationDirection: 'normal',
-    //   animationTimingFunction: 'linear'
-    // };
-
-    // const keyframes = {
-    //   '0%': {
-    //     background: 'blue',
-    //     transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
-    //   },
-    //   '50%': {
-    //     background: 'purple',
-    //     transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
-    //   },
-    //   '100%': {
-    //     background: 'blue',
-    //     transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
-    //   }
-    // };
-
     this.state = {
       // activeElement: null,
       activeElement: 0,
       // Each Element and Keyfreames
       elements: [
         {
+          // Need to make Class Agnostic // Class should have it's own name/props.. perhaps group by classname (unique?)
+          // Each element can have any ... internal name....
+          // Perhaps append multiple classes,
+          // maybe then... if animation is attaached...., then automatically attach correct keyframe set (GOLD WINNING)
           name: 'ball',
           props: {
             position: 'absolute',
@@ -74,6 +35,7 @@ export default class App extends React.Component {
             animationDirection: 'normal',
             animationTimingFunction: 'linear'
           },
+          // Need to make Keframes Agnostic
           keyframes: {
             '0%': {
               background: 'blue',
@@ -89,38 +51,9 @@ export default class App extends React.Component {
             }
           }   
         },
-        // {
-        //   name: 'ball',
-        //   css: this.getElementCSS('ball', {
-        //     position: 'absolute',
-        //     borderRadius: '100%',
-        //     background: 'blue',
-        //     width: '50px',
-        //     height: '50px',
-        //     animationName: 'ball',
-        //     animationDuration: '4s',
-        //     animationIterationCount: 'infinite',
-        //     animationDirection: 'normal',
-        //     animationTimingFunction: 'linear'
-        //   }),
-        //   keyframes: this.getKeyframesCSS('ball', {
-        //     '0%': {
-        //       background: 'blue',
-        //       transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
-        //     },
-        //     '50%': {
-        //       background: 'purple',
-        //       transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
-        //     },
-        //     '100%': {
-        //       background: 'blue',
-        //       transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
-        //     }
-        //   })          
-        // },
         {
           name: 'ball2',
-          css: this.getElementCSS('ball2', {
+          props: {
             position: 'absolute',
             borderRadius: '100%',
             background: 'red',
@@ -132,13 +65,13 @@ export default class App extends React.Component {
             animationIterationCount: 'infinite',
             animationDirection: 'normal',
             animationTimingFunction: 'linear'
-          })
+          }
         }
       ],
       showElementContainer: true
     };
 
-    // this.handleElementPropChange = this.handleElementPropChange.bind(this);
+    this.handleCloneElement = this.handleCloneElement.bind(this);
     this.handleSelectElement = this.handleSelectElement.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
     this.handleHideContainer = this.handleHideContainer.bind(this);
@@ -260,6 +193,25 @@ export default class App extends React.Component {
     return css;
   }
 
+  handleCloneElement(index) {
+    this.setState((prevState) => {
+      const prevElements = prevState.elements;
+      // INFO: ONLY CLONE THE ELEMENT ITSELF. Do not copy OG CSS
+      // TODO: ACTUAL COPY If same name..., add a `+1`` to name
+      const clonedElement = {
+        name: prevElements[index].name
+      };
+      const newElements = [
+        ...prevElements,
+        clonedElement
+      ];
+
+      return {
+        elements: newElements
+      };
+    });
+  }
+
   handleSelectElement(index) {
     this.setState((prevState) => {
       let activeElement;
@@ -335,6 +287,7 @@ export default class App extends React.Component {
         <ElementsContainer 
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
+          onClone={ this.handleCloneElement }
           elements={ elements } 
         />
         <ElementEditor 

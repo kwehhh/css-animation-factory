@@ -1,7 +1,13 @@
 # NEXT
 ## Option to Clone Element (use this for cascade effect)
+### Keep playing with this pixel wheel concept
+### Add All elements to group,
+#### Clone group to multiple groups
+##### move position of group on preview
+
 ## Container to show 3 different demos (and more), or START NEW TEMPL
 ## DESELECT ELEMENT: Hide panel/ stretch preview to more available space
+## Switch Editor Page to CSS DISPLAY PAGE: USE CM TO PREVIEW (DO NOT ALLOW EDITS... YET. MAKE IT TODO)
 
 # FUTURE
 ## String Manipulation

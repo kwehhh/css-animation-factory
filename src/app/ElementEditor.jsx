@@ -253,7 +253,7 @@ export default class ElementEditor extends React.Component {
         />
       );
     // TODO: CONVERT PROPS TO FORM HERE!!
-    } else {
+    } else if (css) {
 
       const handleChange = (event) => {
         this.setState({
@@ -268,6 +268,7 @@ export default class ElementEditor extends React.Component {
          width,
          height,
          animationName,
+         animationDelay,
          animationDirection,
          animationIterationCount,
          animationTimingFunction
@@ -325,6 +326,11 @@ export default class ElementEditor extends React.Component {
             label="Animation Name" />
           <Divider />
           <TextField 
+            onChange={ (e) => { this.handleChange({ ...css, animationDelay: e.target.value }, 'props') } } 
+            value={ animationDelay } 
+            id="standard-basic" 
+            label="Animation Delay" />
+          <TextField 
             onChange={ (e) => { this.handleChange({ ...css, animationDirection: e.target.value }, 'props') } } 
             value={ animationDirection } 
             id="standard-basic" 
@@ -341,14 +347,16 @@ export default class ElementEditor extends React.Component {
             label="Animation Timing Function" />
         </React.Fragment>
       );
+    } else {
+      console.log('ERRRO');
     }
 
     return (
       <div>
         PROPERTIES 
         <Button onClick={ this.handleToggleCodeView } color="primary">
-        TOGGLE CSS CODE VIEW
-          </Button>
+          TOGGLE CSS CODE VIEW
+        </Button>
         { propContainer }
       </div>
     );
@@ -407,6 +415,8 @@ export default class ElementEditor extends React.Component {
         <div 
           className="stacking-10 container"        
           style={ {
+            position: 'absolute',
+            top: '20px',
             width: elContainerWidth,
             right: '20px',
           } }

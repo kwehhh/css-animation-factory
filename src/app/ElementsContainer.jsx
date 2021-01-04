@@ -1,5 +1,5 @@
 import React from "react";
-// import "./App.scss";
+import { Button } from '@material-ui/core';
 
 export default class ElementSContainer extends React.Component {
 
@@ -46,18 +46,30 @@ export default class ElementSContainer extends React.Component {
     // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
     // ADD MULTI SELECT/DRAGGING/ ETC
     return (
-      <div
-        className="stacking-10 container"        
-        style={ {
-          width: '100px',
-          left: '20px',
-        } }
-      >
-        { this.renderElements() }
-        <div>
-          [CLONE ELEMENT] [ADD NEW ELEMENT] [GROUP ELEMENTS] [ADD NEW GROUP] [DELETE ELEMENT]
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: '20px',
+        padding: '20px 0'
+      }}>
+          
+        <div
+          className="container"        
+          style={ {
+            width: '120px',
+            maxHeight: '100%',
+            overflowY: 'auto'
+          } }
+        >
+          <div>
+            <Button onClick={ () => { this.props.onClone(this.props.activeElement) } } color="primary">
+              Clone Element
+            </Button>
+            [ADD NEW ELEMENT] [GROUP ELEMENTS] [ADD NEW GROUP] [DELETE ELEMENT]
+          </div>
+          { this.renderElements() }
         </div>
-
       </div>
     );
   }
