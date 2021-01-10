@@ -1,4 +1,9 @@
 # NEXT
+## WORKFLOW
+## Create 4 PinWheel groups
+### Make each group draggable (save translate state to prop) to each corner
+## WORKFLOW 2
+### Add 404 SVG animation with full controls
 
 ## CLASSES
 ### [done] Make (el) now consume classes it is atttached to (in preview)
