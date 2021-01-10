@@ -1,5 +1,10 @@
 # NEXT
-## continue at  renderClassProperties() ..... for each class
+
+## CLASSES
+### [done] Make (el) now consume classes it is atttached to (in preview)
+### add classes to display/preview
+## Remove existing binding
+## Do same for keys frames
 
 ## Option to Clone Element (use this for cascade effect)
 ### Keep playing with this pixel wheel concept
@@ -16,11 +21,20 @@
 ### Option to auto format CSS
 ### Ability convert raw CSS to style OBJ (look online for utils... maybe this one: https://github.com/aramk/CSSJSON#readme)
 
+# EXAMPLES
+## 404 SVG on codepen
+## Clock
+
 # UI
 ## Elements Panel
 ### Option to Clone Element
 ### Option to Add New Element
 ## Show Timeline Marker
+## EDITOR
+### Lock Size (height/width)
+
+## Actions
+### Clone Element -- Reset CSS (do something to avoid illusion of where new element is in timeline)
 
 ## Functionality
 ### Option to link/unlink animation to CSS

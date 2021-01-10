@@ -18,7 +18,7 @@ export default class App extends React.Component {
       // Classes will be agnostic to elements, keeps true to orginal HTML/CSS Paradigms and also benefits of app flexibility
       classes: {
         'animation-std': {
-          animationName: 'basic',
+          animationName: 'ball',
           animationDuration: '4s',
           animationIterationCount: 'infinite',
           animationDirection: 'normal',
@@ -28,13 +28,8 @@ export default class App extends React.Component {
           position: 'absolute',
           borderRadius: '100%',
           background: 'blue',
-          width: '200px',
-          height: '200px',
-          animationName: 'ball',
-          animationDuration: '4s',
-          animationIterationCount: 'infinite',
-          animationDirection: 'normal',
-          animationTimingFunction: 'linear'
+          width: '50px',
+          height: '50px'
         }
       },
       // Each Element and Keyfreames
@@ -98,6 +93,8 @@ export default class App extends React.Component {
     this.handleSelectElement = this.handleSelectElement.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
     this.handleHideContainer = this.handleHideContainer.bind(this);
+    
+    this.handleUpdateClass = this.handleUpdateClass.bind(this);
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
   }
@@ -130,17 +127,17 @@ export default class App extends React.Component {
     this.state.elements.forEach((element) => {
       const { css, keyframes, name, props } = element;
 
-      // Convert props to CSS
-      if (props) {
-        let block = props;
-        if (!_.isString(props)) {
-          block = this.getCSSfromStyleObj(props);
-        } 
+      // // Convert props to CSS
+      // if (props) {
+      //   let block = props;
+      //   if (!_.isString(props)) {
+      //     block = this.getCSSfromStyleObj(props);
+      //   } 
         
-        displayCSS += this.createCSSBlock(`.${name}`, block);
-      }
+      //   displayCSS += this.createCSSBlock(`.${name}`, block);
+      // }
 
-      // keyframes
+      // !! TODO: Extract Keyframes
       if (keyframes) {
         let block = keyframes;
         if (!_.isString(keyframes)) {
@@ -150,6 +147,15 @@ export default class App extends React.Component {
         displayCSS += this.createCSSBlock(`@keyframes ${name}`, block);
       }
     });
+
+
+    const classes = this.state.classes;
+
+    Object.keys(classes).forEach((className) => {
+      const block = this.getCSSfromStyleObj(classes[className]);
+      displayCSS += this.createCSSBlock(`.${className}`, block);
+    });
+
 
     // console.log('getCSS', css);
     return displayCSS;
@@ -219,10 +225,10 @@ export default class App extends React.Component {
   handleCloneElement(index) {
     this.setState((prevState) => {
       const prevElements = prevState.elements;
-      // INFO: ONLY CLONE THE ELEMENT ITSELF. Do not copy OG CSS
+      // UPDATE: Actually maybe not, since you could use index position for UNIQUE
       // TODO: ACTUAL COPY If same name..., add a `+1`` to name
       const clonedElement = {
-        name: prevElements[index].name
+        ...prevElements[index]
       };
       const newElements = [
         ...prevElements,
@@ -272,6 +278,44 @@ export default class App extends React.Component {
     });
   }
 
+  handleUpdateClass(key, props) {
+
+    
+
+
+
+
+    this.setState((prevState) => {
+
+      const newClasses = {
+        ...prevState.classes,
+      };
+
+
+      newClasses[key] = props;
+
+
+
+
+      // const newElements = [
+      //   ...prevState.elements
+      // ];
+
+      // newElements[index] = {
+      //   ...newElements[index],
+      //   ...element
+      // };
+
+
+
+
+      
+      return {
+        classes: newClasses
+      };
+    });
+  }
+
   handleUpdateElement(element, index) {
     // this.handleHideContainer();
 
@@ -306,7 +350,10 @@ export default class App extends React.Component {
           <meta charSet="utf-8" />
           <title>CSS Animation Factory</title>
         </Helmet>
-        <Preview previewContainerWidth={ previewContainerWidth } elements={ elements }  />
+        <Preview 
+          classes={ classes }
+          previewContainerWidth={ previewContainerWidth } 
+          elements={ elements } />
         <ElementsContainer 
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
@@ -318,11 +365,11 @@ export default class App extends React.Component {
           elContainerWidth={ elContainerWidth }
           elementProps={ elements[activeElement] }
           visible={ this.state.showElementContainer } 
+          onClassChange={ this.handleUpdateClass }
           onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
           onSubmit={ this.handleUpdateElements } 
         />
         <AnimationContainer />
-        
       </div>
     );
   }

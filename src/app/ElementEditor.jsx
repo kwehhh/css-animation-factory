@@ -231,6 +231,103 @@ export default class ElementEditor extends React.Component {
     });
   }
 
+  renderProperties(name, props) {
+
+    const handleChange = (event) => {
+      this.setState({
+        position: event.target.value
+      });
+    };
+
+    const {
+       position,
+       background,
+       borderRadius,
+       width,
+       height,
+       animationName,
+       animationDelay,
+       animationDirection,
+       animationIterationCount,
+       animationTimingFunction
+    } = props;
+
+    return (
+      <div>
+        <div>
+          { name }
+        </div>
+        <div>
+          <div>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={ position }
+              onChange={handleChange}
+            >
+              <MenuItem value="none">None</MenuItem>
+              <MenuItem value="static">Static</MenuItem>
+              <MenuItem value="relative">Relative</MenuItem>
+              <MenuItem value="absolute">Absolute</MenuItem>
+              <MenuItem value="fixed">Fixed</MenuItem>
+            </Select>
+              <Tooltip title="static -- Default value. Elements render in order, as they appear in the document flow. absolute ....."><span>?</span></Tooltip>
+          </div>
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, borderRadius: e.target.value }) } } 
+            value={ borderRadius } 
+            id="standard-basic" 
+            label="Border Radius" />
+          <Slider value={ parseInt(borderRadius, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, borderRadius: `${value}px` }) } }  aria-labelledby="continuous-slider" />
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, background: e.target.value }) } } 
+            value={ background } 
+            id="standard-basic" 
+            label="Background" />
+            { /* TODO: OPTION TO LOCK ASPECT RATIO for W/H */ }
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, width: e.target.value }) } } 
+            value={ width } 
+            id="standard-basic" 
+            label="Width" />
+          <Slider value={ parseInt(width, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, width: `${value}px` }) } }  aria-labelledby="continuous-slider" />
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, height: e.target.value }) } } 
+            value={ height } 
+            id="standard-basic" 
+            label="Height" />
+          <Slider value={ parseInt(height, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, height: `${value}px` }) } }  aria-labelledby="continuous-slider" />
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationName: e.target.value }) } } 
+            value={ animationName } 
+            id="standard-basic" 
+            label="Animation Name" />
+          <Divider />
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationDelay: e.target.value }) } } 
+            value={ animationDelay } 
+            id="standard-basic" 
+            label="Animation Delay" />
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationDirection: e.target.value }) } } 
+            value={ animationDirection } 
+            id="standard-basic" 
+            label="Animation Direction" />
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationIterationCount: e.target.value }) } } 
+            value={ animationIterationCount } 
+            id="standard-basic" 
+            label="Animation Iteration Count" />
+          <TextField 
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationTimingFunction: e.target.value }) } } 
+            value={ animationTimingFunction } 
+            id="standard-basic" 
+            label="Animation Timing Function" />
+        </div>
+      </div>
+    );
+  }
+
   renderElementProperties(css) {
 
     // console.log('renderElementProperties', css);
@@ -274,10 +371,6 @@ export default class ElementEditor extends React.Component {
          animationIterationCount,
          animationTimingFunction
       } = css;
-
-      const updateProp = () => {
-
-      };
 
       propContainer = (
         <React.Fragment>
@@ -406,16 +499,13 @@ export default class ElementEditor extends React.Component {
     return null; 
   }
 
-  renderClassProperties() {
+  renderClassProperties(classes) {
     if (classes) {
-
-      // renderProperties --- >>>> // REUSE THE EXISTING STUFF HERE
+      console.log('renderClassProperties', classes);
       return (
         <div>
           {
-            Object.keys(classes).map((item) => (
-              <Chip size="small" label={ item } />
-            ))
+            Object.keys(classes).map((item) => this.renderProperties(item, classes[item]))
           }
         </div>
       );
@@ -447,34 +537,41 @@ export default class ElementEditor extends React.Component {
       // SUGGESTIONS
       // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
       return (
-        <div 
-          className="stacking-10 container"        
-          style={ {
-            position: 'absolute',
-            top: '20px',
-            width: elContainerWidth,
-            right: '20px',
-          } }
-        >
-          <div>
-            Name
-            <input 
-              style={{
-                display: 'block',
-                background: 'hsl(280deg 100% 20%)',
-                width: '100%',
-                padding: '10px',
-                border: 'none',
-                color: 'white'
-              }}
-              value={ elementProps.name } 
-              onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
-            />
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          right: '20px',
+          padding: '20px 0'
+        }}>
+          <div 
+            className="stacking-10 container"        
+            style={ {
+              width: elContainerWidth,
+              maxHeight: '100%',
+              overflowY: 'auto'
+            } }
+          >
+            <div>
+              Name
+              <input 
+                style={{
+                  display: 'block',
+                  background: 'hsl(280deg 100% 20%)',
+                  width: '100%',
+                  padding: '10px',
+                  border: 'none',
+                  color: 'white'
+                }}
+                value={ elementProps.name } 
+                onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
+              />
+            </div>
+            { this.renderClassesTags(classes) }
+            { this.renderClassProperties(classes) }
+            { this.renderElementProperties(elementProps.props) }
+            { this.renderElementKeyframes(elementProps.keyframes) }
           </div>
-          { this.renderClassesTags(classes) }
-          { this.renderClassProperties(classes) }
-          { this.renderElementProperties(elementProps.props) }
-          { this.renderElementKeyframes(elementProps.keyframes) }
         </div>
       );
     }

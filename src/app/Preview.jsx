@@ -4,20 +4,20 @@ export default class Preview extends React.Component {
 
   constructor() {
     super();
-    this.state = {
-      activeElement: null,
-      // activeElement: 0,
-      elements: [
-        {
-          name: 'ballz',
-          css: '.ballz {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
-        },
-        {
-          name: 'two'
-        }
-      ],
-      showElementContainer: true
-    };
+    // this.state = {
+    //   activeElement: null,
+    //   // activeElement: 0,
+    //   elements: [
+    //     {
+    //       name: 'ballz',
+    //       css: '.ballz {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
+    //     },
+    //     {
+    //       name: 'two'
+    //     }
+    //   ],
+    //   showElementContainer: true
+    // };
 
     this.handleSelectElement = this.handleSelectElement.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
@@ -26,18 +26,18 @@ export default class Preview extends React.Component {
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
   }
 
-  getCSS() {
-    let css = '';
-    this.state.elements.forEach((element) => {
-      // const { }
-      if (element.css) {
-        css = `${css}\n${element.css}`;
-      }
+  // getCSS() {
+  //   let css = '';
+  //   this.state.elements.forEach((element) => {
+  //     // const { }
+  //     if (element.css) {
+  //       css = `${css}\n${element.css}`;
+  //     }
       
-    });
+  //   });
 
-    return css;
-  }
+  //   return css;
+  // }
 
   handleSelectElement(index) {
     this.setState((prevState) => {
@@ -95,17 +95,23 @@ export default class Preview extends React.Component {
     });
   }
 
-  renderElements() {
-    return this.props.elements.map((element) => {
-      const { name } = element;
+  renderElements({ elements }) {
+    return elements.map((element) => {
+      const { name, classes } = element;
+
+      let classNames;
+      if (classes) {
+        classNames = classes.join(' ');
+      }
+
       return (
-        <div className={ name } />
+        <div className={ classNames } />
       );
     });
   }
 
   render() {
-    const { previewContainerWidth } = this.props;
+    const { elements, classes, previewContainerWidth } = this.props;
     return (
       <div 
         style={{
@@ -119,7 +125,7 @@ export default class Preview extends React.Component {
           right: previewContainerWidth
         }}
         className="preview">
-        { this.renderElements() }
+        { this.renderElements({ elements, classes }) }
       </div>
     );
   }
