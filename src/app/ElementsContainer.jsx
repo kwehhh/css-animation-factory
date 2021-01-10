@@ -1,4 +1,5 @@
 import React from "react";
+import _ from 'lodash';
 import { Button } from '@material-ui/core';
 
 export default class ElementSContainer extends React.Component {
@@ -12,7 +13,7 @@ export default class ElementSContainer extends React.Component {
 
   renderElements() {
     // console.log('renderElements', this.props);
-    return this.props.elements.map((element, i) => {
+    const elements = this.props.elements.map((element, i) => {
       
       if (element) {
         const { name } = element;
@@ -23,28 +24,38 @@ export default class ElementSContainer extends React.Component {
         let style = {};
         if (i === this.props.activeElement) {
           className = 'active';
-          style = {
-            background: 'red'
-          };
+          style = {};
         }
 
         return (
           <div 
-            className={ className } 
+            className={ `menu-item ${className}` } 
             onClick={ () => { this.props.onClick(i) } }
-            style={ style }
+            style={ {
+              paddingTop: '5px',
+              paddingBottom: '5px',
+              ...style 
+            } }
           >
             { name } [HIDE] [LOCK]
           </div>
         );
       }
-    });
+    });;
+
+    return (
+      <div>
+        { elements }
+      </div>
+    )
   }
 
   render() {
-    // console.log(this.props);
+    console.log(this.props);
     // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
     // ADD MULTI SELECT/DRAGGING/ ETC
+
+    const { activeElement } = this.props;
     return (
       <div style={{
         position: 'absolute',
@@ -57,13 +68,24 @@ export default class ElementSContainer extends React.Component {
         <div
           className="container"        
           style={ {
-            width: '120px',
+            width: this.props.width,
             maxHeight: '100%',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            padding: '20px 0'
           } }
         >
-          <div>
-            <Button onClick={ () => { this.props.onClone(this.props.activeElement) } } color="primary">
+          <div style={{ padding: '0px 20px 20px 20px' }}>
+            <Button 
+              className="nv-btn"
+              size="small"
+              variant="contained" 
+              color="primary"
+              disabled={ !_.isNumber(activeElement) }
+              onClick={ () => { this.props.onClone(this.props.activeElement) } }
+              style={ { 
+                width: '100%'
+              } }
+            >
               Clone Element
             </Button>
             [ADD NEW ELEMENT] [GROUP ELEMENTS] [ADD NEW GROUP] [DELETE ELEMENT]

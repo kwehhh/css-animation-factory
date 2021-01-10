@@ -547,7 +547,7 @@ export default class ElementEditor extends React.Component {
           <div 
             className="stacking-10 container"        
             style={ {
-              width: elContainerWidth,
+              width: this.props.width,
               maxHeight: '100%',
               overflowY: 'auto'
             } }

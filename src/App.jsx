@@ -340,7 +340,8 @@ export default class App extends React.Component {
 
     const containerSpacing = 20;
     const elContainerWidth = 350;
-    const previewContainerWidth = elContainerWidth - containerSpacing;
+    const elElementsContainerWidth = 180;
+    // const previewContainerWidth = elContainerWidth - containerSpacing;
 
     // TODO: Keep everything OBJ based for now even if possible performance issues. Easier for devs and to work with function wise. Later look into optimatial performacne.
     return (
@@ -352,17 +353,19 @@ export default class App extends React.Component {
         </Helmet>
         <Preview 
           classes={ classes }
-          previewContainerWidth={ previewContainerWidth } 
+          leftBoundaryWidth={ containerSpacing + elElementsContainerWidth }
+          rightBoundaryWidth={ _.isNumber(activeElement) ? containerSpacing + elContainerWidth : 0 }
           elements={ elements } />
         <ElementsContainer 
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
           onClone={ this.handleCloneElement }
           elements={ elements } 
+          width={ elElementsContainerWidth }
         />
         <ElementEditor 
           classes={ classes }
-          elContainerWidth={ elContainerWidth }
+          width={ elContainerWidth }
           elementProps={ elements[activeElement] }
           visible={ this.state.showElementContainer } 
           onClassChange={ this.handleUpdateClass }

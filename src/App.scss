@@ -8,7 +8,7 @@ body {
   // reset
   margin: 0;
   // color: $body-color;
-  background: #440066;
+  background: #2e2442;
 }
 
 .stacking-10 {
@@ -19,7 +19,28 @@ body {
 
 .container {
   color: white;
-  background: purple;
+  background: #422e6b;
   padding: 20px;
   border-radius: 10px;
+}
+
+.MuiButton-containedPrimary.nv-btn {
+  background: #4db391;
+  color: #440066;
+}
+
+.menu-item {
+  position: 'relative';
+  
+  &.active {
+    &::before {
+      content: '';
+      display: block;
+      height: 10px;
+      width: 10px;
+      background: red;
+    }
+
+    background: green;
+  }
 }

@@ -111,7 +111,7 @@ export default class Preview extends React.Component {
   }
 
   render() {
-    const { elements, classes, previewContainerWidth } = this.props;
+    const { leftBoundaryWidth, rightBoundaryWidth, elements, classes, previewContainerWidth } = this.props;
     return (
       <div 
         style={{
@@ -120,9 +120,9 @@ export default class Preview extends React.Component {
           alignItems: 'center',
           position: 'absolute',
           top: '0',
-          left: '0',
+          left: leftBoundaryWidth,
           bottom: '0',
-          right: previewContainerWidth
+          right: rightBoundaryWidth
         }}
         className="preview">
         { this.renderElements({ elements, classes }) }
