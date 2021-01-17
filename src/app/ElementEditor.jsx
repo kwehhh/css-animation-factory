@@ -1,5 +1,5 @@
 import React from "react";
-import _ from 'lodash';
+import _, { filter } from 'lodash';
 import { 
   Button, 
   Chip,
@@ -46,6 +46,19 @@ export default class ElementEditor extends React.Component {
     this.handleToggleCodeView = this.handleToggleCodeView.bind(this);
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
+  }
+
+  getElementClassProps(classes, elClasses) {
+    const filtered = {};
+    elClasses.forEach((className) => {
+      if (classes && classes[className]) {
+        filtered[className] = classes[className];
+      }
+    });
+
+    // console.log('getElementClassProps', filtered);
+
+    return filtered;
   }
 
   getPropsFromMap(src, map) {
@@ -183,10 +196,32 @@ export default class ElementEditor extends React.Component {
     this.handleChange(css, 'props');
   }
 
+  /*
+   * Updates element props (elementProps obj)
+   * @param {any} value - new value for prop
+   * @param {string} key - prop to change
+   */
   handleChange(value, key) {
     console.log('handleChange', value, key);
+
+
+
+    let formatedVal = value;
+    if (key === 'classes') {
+      formatedVal = [
+        ...this.props.elementProps.classes
+      ];
+
+      formatedVal.splice(value, 1);
+    }
+
+
+
+
+
+
     this.props.onChange({
-      [key]: value
+      [key]: formatedVal
     });
   }
 
@@ -329,6 +364,9 @@ export default class ElementEditor extends React.Component {
     );
   }
 
+
+  // REMOVE ENTIRE BLOCK
+  // NEED TO EXTRACT OUT LOGIC FOR CM VIEW USAGE
   renderElementProperties(css) {
 
     // console.log('renderElementProperties', css);
@@ -489,8 +527,17 @@ export default class ElementEditor extends React.Component {
       return (
         <div>
           {
-            Object.keys(classes).map((item) => (
-              <Chip size="small" label={ item } />
+            classes.map((item, i) => (
+              <Chip 
+                size="small" 
+                label={ item } 
+                onDelete={ 
+                  () => {
+                    console.log('delete', i, this.props);
+                    this.handleChange(i, 'classes');
+                  }
+                }
+              />
             ))
           }
         </div>
@@ -501,8 +548,15 @@ export default class ElementEditor extends React.Component {
   }
 
   renderClassProperties(classes) {
+
+    console.log('renderClassProperties', classes);
+
+    // RENDER ELEMENT CLASSSES, NOT ALL CLASSES ---> FILTER EM (BEFORE THIS FN IS CALLED....)
+
+
+
     if (classes) {
-      console.log('renderClassProperties', classes);
+      // console.log('renderClassProperties', classes);
       return (
         <div>
           {
@@ -516,6 +570,7 @@ export default class ElementEditor extends React.Component {
   }
 
   render() {
+    console.log('render', this.props);
     const { editor } = this.state;
     const { classes, elContainerWidth, elementProps, visible, onSubmit } = this.props;
     if (elementProps && visible) {
@@ -529,6 +584,8 @@ export default class ElementEditor extends React.Component {
       }
 
 
+
+      
       
       // console.log(getCSSfromStyleObj(elementProps.props));
 
@@ -568,9 +625,8 @@ export default class ElementEditor extends React.Component {
                 onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
               />
             </div>
-            { this.renderClassesTags(classes) }
-            { this.renderClassProperties(classes) }
-            { this.renderElementProperties(elementProps.props) }
+            { this.renderClassesTags(elementProps.classes) }
+            { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
             { this.renderElementKeyframes(elementProps.keyframes) }
           </div>
         </div>

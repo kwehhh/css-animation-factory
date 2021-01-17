@@ -54,6 +54,7 @@ export default class ElementSContainer extends React.Component {
     console.log(this.props);
     // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
     // ADD MULTI SELECT/DRAGGING/ ETC
+    // ADD LIST FOR CLASSES AND KEYFRAMES (MAYBE CATEGORIZE THEM FOR THEIR ACCESS)
 
     const { activeElement } = this.props;
     return (

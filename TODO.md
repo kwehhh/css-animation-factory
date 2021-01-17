@@ -31,6 +31,7 @@
 ## Clock
 
 # UI
+## Add Zoom functionality to Preview (like how Storybook does it)
 ## Elements Panel
 ### Option to Clone Element
 ### Option to Add New Element

@@ -129,7 +129,7 @@ export default class App extends React.Component {
     });
 
 
-    console.log('getDisplayCSS', displayCSS);
+    // console.log('getDisplayCSS', displayCSS);
     return displayCSS;
   };
 
@@ -250,6 +250,11 @@ export default class App extends React.Component {
     });
   }
 
+  /*
+   * Updates props of an Obj
+   * @param {any} value - new value for prop
+   * @param {string} key - prop to change
+   */
   handleUpdateClass(key, props) {
 
     
