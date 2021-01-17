@@ -279,6 +279,7 @@ export default class ElementEditor extends React.Component {
             id="standard-basic" 
             label="Border Radius" />
           <Slider value={ parseInt(borderRadius, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, borderRadius: `${value}px` }) } }  aria-labelledby="continuous-slider" />
+          { /* TODO: PROVIDE COLOR PICKER */ }
           <TextField 
             onChange={ (e) => { this.props.onClassChange(name, { ...props, background: e.target.value }) } } 
             value={ background } 

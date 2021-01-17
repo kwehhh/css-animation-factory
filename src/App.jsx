@@ -15,10 +15,11 @@ export default class App extends React.Component {
     this.state = {
       // activeElement: null,
       activeElement: 0,
+      // CSS Classes
       // Classes will be agnostic to elements, keeps true to orginal HTML/CSS Paradigms and also benefits of app flexibility
       classes: {
         'animation-std': {
-          animationName: 'ball',
+          animationName: 'orbit',
           animationDuration: '4s',
           animationIterationCount: 'infinite',
           animationDirection: 'normal',
@@ -32,58 +33,28 @@ export default class App extends React.Component {
           height: '50px'
         }
       },
+      keyframes: {
+        orbit: {
+          '0%': {
+            background: 'blue',
+            transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
+          },
+          '50%': {
+            background: 'orange',
+            transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
+          },
+          '100%': {
+            background: 'blue',
+            transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
+          }
+        }
+      },   
       // Each Element and Keyfreames
+      // TODO: Change to 'items', items can be 'element' or 'group' type
       elements: [
         {
-          // Need to make Class Agnostic // Class should have it's own name/props.. perhaps group by classname (unique?)
-          // Each element can have any ... internal name....
-          // Perhaps append multiple classes,
-          // maybe then... if animation is attaached...., then automatically attach correct keyframe set (GOLD WINNING)
           name: 'ball',
           classes: ['animation-std', 'ball'],
-          props: {
-            position: 'absolute',
-            borderRadius: '100%',
-            background: 'blue',
-            width: '50px',
-            height: '50px',
-            animationName: 'ball',
-            animationDuration: '4s',
-            animationIterationCount: 'infinite',
-            animationDirection: 'normal',
-            animationTimingFunction: 'linear'
-          },
-          // Need to make Keframes Agnostic
-          keyframes: {
-            '0%': {
-              background: 'blue',
-              transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
-            },
-            '50%': {
-              background: 'purple',
-              transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
-            },
-            '100%': {
-              background: 'blue',
-              transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
-            }
-          }   
-        },
-        {
-          name: 'ball2',
-          props: {
-            position: 'absolute',
-            borderRadius: '100%',
-            background: 'red',
-            width: '50px',
-            height: '50px',
-            animationName: 'ball',
-            animationDuration: '4s',
-            animationDelay: '2s',
-            animationIterationCount: 'infinite',
-            animationDirection: 'normal',
-            animationTimingFunction: 'linear'
-          }
         }
       ],
       showElementContainer: true
@@ -93,17 +64,10 @@ export default class App extends React.Component {
     this.handleSelectElement = this.handleSelectElement.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
     this.handleHideContainer = this.handleHideContainer.bind(this);
-    
     this.handleUpdateClass = this.handleUpdateClass.bind(this);
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
   }
-
-//   convertCamelToKebabCase(str) {
-//     const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
-// // console.log(camelToSnakeCase('animationName')); // <--- convert obs to this format... for style
-//     return camelToSnakeCase(str);
-//   }
 
   getCSSfromStyleObj(style, formatter) {
     let css = '';
@@ -148,16 +112,24 @@ export default class App extends React.Component {
       }
     });
 
-
+    // Generate CSS from Classes
     const classes = this.state.classes;
-
     Object.keys(classes).forEach((className) => {
       const block = this.getCSSfromStyleObj(classes[className]);
       displayCSS += this.createCSSBlock(`.${className}`, block);
     });
 
+    // Generate CSS from Keyframes
+    const keyframez = this.state.keyframes;
+    Object.keys(keyframez).forEach((className) => {
+      // const block = this.getCSSfromStyleObj(keyframez[className]);
+      const block = this.getKeyframesCSS(className, keyframez[className]); 
+      // displayCSS += this.createCSSBlock(`.${className}`, block);
+      displayCSS += this.createCSSBlock(`@keyframes ${className}`, block);
+    });
 
-    // console.log('getCSS', css);
+
+    console.log('getDisplayCSS', displayCSS);
     return displayCSS;
   };
 

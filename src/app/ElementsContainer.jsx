@@ -88,7 +88,7 @@ export default class ElementSContainer extends React.Component {
             >
               Clone Element
             </Button>
-            [ADD NEW ELEMENT] [GROUP ELEMENTS] [ADD NEW GROUP] [DELETE ELEMENT]
+            [ADD NEW ELEMENT] [ADD NEW GROUP] [GROUP ELEMENTS]  [DELETE ELEMENT]
           </div>
           { this.renderElements() }
         </div>
