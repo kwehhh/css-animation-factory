@@ -4,11 +4,22 @@ import {
   Button, 
   Chip,
   Divider,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
+  MuiDialogTitle,
+  MuiMuiDialogContent,
+  MuiMuiDialogActions,
+  Modal,
   Select, 
   Slider,
   MenuItem, 
   TextField,
-  Tooltip 
+  Tooltip,
+  Typography,
+  IconButton,
+  CloseIcon
 } from '@material-ui/core';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 import { getCSSfromStyleObj } from '../util/CSSUtil.js';
@@ -33,7 +44,7 @@ import 'codemirror/theme/material.css';
     // console.log(capitalString);
     return capitalString;
   }
-  
+
 export default class ElementEditor extends React.Component {
 
   constructor() {
@@ -47,6 +58,63 @@ export default class ElementEditor extends React.Component {
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
+
+// compile issue here
+  customizedDialogs() {
+    // const [open, setOpen] = React.useState(false);
+    const open = true;
+  
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+    const handleClose = () => {
+      setOpen(false);
+    };
+  
+    return (
+      <div>
+        <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+          Open dialog
+        </Button>
+        <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+          <DialogTitle id="customized-dialog-title" onClose={handleClose}>
+            Modal title
+          </DialogTitle>
+          <DialogContent dividers>
+            <Typography gutterBottom>
+              Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis
+              in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+            </Typography>
+            <Typography gutterBottom>
+              Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis
+              lacus vel augue laoreet rutrum faucibus dolor auctor.
+            </Typography>
+            <Typography gutterBottom>
+              Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel
+              scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus
+              auctor fringilla.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={handleClose} color="primary">
+              Save changes
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
+  }
+
+
+
+
+
+
+
+
+
+
+
 
   getElementClassProps(classes, elClasses) {
     const filtered = {};
@@ -523,6 +591,9 @@ export default class ElementEditor extends React.Component {
   }
 
   renderClassesTags(classes) {
+    // TODO: 
+    // 1) Add a + to add new classes
+    // 2) ADd a Edit -- swap around in and out existing classes (Enhanced Transfer List) -- use this mUI component
     if (classes) {
       return (
         <div>
@@ -544,7 +615,11 @@ export default class ElementEditor extends React.Component {
       );
     }
     
-    return null; 
+    return (
+      <div>
+        No Classes Assigned
+      </div>
+    ); 
   }
 
   renderClassProperties(classes) {
@@ -573,6 +648,10 @@ export default class ElementEditor extends React.Component {
     console.log('render', this.props);
     const { editor } = this.state;
     const { classes, elContainerWidth, elementProps, visible, onSubmit } = this.props;
+    
+    
+    
+    
     if (elementProps && visible) {
 
       const { animation } = elementProps;
@@ -610,6 +689,7 @@ export default class ElementEditor extends React.Component {
               overflowY: 'auto'
             } }
           >
+            { this.customizedDialogs() }
             <div>
               Name
               <input 
@@ -633,20 +713,6 @@ export default class ElementEditor extends React.Component {
       );
     }
 
-   // Add Element
-  //   <button onClick={ this.handleSubmit }>
-  //   Add Element
-  // </button>
-
     return null;
   }
-
-
-  // render() {
-  //   return (
-  //     <div>
-  //       { this.renderNewElementContainer() }
-  //     </div>
-  //   );
-  // }
 }
