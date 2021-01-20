@@ -62,7 +62,6 @@ export default class ElementEditor extends React.Component {
   }
 
   // make this slide from bottom like a horizontal sidebar panel
-  // test
   customizedDialogs() {
     // const [open, setOpen] = React.useState(false);
     const open = true;
