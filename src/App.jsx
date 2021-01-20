@@ -31,7 +31,8 @@ export default class App extends React.Component {
           background: 'blue',
           width: '50px',
           height: '50px'
-        }
+        },
+        classThree: {}
       },
       keyframes: {
         orbit: {

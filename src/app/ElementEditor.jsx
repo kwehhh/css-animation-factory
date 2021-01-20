@@ -21,6 +21,7 @@ import {
   IconButton,
   CloseIcon
 } from '@material-ui/core';
+import TransferList from './TransferList.jsx';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 import { getCSSfromStyleObj } from '../util/CSSUtil.js';
 require('codemirror/mode/css/css');
@@ -51,7 +52,8 @@ export default class ElementEditor extends React.Component {
     super();
     this.state = {
       editor: {},
-      position: 'none'
+      position: 'none',
+      showModal: false
     };
 
     this.handleToggleCodeView = this.handleToggleCodeView.bind(this);
@@ -59,45 +61,40 @@ export default class ElementEditor extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-// compile issue here
+  // make this slide from bottom like a horizontal sidebar panel
   customizedDialogs() {
     // const [open, setOpen] = React.useState(false);
     const open = true;
   
-    const handleClickOpen = () => {
-      setOpen(true);
-    };
+    // const handleClickOpen = () => {
+    //   this.setState({showModal: true});
+    // };
     const handleClose = () => {
-      setOpen(false);
+      this.setState({showModal: false});
     };
   
+
+
+  //   <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+  //   Assign Classes
+  // </Button>
+
     return (
       <div>
-        <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-          Open dialog
-        </Button>
-        <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+        <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={ this.state.showModal }>
           <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-            Modal title
+            Assign Classes to { this.props.elementProps.name }
           </DialogTitle>
           <DialogContent dividers>
-            <Typography gutterBottom>
-              Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis
-              in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-            </Typography>
-            <Typography gutterBottom>
-              Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis
-              lacus vel augue laoreet rutrum faucibus dolor auctor.
-            </Typography>
-            <Typography gutterBottom>
-              Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel
-              scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus
-              auctor fringilla.
-            </Typography>
+            <TransferList 
+              classes={ this.props.classes } 
+              setClasses={ this.props.elementProps.classes } 
+              onChange={ (value) => { this.handleChange(value, 'classes'); } }
+            />
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={handleClose} color="primary">
-              Save changes
+              Close
             </Button>
           </DialogActions>
         </Dialog>
@@ -272,21 +269,19 @@ export default class ElementEditor extends React.Component {
   handleChange(value, key) {
     console.log('handleChange', value, key);
 
-
-
     let formatedVal = value;
     if (key === 'classes') {
       formatedVal = [
         ...this.props.elementProps.classes
       ];
 
-      formatedVal.splice(value, 1);
+      // Delete -- Remove index from array
+      if (_.isNumber(value)) {
+        formatedVal.splice(value, 1);
+      } else if (_.isArray(value)) {
+        formatedVal = value;
+      }
     }
-
-
-
-
-
 
     this.props.onChange({
       [key]: formatedVal
@@ -594,8 +589,23 @@ export default class ElementEditor extends React.Component {
     // TODO: 
     // 1) Add a + to add new classes
     // 2) ADd a Edit -- swap around in and out existing classes (Enhanced Transfer List) -- use this mUI component
-    if (classes) {
-      return (
+   
+   
+   
+   
+   
+   
+    const handleClickOpen = () => {
+      this.setState({showModal: true});
+    };
+
+
+   
+   
+   
+    let classesEl;
+    if (classes && classes.length > 0) {
+      classesEl = (
         <div>
           {
             classes.map((item, i) => (
@@ -613,13 +623,25 @@ export default class ElementEditor extends React.Component {
           }
         </div>
       );
+    } else {
+      classesEl = (
+        <div>
+          No Classes Assigned
+        </div>
+      ); 
     }
     
     return (
       <div>
-        No Classes Assigned
+        <div>
+        CLASSES
+        </div>
+        <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+          Assign Classes
+        </Button>
+        { classesEl }
       </div>
-    ); 
+    );
   }
 
   renderClassProperties(classes) {
