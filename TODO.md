@@ -1,5 +1,10 @@
 # NEXT
 ## WORKFLOW
+## Add New Element with Class
+### 1) Add New Element
+#### Make it slide/reveal panel from center to right side. (apply this also when selecting existing elment. So eyes can follow easy)
+#### Choose Name
+### 2) Add New Class to Element
 ## Create 4 PinWheel groups
 ### Make each group draggable (save translate state to prop) to each corner
 ## WORKFLOW 2
@@ -8,6 +13,7 @@
 ## CLASSES
 ### [done] Make (el) now consume classes it is atttached to (in preview)
 ### add classes to display/preview
+### Edit Class name
 ## Remove existing binding
 ## Do same for keys frames
 
@@ -37,7 +43,9 @@
 ### Option to Add New Element
 ## Show Timeline Marker
 ## EDITOR
+### Space out Tags
 ### Lock Size (height/width)
+
 
 ## Actions
 ### Clone Element -- Reset CSS (do something to avoid illusion of where new element is in timeline)
