@@ -1,6 +1,6 @@
 # NEXT
 ## WORKFLOW
-## Add New Element with Class
+## Add New Element with Class -- Review Illusrration how to Make it
 ### 1) Add New Element
 #### Make it slide/reveal panel from center to right side. (apply this also when selecting existing elment. So eyes can follow easy)
 #### Choose Name
