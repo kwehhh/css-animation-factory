@@ -1,66 +1,70 @@
 import React from "react";
 import {Helmet} from "react-helmet";
-import AnimationContainer from './app/AnimationContainer.jsx';
-import ElementEditor from './app/ElementEditor.jsx';
-import ElementsContainer from './app/ElementsContainer.jsx';
-import Preview from './app/Preview.jsx';
-import { convertCamelToKebabCase } from './util/StringUtil.js';
+import AnimationContainer from './components/AnimationContainer.jsx';
+import ElementEditor from './components/ElementEditor.jsx';
+import ElementsContainer from './components/ElementsContainer.jsx';
+import Preview from './components/Preview.jsx';
+import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import "./App.scss";
 
 export default class App extends React.Component {
 
-  constructor() {
+  constructor(props) {
     super();
 
+    const { data } = props;
+
     this.state = {
+      ...data,
       // activeElement: null,
       activeElement: 0,
-      // CSS Classes
-      // Classes will be agnostic to elements, keeps true to orginal HTML/CSS Paradigms and also benefits of app flexibility
-      classes: {
-        'animation-std': {
-          animationName: 'orbit',
-          animationDuration: '4s',
-          animationIterationCount: 'infinite',
-          animationDirection: 'normal',
-          animationTimingFunction: 'linear'
-        },
-        ball: {
-          position: 'absolute',
-          borderRadius: '100%',
-          background: 'blue',
-          width: '50px',
-          height: '50px'
-        },
-        classThree: {}
-      },
-      keyframes: {
-        orbit: {
-          '0%': {
-            background: 'blue',
-            transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
-          },
-          '50%': {
-            background: 'orange',
-            transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
-          },
-          '100%': {
-            background: 'blue',
-            transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
-          }
-        }
-      },   
-      // Each Element and Keyfreames
-      // TODO: Change to 'items', items can be 'element' or 'group' type
-      elements: [
-        {
-          name: 'ball',
-          classes: ['animation-std', 'ball'],
-        }
-      ],
+      // // CSS Classes
+      // // Classes will be agnostic to elements, keeps true to orginal HTML/CSS Paradigms and also benefits of app flexibility
+      // classes: {
+      //   'animation-std': {
+      //     animationName: 'orbit',
+      //     animationDuration: '4s',
+      //     animationIterationCount: 'infinite',
+      //     animationDirection: 'normal',
+      //     animationTimingFunction: 'linear'
+      //   },
+      //   ball: {
+      //     position: 'absolute',
+      //     borderRadius: '100%',
+      //     background: 'blue',
+      //     width: '50px',
+      //     height: '50px'
+      //   },
+      //   classThree: {}
+      // },
+      // keyframes: {
+      //   orbit: {
+      //     '0%': {
+      //       background: 'blue',
+      //       transform: 'rotate(0deg) translateX(150px) rotate(0deg)',
+      //     },
+      //     '50%': {
+      //       background: 'orange',
+      //       transform: 'rotate(180deg) translateX(150px) rotate(-180deg)',
+      //     },
+      //     '100%': {
+      //       background: 'blue',
+      //       transform: 'rotate(360deg) translateX(150px) rotate(-360deg)'
+      //     }
+      //   }
+      // },
+      // // Each Element and Keyfreames
+      // // TODO: Change to 'items', items can be 'element' or 'group' type
+      // elements: [
+      //   {
+      //     name: 'ball',
+      //     classes: ['animation-std', 'ball'],
+      //   }
+      // ],
       showElementContainer: true
     };
 
+    console.log('constructor', props, this.state);
     this.handleCloneElement = this.handleCloneElement.bind(this);
     this.handleSelectElement = this.handleSelectElement.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
@@ -85,50 +89,56 @@ export default class App extends React.Component {
   }
 
 
-  
+
   // CSS goes into app HEAD STYLE tag
   getDisplayCSS() {
+    const { classes, elements, keyframes } = this.state;
     let displayCSS = '';
-    this.state.elements.forEach((element) => {
-      const { css, keyframes, name, props } = element;
 
-      // // Convert props to CSS
-      // if (props) {
-      //   let block = props;
-      //   if (!_.isString(props)) {
-      //     block = this.getCSSfromStyleObj(props);
-      //   } 
-        
-      //   displayCSS += this.createCSSBlock(`.${name}`, block);
-      // }
+    // Generate CSS from Elements
+    if (elements) {
+      elements.forEach((element) => {
+        const { css, keyframes, name, props } = element;
 
-      // !! TODO: Extract Keyframes
-      if (keyframes) {
-        let block = keyframes;
-        if (!_.isString(keyframes)) {
-          block = this.getKeyframesCSS(name, keyframes); 
+        // // Convert props to CSS
+        // if (props) {
+        //   let block = props;
+        //   if (!_.isString(props)) {
+        //     block = this.getCSSfromStyleObj(props);
+        //   }
+
+        //   displayCSS += this.createCSSBlock(`.${name}`, block);
+        // }
+
+        // !! TODO: Extract Keyframes
+        if (keyframes) {
+          let block = keyframes;
+          if (!_.isString(keyframes)) {
+            block = this.getKeyframesCSS(name, keyframes);
+          }
+
+          displayCSS += this.createCSSBlock(`@keyframes ${name}`, block);
         }
-
-        displayCSS += this.createCSSBlock(`@keyframes ${name}`, block);
-      }
-    });
+      });
+    }
 
     // Generate CSS from Classes
-    const classes = this.state.classes;
-    Object.keys(classes).forEach((className) => {
-      const block = this.getCSSfromStyleObj(classes[className]);
-      displayCSS += this.createCSSBlock(`.${className}`, block);
-    });
+    if (classes) {
+      Object.keys(classes).forEach((className) => {
+        const block = this.getCSSfromStyleObj(classes[className]);
+        displayCSS += this.createCSSBlock(`.${className}`, block);
+      });
+    }
 
     // Generate CSS from Keyframes
-    const keyframez = this.state.keyframes;
-    Object.keys(keyframez).forEach((className) => {
-      // const block = this.getCSSfromStyleObj(keyframez[className]);
-      const block = this.getKeyframesCSS(className, keyframez[className]); 
-      // displayCSS += this.createCSSBlock(`.${className}`, block);
-      displayCSS += this.createCSSBlock(`@keyframes ${className}`, block);
-    });
-
+    if (keyframes) {
+      Object.keys(keyframes).forEach((className) => {
+        // const block = this.getCSSfromStyleObj(keyframes[className]);
+        const block = this.getKeyframesCSS(className, keyframes[className]);
+        // displayCSS += this.createCSSBlock(`.${className}`, block);
+        displayCSS += this.createCSSBlock(`@keyframes ${className}`, block);
+      });
+    }
 
     // console.log('getDisplayCSS', displayCSS);
     return displayCSS;
@@ -143,7 +153,7 @@ export default class App extends React.Component {
     let css = '';
     // css += `.${name} {\n`;
     css += this.getCSSfromStyleObj(style);
-    // css += `}\n`; 
+    // css += `}\n`;
 
     return css;
   }
@@ -175,7 +185,7 @@ export default class App extends React.Component {
 
     // css += `.${name} {\n`;
     // css += this.getCSSfromStyleObj(style);
-    // css += `}\n`; 
+    // css += `}\n`;
 
     // console.log('getKeyframesCSS', css);
 
@@ -258,7 +268,7 @@ export default class App extends React.Component {
    */
   handleUpdateClass(key, props) {
 
-    
+
 
 
 
@@ -287,7 +297,7 @@ export default class App extends React.Component {
 
 
 
-      
+
       return {
         classes: newClasses
       };
@@ -306,7 +316,7 @@ export default class App extends React.Component {
         ...newElements[index],
         ...element
       };
-      
+
       return {
         elements: newElements
       };
@@ -323,32 +333,32 @@ export default class App extends React.Component {
 
     // TODO: Keep everything OBJ based for now even if possible performance issues. Easier for devs and to work with function wise. Later look into optimatial performacne.
     return (
-      <div>    
+      <div>
         <Helmet>
           <style>{ this.getDisplayCSS() }</style>
           <meta charSet="utf-8" />
           <title>CSS Animation Factory</title>
         </Helmet>
-        <Preview 
+        <Preview
           classes={ classes }
           leftBoundaryWidth={ containerSpacing + elElementsContainerWidth }
           rightBoundaryWidth={ _.isNumber(activeElement) ? containerSpacing + elContainerWidth : 0 }
           elements={ elements } />
-        <ElementsContainer 
+        <ElementsContainer
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
           onClone={ this.handleCloneElement }
-          elements={ elements } 
+          elements={ elements }
           width={ elElementsContainerWidth }
         />
-        <ElementEditor 
+        <ElementEditor
           classes={ classes }
           width={ elContainerWidth }
           elementProps={ elements[activeElement] }
-          visible={ this.state.showElementContainer } 
+          visible={ this.state.showElementContainer }
           onClassChange={ this.handleUpdateClass }
           onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
-          onSubmit={ this.handleUpdateElements } 
+          onSubmit={ this.handleUpdateElements }
         />
         <AnimationContainer />
       </div>

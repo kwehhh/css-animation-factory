@@ -1,7 +1,7 @@
 import React from "react";
 import _, { filter } from 'lodash';
-import { 
-  Button, 
+import {
+  Button,
   Chip,
   Divider,
   Dialog,
@@ -12,9 +12,9 @@ import {
   MuiMuiDialogContent,
   MuiMuiDialogActions,
   Modal,
-  Select, 
+  Select,
   Slider,
-  MenuItem, 
+  MenuItem,
   TextField,
   Tooltip,
   Typography,
@@ -23,7 +23,7 @@ import {
 } from '@material-ui/core';
 import TransferList from './TransferList.jsx';
 import {Controlled as CodeMirror} from 'react-codemirror2';
-import { getCSSfromStyleObj } from '../util/CSSUtil.js';
+import { getCSSfromStyleObj } from '../../util/CSSUtil.js';
 require('codemirror/mode/css/css');
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
@@ -41,7 +41,7 @@ import 'codemirror/theme/material.css';
     let capital = arr.map((item, index) => index ? item.charAt(0).toUpperCase() + item.slice(1).toLowerCase() : item.toLowerCase());
     // ^-- change here.
     let capitalString = capital.join("");
-  
+
     // console.log(capitalString);
     return capitalString;
   }
@@ -65,14 +65,14 @@ export default class ElementEditor extends React.Component {
   customizedDialogs() {
     // const [open, setOpen] = React.useState(false);
     const open = true;
-  
+
     // const handleClickOpen = () => {
     //   this.setState({showModal: true});
     // };
     const handleClose = () => {
       this.setState({showModal: false});
     };
-  
+
 
 
   //   <Button variant="outlined" color="primary" onClick={handleClickOpen}>
@@ -86,9 +86,9 @@ export default class ElementEditor extends React.Component {
             Assign Classes to { this.props.elementProps.name }
           </DialogTitle>
           <DialogContent dividers>
-            <TransferList 
-              classes={ this.props.classes } 
-              setClasses={ this.props.elementProps.classes } 
+            <TransferList
+              classes={ this.props.classes }
+              setClasses={ this.props.elementProps.classes }
               onChange={ (value) => { this.handleChange(value, 'classes'); } }
             />
           </DialogContent>
@@ -133,7 +133,7 @@ export default class ElementEditor extends React.Component {
       const newMap = [];
       src.forEach((item, i) => {
       const index = i % 3;
-  
+
       if (index === 1) {
         map.forEach((thing, j) => {
           if (item === thing.index) {
@@ -144,20 +144,20 @@ export default class ElementEditor extends React.Component {
           }
         });
       }
-  
+
         // if (_.isObject(item)) {
         //   console.log(item, index);
         // }
       });
-  
-      
+
+
       if (newMap.length > 0) {
               // now extract
         const prop = {
           [camelize(newMap[0].value)]: newMap[1].value
         };
 
-        // console.log('getPropsFromMap', prop); 
+        // console.log('getPropsFromMap', prop);
         return prop;
       }
 
@@ -177,7 +177,7 @@ export default class ElementEditor extends React.Component {
 
       renderedView.forEach((view) => {
         const { line, measure } = view;
-        
+
         const indexes = this.getPropsFromLine(line);
 
         if (indexes && !isEven(indexes.length)) {
@@ -195,10 +195,10 @@ export default class ElementEditor extends React.Component {
           }
         }
 
-        
+
       });
 
-      // TODO: Handle multi key value .. border: 1px solid white;   
+      // TODO: Handle multi key value .. border: 1px solid white;
       console.log('getStyleObjFromCM', obj);
 
 
@@ -256,7 +256,7 @@ export default class ElementEditor extends React.Component {
     }
 
 
-    // const css = getCSSfromStyleObj(this.props.elementProps.props); 
+    // const css = getCSSfromStyleObj(this.props.elementProps.props);
 
     this.handleChange(css, 'props');
   }
@@ -371,56 +371,56 @@ export default class ElementEditor extends React.Component {
             </Select>
               <Tooltip title="static -- Default value. Elements render in order, as they appear in the document flow. absolute ....."><span>?</span></Tooltip>
           </div>
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, borderRadius: e.target.value }) } } 
-            value={ borderRadius } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, borderRadius: e.target.value }) } }
+            value={ borderRadius }
+            id="standard-basic"
             label="Border Radius" />
           <Slider value={ parseInt(borderRadius, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, borderRadius: `${value}px` }) } }  aria-labelledby="continuous-slider" />
           { /* TODO: PROVIDE COLOR PICKER */ }
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, background: e.target.value }) } } 
-            value={ background } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, background: e.target.value }) } }
+            value={ background }
+            id="standard-basic"
             label="Background" />
             { /* TODO: OPTION TO LOCK ASPECT RATIO for W/H */ }
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, width: e.target.value }) } } 
-            value={ width } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, width: e.target.value }) } }
+            value={ width }
+            id="standard-basic"
             label="Width" />
           <Slider value={ parseInt(width, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, width: `${value}px` }) } }  aria-labelledby="continuous-slider" />
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, height: e.target.value }) } } 
-            value={ height } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, height: e.target.value }) } }
+            value={ height }
+            id="standard-basic"
             label="Height" />
           <Slider value={ parseInt(height, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, height: `${value}px` }) } }  aria-labelledby="continuous-slider" />
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationName: e.target.value }) } } 
-            value={ animationName } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationName: e.target.value }) } }
+            value={ animationName }
+            id="standard-basic"
             label="Animation Name" />
           <Divider />
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationDelay: e.target.value }) } } 
-            value={ animationDelay } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationDelay: e.target.value }) } }
+            value={ animationDelay }
+            id="standard-basic"
             label="Animation Delay" />
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationDirection: e.target.value }) } } 
-            value={ animationDirection } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationDirection: e.target.value }) } }
+            value={ animationDirection }
+            id="standard-basic"
             label="Animation Direction" />
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationIterationCount: e.target.value }) } } 
-            value={ animationIterationCount } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationIterationCount: e.target.value }) } }
+            value={ animationIterationCount }
+            id="standard-basic"
             label="Animation Iteration Count" />
-          <TextField 
-            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationTimingFunction: e.target.value }) } } 
-            value={ animationTimingFunction } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.props.onClassChange(name, { ...props, animationTimingFunction: e.target.value }) } }
+            value={ animationTimingFunction }
+            id="standard-basic"
             label="Animation Timing Function" />
         </div>
       </div>
@@ -491,55 +491,55 @@ export default class ElementEditor extends React.Component {
             </Select>
               <Tooltip title="static -- Default value. Elements render in order, as they appear in the document flow. absolute ....."><span>?</span></Tooltip>
           </div>
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, borderRadius: e.target.value }, 'props') } } 
-            value={ borderRadius } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, borderRadius: e.target.value }, 'props') } }
+            value={ borderRadius }
+            id="standard-basic"
             label="Border Radius" />
           <Slider value={ parseInt(borderRadius, 10) } onChange={ (e, value) => { this.handleChange({ ...css, borderRadius: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, background: e.target.value }, 'props') } } 
-            value={ background } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, background: e.target.value }, 'props') } }
+            value={ background }
+            id="standard-basic"
             label="Background" />
             { /* TODO: OPTION TO LOCK ASPECT RATIO for W/H */ }
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, width: e.target.value }, 'props') } } 
-            value={ width } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, width: e.target.value }, 'props') } }
+            value={ width }
+            id="standard-basic"
             label="Width" />
           <Slider value={ parseInt(width, 10) } onChange={ (e, value) => { this.handleChange({ ...css, width: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, height: e.target.value }, 'props') } } 
-            value={ height } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, height: e.target.value }, 'props') } }
+            value={ height }
+            id="standard-basic"
             label="Height" />
           <Slider value={ parseInt(height, 10) } onChange={ (e, value) => { this.handleChange({ ...css, height: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, animationName: e.target.value }, 'props') } } 
-            value={ animationName } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, animationName: e.target.value }, 'props') } }
+            value={ animationName }
+            id="standard-basic"
             label="Animation Name" />
           <Divider />
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, animationDelay: e.target.value }, 'props') } } 
-            value={ animationDelay } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, animationDelay: e.target.value }, 'props') } }
+            value={ animationDelay }
+            id="standard-basic"
             label="Animation Delay" />
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, animationDirection: e.target.value }, 'props') } } 
-            value={ animationDirection } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, animationDirection: e.target.value }, 'props') } }
+            value={ animationDirection }
+            id="standard-basic"
             label="Animation Direction" />
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, animationIterationCount: e.target.value }, 'props') } } 
-            value={ animationIterationCount } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, animationIterationCount: e.target.value }, 'props') } }
+            value={ animationIterationCount }
+            id="standard-basic"
             label="Animation Iteration Count" />
-          <TextField 
-            onChange={ (e) => { this.handleChange({ ...css, animationTimingFunction: e.target.value }, 'props') } } 
-            value={ animationTimingFunction } 
-            id="standard-basic" 
+          <TextField
+            onChange={ (e) => { this.handleChange({ ...css, animationTimingFunction: e.target.value }, 'props') } }
+            value={ animationTimingFunction }
+            id="standard-basic"
             label="Animation Timing Function" />
         </React.Fragment>
       );
@@ -549,7 +549,7 @@ export default class ElementEditor extends React.Component {
 
     return (
       <div>
-        PROPERTIES 
+        PROPERTIES
         <Button onClick={ this.handleToggleCodeView } color="primary">
           TOGGLE CSS CODE VIEW
         </Button>
@@ -586,33 +586,33 @@ export default class ElementEditor extends React.Component {
   }
 
   renderClassesTags(classes) {
-    // TODO: 
+    // TODO:
     // 1) Add a + to add new classes
     // 2) ADd a Edit -- swap around in and out existing classes (Enhanced Transfer List) -- use this mUI component
-   
-   
-   
-   
-   
-   
+
+
+
+
+
+
     const handleClickOpen = () => {
       this.setState({showModal: true});
     };
 
 
-   
-   
-   
+
+
+
     let classesEl;
     if (classes && classes.length > 0) {
       classesEl = (
         <div>
           {
             classes.map((item, i) => (
-              <Chip 
-                size="small" 
-                label={ item } 
-                onDelete={ 
+              <Chip
+                size="small"
+                label={ item }
+                onDelete={
                   () => {
                     console.log('delete', i, this.props);
                     this.handleChange(i, 'classes');
@@ -628,9 +628,9 @@ export default class ElementEditor extends React.Component {
         <div>
           No Classes Assigned
         </div>
-      ); 
+      );
     }
-    
+
     return (
       <div>
         <div>
@@ -662,18 +662,18 @@ export default class ElementEditor extends React.Component {
         </div>
       );
     }
-    
-    return null; 
+
+    return null;
   }
 
   render() {
     console.log('render', this.props);
     const { editor } = this.state;
     const { classes, elContainerWidth, elementProps, visible, onSubmit } = this.props;
-    
-    
-    
-    
+
+
+
+
     if (elementProps && visible) {
 
       const { animation } = elementProps;
@@ -686,8 +686,8 @@ export default class ElementEditor extends React.Component {
 
 
 
-      
-      
+
+
       // console.log(getCSSfromStyleObj(elementProps.props));
 
       // console.log('ElementContainer', editor);
@@ -703,8 +703,8 @@ export default class ElementEditor extends React.Component {
           right: '20px',
           padding: '20px 0'
         }}>
-          <div 
-            className="stacking-10 container"        
+          <div
+            className="stacking-10 container"
             style={ {
               width: this.props.width,
               maxHeight: '100%',
@@ -714,7 +714,7 @@ export default class ElementEditor extends React.Component {
             { this.customizedDialogs() }
             <div>
               Name
-              <input 
+              <input
                 style={{
                   display: 'block',
                   background: 'hsl(280deg 100% 20%)',
@@ -723,8 +723,8 @@ export default class ElementEditor extends React.Component {
                   border: 'none',
                   color: 'white'
                 }}
-                value={ elementProps.name } 
-                onChange={ (e) => { this.handleChange(e.target.value, 'name') } } 
+                value={ elementProps.name }
+                onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
               />
             </div>
             { this.renderClassesTags(elementProps.classes) }
