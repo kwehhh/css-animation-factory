@@ -1,6 +1,7 @@
 import React from "react";
 import _ from 'lodash';
 import { Button } from '@material-ui/core';
+import AddNewElement from './AddNewElement.jsx';
 
 export default class ElementSContainer extends React.Component {
 
@@ -14,7 +15,7 @@ export default class ElementSContainer extends React.Component {
   renderElements() {
     // console.log('renderElements', this.props);
     const elements = this.props.elements.map((element, i) => {
-      
+
       if (element) {
         const { name } = element;
         // console.log(element);
@@ -28,13 +29,13 @@ export default class ElementSContainer extends React.Component {
         }
 
         return (
-          <div 
-            className={ `menu-item ${className}` } 
+          <div
+            className={ `menu-item ${className}` }
             onClick={ () => { this.props.onClick(i) } }
             style={ {
               paddingTop: '5px',
               paddingBottom: '5px',
-              ...style 
+              ...style
             } }
           >
             { name } [HIDE] [LOCK]
@@ -65,9 +66,9 @@ export default class ElementSContainer extends React.Component {
         left: '20px',
         padding: '20px 0'
       }}>
-          
+
         <div
-          className="container"        
+          className="container"
           style={ {
             width: this.props.width,
             maxHeight: '100%',
@@ -76,14 +77,22 @@ export default class ElementSContainer extends React.Component {
           } }
         >
           <div style={{ padding: '0px 20px 20px 20px' }}>
-            <Button 
+            <Button
               className="nv-btn"
               size="small"
-              variant="contained" 
+              variant="contained"
+              color="primary"
+            >
+              + New Element
+            </Button>
+            <Button
+              className="nv-btn"
+              size="small"
+              variant="contained"
               color="primary"
               disabled={ !_.isNumber(activeElement) }
               onClick={ () => { this.props.onClone(this.props.activeElement) } }
-              style={ { 
+              style={ {
                 width: '100%'
               } }
             >
@@ -91,6 +100,7 @@ export default class ElementSContainer extends React.Component {
             </Button>
             [ADD NEW ELEMENT] [ADD NEW GROUP] [GROUP ELEMENTS]  [DELETE ELEMENT]
           </div>
+          <AddNewElement />
           { this.renderElements() }
         </div>
       </div>
