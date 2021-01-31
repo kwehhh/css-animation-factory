@@ -3,13 +3,24 @@ import _ from 'lodash';
 import { Button } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 
-export default class ElementSContainer extends React.Component {
+export default class ElementsContainer extends React.Component {
 
   constructor() {
     super();
     this.state = {
-      name: 'ball'
+      modalVisible: true
     };
+
+    this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+  }
+
+  handleOpenModal() {
+    this.setState({modalVisible: true});
+  }
+
+  handleCloseModal() {
+    this.setState({modalVisible: false});
   }
 
   renderElements() {
@@ -82,6 +93,7 @@ export default class ElementSContainer extends React.Component {
               size="small"
               variant="contained"
               color="primary"
+              onClick={ this.handleOpenModal }
             >
               + New Element
             </Button>
@@ -100,7 +112,7 @@ export default class ElementSContainer extends React.Component {
             </Button>
             [ADD NEW ELEMENT] [ADD NEW GROUP] [GROUP ELEMENTS]  [DELETE ELEMENT]
           </div>
-          <AddNewElement />
+          <AddNewElement open={ this.state.modalVisible } onClose={ this.handleCloseModal } />
           { this.renderElements() }
         </div>
       </div>

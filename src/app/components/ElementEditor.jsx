@@ -644,6 +644,12 @@ export default class ElementEditor extends React.Component {
     );
   }
 
+
+  // PROPS
+  // NAME
+  // classes
+  // SUGGESTIONS
+  // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
   renderClassProperties(classes) {
 
     console.log('renderClassProperties', classes);
@@ -667,12 +673,18 @@ export default class ElementEditor extends React.Component {
   }
 
   render() {
-    console.log('render', this.props);
+
     const { editor } = this.state;
-    const { classes, elContainerWidth, elementProps, visible, onSubmit } = this.props;
+    const {
+      classes,
+      elContainerWidth,
+      elementProps,
+      visible = true,
+      onSubmit
+    } = this.props;
 
 
-
+    console.log('render', this.props);
 
     if (elementProps && visible) {
 
@@ -684,17 +696,7 @@ export default class ElementEditor extends React.Component {
         elKeyframes = animation.keyframes;
       }
 
-
-
-
-
-      // console.log(getCSSfromStyleObj(elementProps.props));
-
-      // console.log('ElementContainer', editor);
-      // this.getStyleObjFromCM(editor);
-
-      // SUGGESTIONS
-      // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
+      // externalize style props....
       return (
         <div style={{
           position: 'absolute',
