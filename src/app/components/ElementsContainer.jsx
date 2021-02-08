@@ -112,7 +112,7 @@ export default class ElementsContainer extends React.Component {
             </Button>
             [ADD NEW ELEMENT] [ADD NEW GROUP] [GROUP ELEMENTS]  [DELETE ELEMENT]
           </div>
-          <AddNewElement open={ this.state.modalVisible } onClose={ this.handleCloseModal } />
+          <AddNewElement classes={ this.props.classes } open={ this.state.modalVisible } onClose={ this.handleCloseModal } />
           { this.renderElements() }
         </div>
       </div>

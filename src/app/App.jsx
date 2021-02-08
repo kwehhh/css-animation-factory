@@ -346,20 +346,31 @@ export default class App extends React.Component {
           elements={ elements } />
         <ElementsContainer
           activeElement={ activeElement }
+          classes={ classes }
           onClick={ this.handleSelectElement }
           onClone={ this.handleCloneElement }
           elements={ elements }
           width={ elElementsContainerWidth }
         />
-        <ElementEditor
-          classes={ classes }
-          width={ elContainerWidth }
-          elementProps={ elements[activeElement] }
-          visible={ this.state.showElementContainer }
-          onClassChange={ this.handleUpdateClass }
-          onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
-          onSubmit={ this.handleUpdateElements }
-        />
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            right: '20px',
+            padding: '20px 0'
+          }}
+        >
+          <ElementEditor
+            classes={ classes }
+            width={ elContainerWidth }
+            elementProps={ elements[activeElement] }
+            visible={ this.state.showElementContainer }
+            onClassChange={ this.handleUpdateClass }
+            onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
+            onSubmit={ this.handleUpdateElements }
+          />
+        </div>
         <AnimationContainer />
       </div>
     );

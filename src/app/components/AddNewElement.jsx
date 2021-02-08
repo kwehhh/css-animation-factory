@@ -29,8 +29,37 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function FullScreenDialog(props) {
+
+
+  console.log('FN', props);
   const classes = useStyles();
+
+
+
+
   const [open, setOpen] = React.useState(false);
+  const [config, setConfig] = React.useState({
+    name: '',
+    classes: []
+  });
+
+
+  const handleChange = (results) => {
+
+
+
+    const props = {
+      ...config,
+      ...results
+    };
+
+
+    console.log(props);
+
+
+    setConfig(props);
+  };
+
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -72,9 +101,11 @@ export default function FullScreenDialog(props) {
     }}>
       <div style={{display:'flex', flexGrow: '1'}}>
         <ElementEditor
-          elementProps={{
-            name: '',
-            classes: []
+          classes={ props.classes }
+          onChange={ handleChange }
+          elementProps={ config }
+          style={{
+            borderRadius: 0
           }}
         />
       </div>

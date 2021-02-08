@@ -684,7 +684,7 @@ export default class ElementEditor extends React.Component {
     } = this.props;
 
 
-    console.log('render', this.props);
+    console.log('render', this.props.elementProps);
 
     if (elementProps && visible) {
 
@@ -698,41 +698,34 @@ export default class ElementEditor extends React.Component {
 
       // externalize style props....
       return (
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          bottom: 0,
-          right: '20px',
-          padding: '20px 0'
-        }}>
-          <div
-            className="stacking-10 container"
-            style={ {
-              width: this.props.width,
-              maxHeight: '100%',
-              overflowY: 'auto'
-            } }
-          >
-            { this.customizedDialogs() }
-            <div>
-              Name
-              <input
-                style={{
-                  display: 'block',
-                  background: 'hsl(280deg 100% 20%)',
-                  width: '100%',
-                  padding: '10px',
-                  border: 'none',
-                  color: 'white'
-                }}
-                value={ elementProps.name }
-                onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
-              />
-            </div>
-            { this.renderClassesTags(elementProps.classes) }
-            { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
-            { this.renderElementKeyframes(elementProps.keyframes) }
+        <div
+          className="stacking-10 container"
+          style={ {
+            width: this.props.width,
+            maxHeight: '100%',
+            overflowY: 'auto',
+            ...this.props.style
+          } }
+        >
+          { this.customizedDialogs() }
+          <div>
+            Name
+            <input
+              style={{
+                display: 'block',
+                background: 'hsl(280deg 100% 20%)',
+                width: '100%',
+                padding: '10px',
+                border: 'none',
+                color: 'white'
+              }}
+              value={ elementProps.name }
+              onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
+            />
           </div>
+          { this.renderClassesTags(elementProps.classes) }
+          { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
+          { this.renderElementKeyframes(elementProps.keyframes) }
         </div>
       );
     }
