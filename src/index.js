@@ -6,14 +6,14 @@ const data = {
   // CSS Classes
   // Classes will be agnostic to elements, keeps true to orginal HTML/CSS Paradigms and also benefits of app flexibility
   classes: {
-    'animation-std': {
+    'animation-orbit': {
       animationName: 'orbit',
       animationDuration: '4s',
       animationIterationCount: 'infinite',
       animationDirection: 'normal',
       animationTimingFunction: 'linear'
     },
-    ball: {
+    'shape-ball': {
       position: 'absolute',
       borderRadius: '100%',
       background: 'blue',
@@ -43,7 +43,7 @@ const data = {
   elements: [
     {
       name: 'ball',
-      classes: ['animation-std', 'ball'],
+      classes: ['animation-orbit', 'shape-ball'],
     }
   ]
 };

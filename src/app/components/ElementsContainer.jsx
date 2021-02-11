@@ -63,7 +63,7 @@ export default class ElementsContainer extends React.Component {
   }
 
   render() {
-    console.log(this.props);
+    // console.log(this.props);
     // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
     // ADD MULTI SELECT/DRAGGING/ ETC
     // ADD LIST FOR CLASSES AND KEYFRAMES (MAYBE CATEGORIZE THEM FOR THEIR ACCESS)
@@ -112,7 +112,12 @@ export default class ElementsContainer extends React.Component {
             </Button>
             [ADD NEW ELEMENT] [ADD NEW GROUP] [GROUP ELEMENTS]  [DELETE ELEMENT]
           </div>
-          <AddNewElement classes={ this.props.classes } open={ this.state.modalVisible } onClose={ this.handleCloseModal } />
+          <AddNewElement
+            { ...this.props }
+            classes={ this.props.classes }
+            open={ this.state.modalVisible }
+            onClose={ this.handleCloseModal }
+          />
           { this.renderElements() }
         </div>
       </div>

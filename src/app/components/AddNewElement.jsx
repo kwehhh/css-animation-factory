@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import ElementEditor from './ElementEditor.jsx';
+import Preview from './Preview.jsx';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -31,64 +32,75 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 export default function FullScreenDialog(props) {
 
 
-  console.log('FN', props);
+  console.log('AddNewElement/FullScreenDialog', props);
   const classes = useStyles();
 
 
 
 
   const [open, setOpen] = React.useState(false);
+
+  const newClass = 'myNewClass';
+
+  // Initial State for New Element
   const [config, setConfig] = React.useState({
     name: '',
-    classes: []
+    classes: [newClass]
+  });
+
+  // Initial State for New ...
+  const [newElClass, setNewElClass] = React.useState({
+    [newClass]: {}
   });
 
 
-  const handleChange = (results) => {
+  // Initial State for New ...
+  const [newClassProps, setNewClassProps] = React.useState({});
 
-
-
+  const handleChange = (className, classProps) => {
     const props = {
       ...config,
-      ...results
+      ...classProps
     };
 
-
-    console.log(props);
+    console.log('handleChange', className, classProps, config);
 
 
     setConfig(props);
   };
 
+  const handleClassChange = (className, classProps) => {
+    // const props = {
+    //   ...newElClass,
+    //   ...classProps
+    // };
 
-  const handleClickOpen = () => {
-    setOpen(true);
+    const props = {
+      ...newClassProps,
+      ...classProps
+    };
+
+    console.log('handleClassChange', props, className, classProps, newClassProps);
+
+    setNewClassProps(props);
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-
-//   <List>
-//   <ListItem button>
-//     <ListItemText primary="Phone ringtone" secondary="Titania" />
-//   </ListItem>
-//   <Divider />
-//   <ListItem button>
-//     <ListItemText primary="Default notification ringtone" secondary="Tethys" />
-//   </ListItem>
-// </List>
+  const leftBoundary = 300;
 
   return (
     <Dialog fullScreen open={ props.open} onClose={ props.onClose } TransitionComponent={Transition}>
     <AppBar className={classes.appBar}>
       <Toolbar>
-        <IconButton edge="start" color="inherit" onClick={ props.onClose } aria-label="close">
+        <IconButton
+          edge="start"
+          color="inherit"
+          onClick={ props.onClose }
+          aria-label="close"
+        >
           <CloseIcon />
         </IconButton>
         <Typography variant="h6" className={classes.title}>
-          Sound
+          Add New Element
         </Typography>
         <Button autoFocus color="inherit" onClick={ props.onClose }>
           save
@@ -99,17 +111,32 @@ export default function FullScreenDialog(props) {
       display: 'flex',
       flex: '1'
     }}>
-      <div style={{display:'flex', flexGrow: '1'}}>
+      <div style={{
+        display:'flex',
+        flexGrow: '1',
+        minWidth: leftBoundary,
+        maxWidth: leftBoundary
+        }}>
         <ElementEditor
-          classes={ props.classes }
+          { ...props }
+          classes={ {
+            ...props.classes,
+            [newClass]: newClassProps
+          } }
           onChange={ handleChange }
+          onClassChange={ handleClassChange }
           elementProps={ config }
+          width={ leftBoundary }
           style={{
             borderRadius: 0
           }}
         />
       </div>
-      <div style={{display:'flex', flexGrow: '1'}}>2</div>
+      <Preview
+        leftBoundaryWidth={ leftBoundary }
+        rightBoundaryWidth={ 0 }
+        classes={ classes }
+        elements={ [config] } />
       <div style={{display:'flex', flexGrow: '1'}}>3</div>
     </div>
 

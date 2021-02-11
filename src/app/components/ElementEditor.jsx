@@ -22,6 +22,7 @@ import {
   CloseIcon
 } from '@material-ui/core';
 import TransferList from './TransferList.jsx';
+import EditFields from './Editor/EditFields.jsx';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 import { getCSSfromStyleObj } from '../../util/CSSUtil.js';
 require('codemirror/mode/css/css');
@@ -356,6 +357,14 @@ export default class ElementEditor extends React.Component {
           { name }
         </div>
         <div>
+          <EditFields
+            { ...props }
+            onChange={
+              (key, value) => { this.props.onClassChange(name, { ...props, [key]: value }) }
+            }
+          />
+        </div>
+        <div>
           <div>
             <Select
               labelId="demo-simple-select-label"
@@ -630,12 +639,33 @@ export default class ElementEditor extends React.Component {
         </div>
       );
     }
-
+    // add class
+    // 1) add new class
+    // 2) auto assign to existing element
     return (
       <div>
         <div>
         CLASSES
         </div>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={ () => {
+            const newClass = 'newClass';
+
+            const classes = [
+              ...this.props.elementProps.classes,
+              newClass
+            ]
+
+            // Add New Class
+            this.props.onClassChange(newClass, {});
+            // Apply New Class to El
+            this.handleChange(classes, 'classes');
+          } }
+        >
+          Add
+        </Button>
         <Button variant="outlined" color="primary" onClick={handleClickOpen}>
           Assign Classes
         </Button>
@@ -651,8 +681,7 @@ export default class ElementEditor extends React.Component {
   // SUGGESTIONS
   // ADD APPROPRIATE SLIDERS FOR PROPS. EG HEIGHT/WIDTH
   renderClassProperties(classes) {
-
-    console.log('renderClassProperties', classes);
+    // console.log('renderClassProperties', classes);
 
     // RENDER ELEMENT CLASSSES, NOT ALL CLASSES ---> FILTER EM (BEFORE THIS FN IS CALLED....)
 
@@ -673,7 +702,6 @@ export default class ElementEditor extends React.Component {
   }
 
   render() {
-
     const { editor } = this.state;
     const {
       classes,
@@ -684,7 +712,7 @@ export default class ElementEditor extends React.Component {
     } = this.props;
 
 
-    console.log('render', this.props.elementProps);
+    // console.log('render', this.props);
 
     if (elementProps && visible) {
 

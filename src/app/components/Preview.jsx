@@ -33,7 +33,7 @@ export default class Preview extends React.Component {
   //     if (element.css) {
   //       css = `${css}\n${element.css}`;
   //     }
-      
+
   //   });
 
   //   return css;
@@ -88,7 +88,7 @@ export default class Preview extends React.Component {
         ...newElements[index],
         ...element
       };
-      
+
       return {
         elements: newElements
       };
@@ -110,10 +110,18 @@ export default class Preview extends React.Component {
     });
   }
 
+  // Leftoundary/rightboundary defaiult = 0
   render() {
-    const { leftBoundaryWidth, rightBoundaryWidth, elements, classes, previewContainerWidth } = this.props;
+    const {
+      leftBoundaryWidth,
+      rightBoundaryWidth,
+      elements,
+      classes,
+      previewContainerWidth
+    } = this.props;
+
     return (
-      <div 
+      <div
         style={{
           display: 'flex',
           justifyContent: 'center',
