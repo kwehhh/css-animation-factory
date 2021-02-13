@@ -117,7 +117,8 @@ export default class Preview extends React.Component {
       rightBoundaryWidth,
       elements,
       classes,
-      previewContainerWidth
+      previewContainerWidth,
+      style
     } = this.props;
 
     return (
@@ -130,7 +131,8 @@ export default class Preview extends React.Component {
           top: '0',
           left: leftBoundaryWidth,
           bottom: '0',
-          right: rightBoundaryWidth
+          right: rightBoundaryWidth,
+          ...style
         }}
         className="preview">
         { this.renderElements({ elements, classes }) }

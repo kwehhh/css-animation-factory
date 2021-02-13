@@ -189,7 +189,9 @@ export default class AddNewElement extends React.Component {
             leftBoundaryWidth={ leftBoundary }
             rightBoundaryWidth={ 0 }
             classes={ this.props.classes }
-            elements={ [config] } />
+            elements={ [config] }
+            style={{background: 'black'}}
+          />
           <div style={{display:'flex', flexGrow: '1'}}>3</div>
         </div>
       </Dialog>
