@@ -595,6 +595,21 @@ export default class ElementEditor extends React.Component {
     );
   }
 
+
+  renderKeyframesEditors() {
+    const { keyframes, ...props } = this.props;
+
+    return (
+      <div>
+        {
+          Object.keys(keyframes).map((key) => {
+            return <KeyframesEditor key={ key } name={ key } keyframes={ keyframes[key] } { ...props } />;
+          })
+        }
+      </div>
+    );
+  }
+
   renderClassesTags(classes) {
     // TODO:
     // 1) Add a + to add new classes
@@ -713,7 +728,7 @@ export default class ElementEditor extends React.Component {
     } = this.props;
 
 
-    // console.log('render', this.props);
+    console.log('render', this.props);
 
     if (elementProps && visible) {
 
@@ -737,6 +752,7 @@ export default class ElementEditor extends React.Component {
           } }
         >
           { this.customizedDialogs() }
+          { this.renderKeyframesEditors() }
           <div>
             Name
             <input
@@ -755,7 +771,8 @@ export default class ElementEditor extends React.Component {
           { this.renderClassesTags(elementProps.classes) }
           { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
           { this.renderElementKeyframes(elementProps.keyframes) }
-          <KeyframesEditor { ...this.props } />
+          { this.renderKeyframesEditors() }
+          { /* RENDER KEYFRAMES EDITOR AT BOTTOM */ }
         </div>
       );
     }

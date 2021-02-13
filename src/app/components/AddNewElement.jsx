@@ -37,14 +37,16 @@ export default class AddNewElement extends React.Component {
       // Initial State for New Element
       config: {
         name: '',
+
         classes: [newClass]
       },
+      keyframes: {},
       // Initial State for New ...
       // Set these props as default...
       newClassProps: localProps
     };
 
-
+    // Need to lift this up so there is no double render
     // Init
     props.onClassChange(newClass, localProps);
 
@@ -84,65 +86,20 @@ export default class AddNewElement extends React.Component {
   };
 
   render() {
-
-
-
     console.log('AddNewElement', this.props);
-    // const classes = useStyles();
-
-
-    // const [open, setOpen] = React.useState(false);
-
-    // const newClass = 'myNewClass';
-
-    // Initial State for New Element
-    // const [config, setConfig] = React.useState({
-    //   name: '',
-    //   classes: [newClass]
-    // });
-
-    // Initial State for New ...
-    // Set these props as default...
-    // const [newClassProps, setNewClassProps] = React.useState({
-    //   width: '50px',
-    //   height: '50px',
-    //   background: 'red',
-    //   borderRadius: '10px'
-    // });
-
-    // Change to Element
-    // const handleChange = (newProp) => {
-    //   const props = {
-    //     ...config,
-    //     ...newProp
-    //   };
-
-    //   console.log('handleChange');
-    //   setConfig(props);
-    // };
-
-
-    // // Change to Classes -- this is the only thing that links to Preview live CSS
-    // const handleClassChange = (className, classProps) => {
-    //   const localProps = {
-    //     ...newClassProps,
-    //     ...classProps
-    //   };
-
-    //   console.log('handleClassChange', localProps, className, classProps, newClassProps);
-
-    //   // set to globall....
-    //   props.onClassChange(className, localProps);
-    //   // set to local
-    //   setNewClassProps(localProps);
-    // };
 
     const leftBoundary = 300;
     const { config, newClassProps } = this.state;
+    const { keyframes, ...props } = this.props;
+
+    const headerHeight = '60px';
 
     return (
       <Dialog fullScreen open={ this.props.open} onClose={ this.props.onClose } TransitionComponent={Transition}>
-        <AppBar>
+        <AppBar style={{
+          height: headerHeight,
+          position: 'relative'
+          }}>
           <Toolbar>
             <IconButton
               edge="start"
@@ -162,7 +119,12 @@ export default class AddNewElement extends React.Component {
         </AppBar>
         <div style={{
           display: 'flex',
-          flex: '1'
+          flex: '1',
+          top: headerHeight,
+          bottom: 0,
+          position: 'absolute',
+          left: 0,
+          right: 0
         }}>
           <div style={{
             display:'flex',
@@ -171,11 +133,17 @@ export default class AddNewElement extends React.Component {
             maxWidth: leftBoundary
             }}>
             <ElementEditor
-              { ...this.props }
+              { ...props }
               classes={ {
                 ...this.props.classes,
                 [newClass]: newClassProps
               } }
+              keyframes={
+                {
+                  ...keyframes,
+                 [newClass]: this.state.keyframes
+                }
+              }
               onChange={ this.handleChange }
               onClassChange={ this.handleClassChange }
               elementProps={ config }

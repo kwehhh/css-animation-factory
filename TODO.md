@@ -1,4 +1,6 @@
 # NEXT
+## VERIFY HOT RELOAD !!
+### Auto Open Browser on Start
 ## WORKFLOW
 ## Add New Element with Class -- Review Illusrration how to Make it
 ### 1) Add New Element

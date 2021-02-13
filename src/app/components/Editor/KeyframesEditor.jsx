@@ -1,9 +1,12 @@
+import { Edit } from '@material-ui/icons';
 import React from 'react';
+import EditFields from './EditFields.jsx';
 
 export default class KeyframesEditor extends React.Component {
 
   render() {
-    console.log('KeyframesEditor', this.props);
-    return 'asdasd';
+    const { name, keyframes } = this.props;
+    console.log('KeyframesEditor', name, keyframes);
+    return <EditFields { ...this.props } />;
   }
 }
