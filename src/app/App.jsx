@@ -13,8 +13,12 @@ export default class App extends React.Component {
     super();
 
     const { data } = props;
-
     this.state = {
+      // Defaults
+      classes: {},
+      keyframes: {},
+      elements: [],
+      // Assign
       ...data,
       // activeElement: null,
       activeElement: 0,
@@ -259,12 +263,19 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { activeElement, classes, elements } = this.state;
+    const { activeElement, classes, keyframes, elements } = this.state;
 
     const containerSpacing = 20;
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
-    // const previewContainerWidth = elContainerWidth - containerSpacing;
+
+
+    const universalProps = {
+      classes,
+      keyframes,
+      elements,
+      onClassChange: this.handleUpdateClass
+    };
 
     // TODO: Keep everything OBJ based for now even if possible performance issues. Easier for devs and to work with function wise. Later look into optimatial performacne.
     return (
@@ -275,17 +286,15 @@ export default class App extends React.Component {
           <title>CSS Animation Factory</title>
         </Helmet>
         <Preview
-          classes={ classes }
+          { ...universalProps }
           leftBoundaryWidth={ containerSpacing + elElementsContainerWidth }
           rightBoundaryWidth={ _.isNumber(activeElement) ? containerSpacing + elContainerWidth : 0 }
-          elements={ elements } />
+        />
         <ElementsContainer
+          { ...universalProps }
           activeElement={ activeElement }
-          classes={ classes }
-          onClassChange={ this.handleUpdateClass }
           onClick={ this.handleSelectElement }
           onClone={ this.handleCloneElement }
-          elements={ elements }
           width={ elElementsContainerWidth }
         />
         <div
@@ -298,11 +307,10 @@ export default class App extends React.Component {
           }}
         >
           <ElementEditor
-            classes={ classes }
+            { ...universalProps }
             width={ elContainerWidth }
             elementProps={ elements[activeElement] }
             visible={ this.state.showElementContainer }
-            onClassChange={ this.handleUpdateClass }
             onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
             onSubmit={ this.handleUpdateElements }
           />

@@ -23,6 +23,7 @@ import {
 } from '@material-ui/core';
 import TransferList from './TransferList.jsx';
 import EditFields from './Editor/EditFields.jsx';
+import KeyframesEditor from './Editor/KeyframesEditor.jsx';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 import { getCSSfromStyleObj } from '../../util/CSSUtil.js';
 require('codemirror/mode/css/css');
@@ -754,6 +755,7 @@ export default class ElementEditor extends React.Component {
           { this.renderClassesTags(elementProps.classes) }
           { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
           { this.renderElementKeyframes(elementProps.keyframes) }
+          <KeyframesEditor { ...this.props } />
         </div>
       );
     }

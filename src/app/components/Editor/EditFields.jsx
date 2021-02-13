@@ -41,7 +41,7 @@ export default class EditFields extends React.Component {
         <TextField
           onChange={ (e) => { this.handleChange(key, e.target.value) } }
           value={ value }
-          id="standard-basic"
+          id={ key }
           label={ label } />
         <Slider
           onChange={
@@ -56,6 +56,7 @@ export default class EditFields extends React.Component {
 
   render() {
     const {
+      background,
       width,
       height
     } = this.props;
@@ -78,7 +79,11 @@ export default class EditFields extends React.Component {
             label: 'Height'
           })
         }
-
+        <TextField
+          onChange={ (e) => { this.handleChange('background', e.target.value) } }
+          value={ background }
+          id="standard-basic"
+          label="Background" />
       </div>
     );
   }
