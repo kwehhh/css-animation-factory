@@ -39,6 +39,18 @@ export default class Preview extends React.Component {
   //   return css;
   // }
 
+ /**
+   * @param {array}
+   * @returns {string}
+   */
+  getClassNames(classes) {
+    if (classes) {
+      return classes.join(' ');
+    }
+
+    return '';
+  }
+
   handleSelectElement(index) {
     this.setState((prevState) => {
       let activeElement;
@@ -95,17 +107,18 @@ export default class Preview extends React.Component {
     });
   }
 
-  renderElements({ elements }) {
+  renderElements(elements) {
     return elements.map((element) => {
       const { name, classes } = element;
 
-      let classNames;
-      if (classes) {
-        classNames = classes.join(' ');
-      }
+      // let classNames;
+      // if (classes) {
+      //   classNames = classes.join(' ');
+      // }
 
+      // console.log('renderElements', element);
       return (
-        <div className={ classNames } />
+        <div key={ name } className={ this.getClassNames(classes) } />
       );
     });
   }
@@ -116,10 +129,12 @@ export default class Preview extends React.Component {
       leftBoundaryWidth,
       rightBoundaryWidth,
       elements,
-      classes,
       previewContainerWidth,
       style
     } = this.props;
+
+
+    console.log('render', this.props);
 
     return (
       <div
@@ -135,7 +150,7 @@ export default class Preview extends React.Component {
           ...style
         }}
         className="preview">
-        { this.renderElements({ elements, classes }) }
+        { this.renderElements(elements) }
       </div>
     );
   }

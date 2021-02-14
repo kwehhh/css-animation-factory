@@ -26,6 +26,8 @@ export default class AddNewElement extends React.Component {
   constructor(props) {
     super();
 
+    const { element } = props;
+
     const localProps = {
       width: '50px',
       height: '50px',
@@ -35,12 +37,23 @@ export default class AddNewElement extends React.Component {
 
     this.state = {
       // Initial State for New Element
+      element,
       config: {
-        name: '',
+        name: props.name,
 
         classes: [newClass]
       },
-      keyframes: {},
+      // borrowed from:
+      // https://css-tricks.com/making-css-animations-feel-natural/
+      keyframes: {
+        '0%':   { transform: 'scale(1,1)      translateY(0)' },
+        '10%':  { transform: 'scale(1.1,.9)   translateY(0)' },
+        '30%':  { transform: 'scale(.9,1.1)   translateY(-100px)' },
+        '50%':  { transform: 'scale(1.05,.95) translateY(0)' },
+        '57%':  { transform: 'scale(1,1)      translateY(-7px)' },
+        '64%':  { transform: 'scale(1,1)      translateY(0)' },
+        '100%': { transform: 'scale(1,1)      translateY(0)' }
+      },
       // Initial State for New ...
       // Set these props as default...
       newClassProps: localProps
@@ -48,7 +61,7 @@ export default class AddNewElement extends React.Component {
 
     // Need to lift this up so there is no double render
     // Init
-    props.onClassChange(newClass, localProps);
+    // props.onClassChange(newClass, localProps);
 
 
     this.handleClassChange = this.handleClassChange.bind(this);
@@ -86,7 +99,7 @@ export default class AddNewElement extends React.Component {
   };
 
   render() {
-    console.log('AddNewElement', this.props);
+    console.log('AddNewElement', this.state, this.props);
 
     const leftBoundary = 300;
     const { config, newClassProps } = this.state;
@@ -156,8 +169,7 @@ export default class AddNewElement extends React.Component {
           <Preview
             leftBoundaryWidth={ leftBoundary }
             rightBoundaryWidth={ 0 }
-            classes={ this.props.classes }
-            elements={ [config] }
+            elements={ [this.state.element] }
             style={{background: 'black'}}
           />
           <div style={{display:'flex', flexGrow: '1'}}>3</div>

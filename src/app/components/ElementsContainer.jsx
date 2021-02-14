@@ -7,8 +7,34 @@ export default class ElementsContainer extends React.Component {
 
   constructor() {
     super();
+
+    const newElName = 'myNewElement';
+
     this.state = {
-      modalVisible: true
+      modalVisible: false,
+      // Initial State for New Element
+      initialElProps: {
+        name: newElName,
+        classes: [newElName],
+        // TODO: REMOVE THIS...
+        el: {
+          width: '50px',
+          height: '50px',
+          background: 'red',
+          borderRadius: '10px'
+        },
+        // borrowed from:
+        // https://css-tricks.com/making-css-animations-feel-natural/
+        keyframes: {
+          '0%':   { transform: 'scale(1,1)      translateY(0)' },
+          '10%':  { transform: 'scale(1.1,.9)   translateY(0)' },
+          '30%':  { transform: 'scale(.9,1.1)   translateY(-100px)' },
+          '50%':  { transform: 'scale(1.05,.95) translateY(0)' },
+          '57%':  { transform: 'scale(1,1)      translateY(-7px)' },
+          '64%':  { transform: 'scale(1,1)      translateY(0)' },
+          '100%': { transform: 'scale(1,1)      translateY(0)' }
+        },
+      }
     };
 
     this.handleOpenModal = this.handleOpenModal.bind(this);
@@ -16,10 +42,20 @@ export default class ElementsContainer extends React.Component {
   }
 
   handleOpenModal() {
+    const { initialElProps } = this.state;
+    const { name, el } = initialElProps;
+
+    // Assign temp vals to CSS builder
+    this.props.onClassChange(name, el);
     this.setState({modalVisible: true});
   }
 
   handleCloseModal() {
+    const { initialElProps } = this.state;
+    const { name, el } = initialElProps;
+
+    // Assign temp vals to CSS builder
+    this.props.onClassChange(name, false);
     this.setState({modalVisible: false});
   }
 
@@ -62,8 +98,20 @@ export default class ElementsContainer extends React.Component {
     )
   }
 
+  renderAddNewElementContainer() {
+    return (
+      <AddNewElement
+        { ...this.props }
+        element={ this.state.initialElProps }
+        classes={ this.props.classes }
+        open={ this.state.modalVisible }
+        onClose={ this.handleCloseModal }
+      />
+    );
+  }
+
   render() {
-    // console.log(this.props);
+    console.log('render', this.props);
     // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
     // ADD MULTI SELECT/DRAGGING/ ETC
     // ADD LIST FOR CLASSES AND KEYFRAMES (MAYBE CATEGORIZE THEM FOR THEIR ACCESS)
@@ -112,12 +160,7 @@ export default class ElementsContainer extends React.Component {
             </Button>
             [ADD NEW ELEMENT] [ADD NEW GROUP] [GROUP ELEMENTS]  [DELETE ELEMENT]
           </div>
-          <AddNewElement
-            { ...this.props }
-            classes={ this.props.classes }
-            open={ this.state.modalVisible }
-            onClose={ this.handleCloseModal }
-          />
+          { this.renderAddNewElementContainer() }
           { this.renderElements() }
         </div>
       </div>

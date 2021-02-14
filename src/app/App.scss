@@ -17,6 +17,12 @@ body {
   }
 }
 
+.stacking-20 {
+  > * + * {
+    margin-top: 20px;
+  }
+}
+
 .container {
   color: white;
   background: #422e6b;
@@ -31,7 +37,7 @@ body {
 
 .menu-item {
   position: 'relative';
-  
+
   &.active {
     &::before {
       content: '';

@@ -228,14 +228,20 @@ export default class App extends React.Component {
    * @param {object|false} props - .... false = DELETE!!!
    */
   handleUpdateClass(key, props) {
-    console.log('handleUpdateClass', key, props);
     this.setState((prevState) => {
-
       const newClasses = {
         ...prevState.classes,
       };
 
-      newClasses[key] = props;
+      console.log('handleUpdateClass', newClasses, key, props);
+
+      // delete
+      if (props === false) {
+        delete newClasses[key];
+      // Add/ update
+      } else {
+        newClasses[key] = props;
+      }
 
       return {
         classes: newClasses

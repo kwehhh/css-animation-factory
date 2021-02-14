@@ -58,32 +58,48 @@ export default class EditFields extends React.Component {
     const {
       background,
       width,
-      height
+      height,
+      name,
+      transform
     } = this.props;
 
-    console.log('render', this.props);
+    // console.log('render', this.props);
 
     return (
       <div>
-        {
-          this.renderValueSlider({
-            key: 'width',
-            value: width,
-            label: 'Width'
-          })
-        }
-        {
-          this.renderValueSlider({
-            key: 'height',
-            value: height,
-            label: 'Height'
-          })
-        }
-        <TextField
-          onChange={ (e) => { this.handleChange('background', e.target.value) } }
-          value={ background }
-          id="standard-basic"
-          label="Background" />
+        <div>
+          <TextField
+              onChange={ (e) => { this.handleChange('name', e.target.value) } }
+              value={ name }
+              id="name"
+              label="Name" />
+        </div>
+        <div  style={{background: 'purple'}} >
+          {
+            this.renderValueSlider({
+              key: 'width',
+              value: width,
+              label: 'Width'
+            })
+          }
+          {
+            this.renderValueSlider({
+              key: 'height',
+              value: height,
+              label: 'Height'
+            })
+          }
+          <TextField
+            onChange={ (e) => { this.handleChange('background', e.target.value) } }
+            value={ background }
+            id="standard-basic"
+            label="Background" />
+          <TextField
+            onChange={ (e) => { this.handleChange('transform', e.target.value) } }
+            value={ transform }
+            id="transform"
+            label="Transform" />
+        </div>
       </div>
     );
   }
