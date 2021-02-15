@@ -77,7 +77,7 @@ export default class AddNewElement extends React.Component {
 
     console.log('handleChange');
     // setConfig(props);
-    this.setState({config: props});
+    // this.setState({config: props});
   };
 
 
@@ -95,11 +95,11 @@ export default class AddNewElement extends React.Component {
     this.props.onClassChange(className, localProps);
     // set to local
     // setNewClassProps(localProps);
-    this.setState({newClassProps: localProps});
+    // this.setState({newClassProps: localProps});
   };
 
   render() {
-    console.log('AddNewElement', this.state, this.props);
+    // console.log('render', this.props);
 
     const leftBoundary = 300;
     const { config, newClassProps } = this.state;
@@ -148,8 +148,7 @@ export default class AddNewElement extends React.Component {
             <ElementEditor
               { ...props }
               classes={ {
-                ...this.props.classes,
-                [newClass]: newClassProps
+                ...this.props.classes
               } }
               keyframes={
                 {

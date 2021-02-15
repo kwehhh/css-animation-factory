@@ -568,6 +568,7 @@ export default class ElementEditor extends React.Component {
     );
   }
 
+  // REMOVE AFTER CODEMIRROR IS EXTRACTED
   renderElementKeyframes(keyframes) {
     if (!_.isString(keyframes)) {
       return (
@@ -597,16 +598,51 @@ export default class ElementEditor extends React.Component {
 
 
   renderKeyframesEditors() {
-    const { keyframes, ...props } = this.props;
+
+    const { element, keyframes, ...props } = this.props;
+
+
+    console.log('renderKeyframesEditors', element, this.props);
+
+
+
+    if (element) {
+      // filter by element...
+      const { classes } = element;
+
+
+      const keyframeNames = [];
+      classes.forEach((key) => {
+        // console.log('map', this.props.classes[key]);
+
+        if (this.props.classes[key] && this.props.classes[key].animationName) {
+          keyframeNames.push(this.props.classes[key].animationName);
+        }
+      });
+
+      return (
+        <div>
+          {
+            keyframeNames.map((key) => {
+              return (
+                <KeyframesEditor
+                  { ...props }
+                  key={ key }
+                  name={ key }
+                  keyframes={ keyframes[key] }
+                />
+              );
+            })
+          }
+        </div>
+      );
+    }
 
     return (
       <div>
-        {
-          Object.keys(keyframes).map((key) => {
-            return <KeyframesEditor key={ key } name={ key } keyframes={ keyframes[key] } { ...props } />;
-          })
-        }
+        NO KEYFRAMES
       </div>
+
     );
   }
 
@@ -727,13 +763,10 @@ export default class ElementEditor extends React.Component {
       onSubmit
     } = this.props;
 
-
     console.log('render', this.props);
 
     if (elementProps && visible) {
-
       const { animation } = elementProps;
-
 
       let elKeyframes = [];
       if (animation && animation.keyframes) {
@@ -770,8 +803,6 @@ export default class ElementEditor extends React.Component {
           </div>
           { this.renderClassesTags(elementProps.classes) }
           { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
-          { this.renderElementKeyframes(elementProps.keyframes) }
-          { this.renderKeyframesEditors() }
           { /* RENDER KEYFRAMES EDITOR AT BOTTOM */ }
         </div>
       );

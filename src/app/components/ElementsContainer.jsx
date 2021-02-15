@@ -3,37 +3,21 @@ import _ from 'lodash';
 import { Button } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 
+
+const NEW_EL_NAME = 'myNewElement';
+const NEW_CLASS_NAME = 'myNewClass';
+const NEW_KEYFRAMES_NAME = 'myNewKeyframes';
+
 export default class ElementsContainer extends React.Component {
 
   constructor() {
     super();
-
-    const newElName = 'myNewElement';
-
     this.state = {
       modalVisible: false,
       // Initial State for New Element
       initialElProps: {
-        name: newElName,
-        classes: [newElName],
-        // TODO: REMOVE THIS...
-        el: {
-          width: '50px',
-          height: '50px',
-          background: 'red',
-          borderRadius: '10px'
-        },
-        // borrowed from:
-        // https://css-tricks.com/making-css-animations-feel-natural/
-        keyframes: {
-          '0%':   { transform: 'scale(1,1)      translateY(0)' },
-          '10%':  { transform: 'scale(1.1,.9)   translateY(0)' },
-          '30%':  { transform: 'scale(.9,1.1)   translateY(-100px)' },
-          '50%':  { transform: 'scale(1.05,.95) translateY(0)' },
-          '57%':  { transform: 'scale(1,1)      translateY(-7px)' },
-          '64%':  { transform: 'scale(1,1)      translateY(0)' },
-          '100%': { transform: 'scale(1,1)      translateY(0)' }
-        },
+        name: NEW_EL_NAME,
+        classes: [NEW_CLASS_NAME]
       }
     };
 
@@ -42,20 +26,47 @@ export default class ElementsContainer extends React.Component {
   }
 
   handleOpenModal() {
-    const { initialElProps } = this.state;
-    const { name, el } = initialElProps;
+    // const { initialElProps } = this.state;
+    // const { name, el } = initialElProps;
+
+    // borrowed from:
+    // https://css-tricks.com/making-css-animations-feel-natural/
+    const keyframes = {
+      '0%':   { transform: 'scale(1,1)      translateY(0)' },
+      '10%':  { transform: 'scale(1.1,.9)   translateY(0)' },
+      '30%':  { transform: 'scale(.9,1.1)   translateY(-100px)' },
+      '50%':  { transform: 'scale(1.05,.95) translateY(0)' },
+      '57%':  { transform: 'scale(1,1)      translateY(-7px)' },
+      '64%':  { transform: 'scale(1,1)      translateY(0)' },
+      '100%': { transform: 'scale(1,1)      translateY(0)' }
+    };
+
+    const props = {
+      width: '50px',
+      height: '50px',
+      background: 'red',
+      borderRadius: '10px',
+      animationName: NEW_KEYFRAMES_NAME,
+      animationDuration: '2s',
+      animationIterationCount: 'infinite',
+      animationDirection: 'normal',
+      animationTimingFunction: 'cubic-bezier(0.280, 0.840, 0.420, 1)'
+    };
 
     // Assign temp vals to CSS builder
-    this.props.onClassChange(name, el);
+    // TODO: Batch both these to a single setState call
+    this.props.onClassChange(NEW_CLASS_NAME, props);
+    this.props.onKeyframesChange(NEW_KEYFRAMES_NAME, keyframes);
     this.setState({modalVisible: true});
   }
 
   handleCloseModal() {
-    const { initialElProps } = this.state;
-    const { name, el } = initialElProps;
+    // const { initialElProps } = this.state;
+    // const { name, el } = initialElProps;
 
     // Assign temp vals to CSS builder
-    this.props.onClassChange(name, false);
+    this.props.onKeyframesChange(NEW_CLASS_NAME, false);
+    this.props.onClassChange(NEW_KEYFRAMES_NAME, false);
     this.setState({modalVisible: false});
   }
 

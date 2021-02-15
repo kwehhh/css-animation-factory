@@ -33,6 +33,7 @@ export default class App extends React.Component {
     this.handleUpdateClass = this.handleUpdateClass.bind(this);
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
+    this.handleUpdateKeyframes = this.handleUpdateKeyframes.bind(this);
   }
 
   getCSSfromStyleObj(style, formatter) {
@@ -249,6 +250,33 @@ export default class App extends React.Component {
     });
   }
 
+    /*
+   * New/Update ....
+   * @param {string} key - ...
+   * @param {object|false} props - .... false = DELETE!!!
+   */
+  handleUpdateKeyframes(key, props) {
+    this.setState((prevState) => {
+      const newKeyframes = {
+        ...prevState.keyframes,
+      };
+
+      // delete
+      if (props === false) {
+        delete newKeyframes[key];
+      // Add/ update
+      } else {
+        newKeyframes[key] = props;
+      }
+
+      console.log('handleUpdateKeyframes', newKeyframes, key, props);
+
+      return {
+        keyframes: newKeyframes
+      };
+    });
+  }
+
   handleUpdateElement(element, index) {
     // this.handleHideContainer();
 
@@ -280,8 +308,12 @@ export default class App extends React.Component {
       classes,
       keyframes,
       elements,
-      onClassChange: this.handleUpdateClass
+      onClassChange: this.handleUpdateClass,
+      onKeyframesChange: this.handleUpdateKeyframes
     };
+
+
+    console.log('render', this.state);
 
     // TODO: Keep everything OBJ based for now even if possible performance issues. Easier for devs and to work with function wise. Later look into optimatial performacne.
     return (
@@ -315,6 +347,7 @@ export default class App extends React.Component {
           <ElementEditor
             { ...universalProps }
             width={ elContainerWidth }
+            element={ elements[activeElement] }
             elementProps={ elements[activeElement] }
             visible={ this.state.showElementContainer }
             onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
