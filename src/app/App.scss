@@ -9,6 +9,8 @@ body {
   margin: 0;
   // color: $body-color;
   background: #2e2442;
+  // TODO: Find a more ideal font to go for
+  font-family: 'Helvetica', 'Arial', sans-serif;
 }
 
 .stacking-10 {
@@ -23,6 +25,24 @@ body {
   }
 }
 
+.flex-0 {
+  > * + * {
+    margin-left: 0;
+  }
+}
+
+.flex-10 {
+  > * + * {
+    margin-left: 10px;
+  }
+}
+
+.flex-20 {
+  > * + * {
+    margin-left: 20px;
+  }
+}
+
 .container {
   color: white;
   background: #422e6b;
@@ -30,23 +50,33 @@ body {
   border-radius: 10px;
 }
 
+// Button
 .MuiButton-containedPrimary.nv-btn {
   background: #4db391;
-  color: #440066;
+  color: #2e2442;
 }
 
 .menu-item {
-  position: 'relative';
+  position: relative;
+  color: #e2e2e2;
+  cursor: pointer;
+
+  // TODO: HOVER
 
   &.active {
     &::before {
       content: '';
+      position: absolute;
       display: block;
-      height: 10px;
-      width: 10px;
-      background: red;
+      width: 4px;
+      background: #419fd6;
+      top: 0;
+      left: 0;
+      bottom: 0;
     }
 
-    background: green;
+    color: white;
+    background: rgb(0,212,255);
+    background: linear-gradient(90deg, rgba(0,212,255,0.5) 0%, rgba(0,212,255,0.25) 35%, rgba(0,212,255,0) 100%);
   }
 }

@@ -20,8 +20,9 @@ export default class App extends React.Component {
       elements: [],
       // Assign
       ...data,
-      // activeElement: null,
-      activeElement: 0,
+      activeElement: null,
+      // FOR TESTING....
+      // activeElement: 0,
       showElementContainer: true
     };
 

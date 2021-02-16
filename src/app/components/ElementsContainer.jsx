@@ -1,7 +1,14 @@
 import React from "react";
 import _ from 'lodash';
-import { Button } from '@material-ui/core';
+import { Button, ButtonGroup, Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
+import AddIcon from '@material-ui/icons/Add';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
+import IconButton from '@material-ui/core/IconButton';
+
+
 
 
 const NEW_EL_NAME = 'myNewElement';
@@ -86,17 +93,45 @@ export default class ElementsContainer extends React.Component {
           style = {};
         }
 
+        // TODO: Add Title label on top "ELEMENTS"
         return (
           <div
-            className={ `menu-item ${className}` }
+            className={ `menu-item ${className} flex-20` }
             onClick={ () => { this.props.onClick(i) } }
             style={ {
-              paddingTop: '5px',
-              paddingBottom: '5px',
+              padding: '5px 20px',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              display:'flex',
               ...style
             } }
           >
-            { name } [HIDE] [LOCK]
+            <div style={{
+              display: 'flex'
+              }}>
+              { name }
+            </div>
+            <div className="flex-0" style={{display:'flex'}}>
+              <Tooltip title="Hide Element">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  size="small"
+                >
+                  <RemoveRedEyeIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Lock Element">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  size="small"
+                >
+                  <LockOpenIcon />
+                </IconButton>
+              </Tooltip>
+            </div>
+
           </div>
         );
       }
@@ -147,29 +182,35 @@ export default class ElementsContainer extends React.Component {
           } }
         >
           <div style={{ padding: '0px 20px 20px 20px' }}>
-            <Button
-              className="nv-btn"
-              size="small"
-              variant="contained"
-              color="primary"
-              onClick={ this.handleOpenModal }
-            >
-              + New Element
-            </Button>
-            <Button
-              className="nv-btn"
-              size="small"
-              variant="contained"
-              color="primary"
-              disabled={ !_.isNumber(activeElement) }
-              onClick={ () => { this.props.onClone(this.props.activeElement) } }
-              style={ {
-                width: '100%'
-              } }
-            >
-              Clone Element
-            </Button>
-            [ADD NEW ELEMENT] [ADD NEW GROUP] [GROUP ELEMENTS]  [DELETE ELEMENT]
+          <ButtonGroup color="primary" aria-label="outlined primary button group">
+            <Tooltip title="Add New Element">
+              <Button
+                className="nv-btn"
+                size="small"
+                variant="contained"
+                color="primary"
+                onClick={ this.handleOpenModal }
+              >
+                <AddIcon />
+              </Button>
+            </Tooltip>
+            <Tooltip title="Clone Selected Element">
+              <Button
+                className="nv-btn"
+                size="small"
+                variant="contained"
+                color="primary"
+                disabled={ !_.isNumber(activeElement) }
+                onClick={ () => { this.props.onClone(this.props.activeElement) } }
+                style={ {
+                  width: '100%'
+                } }
+              >
+                <FileCopyIcon />
+              </Button>
+            </Tooltip>
+          </ButtonGroup>
+            {/* [ADD NEW GROUP] [GROUP EL EMENTS]  [DELETE ELEMENT] */}
           </div>
           { this.renderAddNewElementContainer() }
           { this.renderElements() }
