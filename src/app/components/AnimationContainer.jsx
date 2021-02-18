@@ -18,11 +18,38 @@ export default class AnimationContainer extends React.Component {
     });
   }
 
+
+  renderKeyframes() {
+    const { keyframes } = this.props;
+
+    if (keyframes) {
+      return Object.keys(keyframes).map((key) => {
+        return <div key={ key } />;
+      });
+    }
+
+    return null;
+  }
+
   render() {
+
+    console.log('render', this.props);
+
+
 
     // Animation Container
     return (
-      <div />
+      <div
+        className="container"
+        style={{
+        position: 'absolute',
+        height: '200px',
+        left: 0,
+        bottom: 0,
+        right: 0
+      }}>
+        { this.renderKeyframes() }
+      </div>
     );
 
 
@@ -31,7 +58,13 @@ export default class AnimationContainer extends React.Component {
 
     if (visible) {
       return (
-        <div>
+        <div style={{
+          position: 'absolute',
+          height: '200px',
+          left: 0,
+          bottom: 0,
+          right: 0
+        }}>
           <div>
             Name
             <input value={ name } />

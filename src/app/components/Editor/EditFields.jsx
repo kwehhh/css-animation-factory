@@ -70,6 +70,7 @@ export default class EditFields extends React.Component {
         <div>
           <TextField
               onChange={ (e) => { this.handleChange('name', e.target.value) } }
+              onFocus={ () => {console.log('focused') }}
               value={ name }
               id="name"
               label="Name" />

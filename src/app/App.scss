@@ -61,7 +61,9 @@ body {
   color: #e2e2e2;
   cursor: pointer;
 
-  // TODO: HOVER
+  &:hover {
+    color: white;
+  }
 
   &.active {
     &::before {

@@ -355,7 +355,10 @@ export default class App extends React.Component {
             onSubmit={ this.handleUpdateElements }
           />
         </div>
-        <AnimationContainer />
+        <AnimationContainer
+          { ...universalProps }
+          keyframes={ this.state.keyframes.orbit }
+        />
       </div>
     );
   }

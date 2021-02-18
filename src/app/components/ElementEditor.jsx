@@ -691,9 +691,9 @@ export default class ElementEditor extends React.Component {
         </div>
       );
     }
-    // add class
-    // 1) add new class
-    // 2) auto assign to existing element
+    // CONTINUE HERE
+    // 1) Extract onclick to external method
+    // 2) instetad of no classses assigned, replace with button 'Add new Class'
     return (
       <div>
         <div>
@@ -785,7 +785,7 @@ export default class ElementEditor extends React.Component {
           } }
         >
           { this.customizedDialogs() }
-          { this.renderKeyframesEditors() }
+
           <div>
             Name
             <input
@@ -803,7 +803,7 @@ export default class ElementEditor extends React.Component {
           </div>
           { this.renderClassesTags(elementProps.classes) }
           { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
-          { /* RENDER KEYFRAMES EDITOR AT BOTTOM */ }
+          { this.renderKeyframesEditors() }
         </div>
       );
     }
