@@ -33,9 +33,6 @@ export default class ElementsContainer extends React.Component {
   }
 
   handleOpenModal() {
-    // const { initialElProps } = this.state;
-    // const { name, el } = initialElProps;
-
     // borrowed from:
     // https://css-tricks.com/making-css-animations-feel-natural/
     const keyframes = {

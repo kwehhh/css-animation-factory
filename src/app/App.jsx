@@ -20,9 +20,9 @@ export default class App extends React.Component {
       elements: [],
       // Assign
       ...data,
-      activeElement: null,
+      // activeElement: null,
       // FOR TESTING....
-      // activeElement: 0,
+      activeElement: 0,
       showElementContainer: true
     };
 
@@ -358,6 +358,7 @@ export default class App extends React.Component {
         <AnimationContainer
           { ...universalProps }
           keyframes={ this.state.keyframes.orbit }
+          element={ elements[activeElement] }
         />
       </div>
     );

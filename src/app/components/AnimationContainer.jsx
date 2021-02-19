@@ -12,6 +12,19 @@ export default class AnimationContainer extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+ /**
+   * // Extract to utils.....
+   * @param {array}
+   * @returns {string}
+   */
+  getClassNames(classes) {
+    if (classes) {
+      return classes.join(' ');
+    }
+
+    return '';
+  }
+
   handleSubmit() {
     this.props.onSubmit({
       name: this.state.name
@@ -20,11 +33,25 @@ export default class AnimationContainer extends React.Component {
 
 
   renderKeyframes() {
-    const { keyframes } = this.props;
+    const { element, keyframes } = this.props;
+
+    console.log('renderKeyframes', this.props);
 
     if (keyframes) {
       return Object.keys(keyframes).map((key) => {
-        return <div key={ key } />;
+        return (
+          <div
+            key={ key }
+            className={ this.getClassNames(element.classes) }
+            style={{
+              ...keyframes[key],
+              animation: 'none',
+              position: 'static',
+              transform: 'none'
+            }
+          }
+          />
+        );
       });
     }
 
@@ -33,7 +60,7 @@ export default class AnimationContainer extends React.Component {
 
   render() {
 
-    console.log('render', this.props);
+    // console.log('render', this.props);
 
 
 
@@ -43,12 +70,24 @@ export default class AnimationContainer extends React.Component {
         className="container"
         style={{
         position: 'absolute',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         height: '200px',
         left: 0,
         bottom: 0,
-        right: 0
+        right: 0,
+        boxShadow: '-1px -5px 4px 0px rgba(0,0,0,0.15)'
       }}>
+        <div
+          className="flex-30"
+          style={{
+            justifyContent: 'space-between',
+            display: 'flex'
+          }}
+        >
         { this.renderKeyframes() }
+        </div>
       </div>
     );
 

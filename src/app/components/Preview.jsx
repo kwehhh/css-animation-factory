@@ -40,6 +40,7 @@ export default class Preview extends React.Component {
   // }
 
  /**
+   * // Extract to utils.....
    * @param {array}
    * @returns {string}
    */

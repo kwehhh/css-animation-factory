@@ -43,6 +43,12 @@ body {
   }
 }
 
+.flex-30 {
+  > * + * {
+    margin-left: 30px;
+  }
+}
+
 .container {
   color: white;
   background: #422e6b;
