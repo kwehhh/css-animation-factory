@@ -4,8 +4,7 @@
   "description": "CSS Animation Factory",
   "main": "index.js",
   "scripts": {
-    "start": "webpack serve",
-    "start-asdsadsa": "webpack-dev-server --open --mode development",
+    "start": "webpack serve --open",
     "build": "webpack --mode production"
   },
   "repository": {
@@ -42,7 +41,7 @@
     "style-loader": "^2.0.0",
     "webpack": "^5.10.0",
     "webpack-cli": "^4.2.0",
-    "webpack-dev-server": "^3.11.0",
+    "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^5.4.0"
   }
 }

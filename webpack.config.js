@@ -46,5 +46,8 @@ module.exports = {
       templateContent: '<div id="container"></div>'
     })
   ],
-  devtool: "source-map"
+  devtool: "inline-source-map",
+  devServer: {
+    contentBase: './dist',
+  },
 };
