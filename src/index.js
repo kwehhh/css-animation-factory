@@ -50,3 +50,10 @@ const data = {
 
 const wrapper = document.getElementById("container");
 wrapper ? ReactDOM.render(<App data={ data } />, wrapper) : false;
+
+if (module.hot) {
+  // module.hot.accept('./print.js', function() {
+    console.log('Accepting dasdsad the updated printMe module!');
+    // printMe();
+  // })
+}
