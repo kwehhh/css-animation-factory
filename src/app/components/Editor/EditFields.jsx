@@ -27,6 +27,7 @@ export default class EditFields extends React.Component {
     super();
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleFocus = this.handleFocus.bind(this);
   }
 
   handleChange(key, value) {
@@ -35,10 +36,18 @@ export default class EditFields extends React.Component {
     }
   }
 
+  handleFocus() {
+    // console.log('handleFocus', this.props);
+    if (this.props.onFocus) {
+      this.props.onFocus();
+    }
+  }
+
   renderValueSlider({ key, value, label }) {
     return (
       <div>
         <TextField
+          onFocus={ this.handleFocus }
           onChange={ (e) => { this.handleChange(key, e.target.value) } }
           value={ value }
           id={ key }
@@ -70,7 +79,7 @@ export default class EditFields extends React.Component {
         <div>
           <TextField
               onChange={ (e) => { this.handleChange('name', e.target.value) } }
-              onFocus={ () => {console.log('focused') }}
+              onFocus={ this.handleFocus }
               value={ name }
               id="name"
               label="Name" />
@@ -91,11 +100,13 @@ export default class EditFields extends React.Component {
             })
           }
           <TextField
+            onFocus={ this.handleFocus }
             onChange={ (e) => { this.handleChange('background', e.target.value) } }
             value={ background }
             id="standard-basic"
             label="Background" />
           <TextField
+            onFocus={ this.handleFocus }
             onChange={ (e) => { this.handleChange('transform', e.target.value) } }
             value={ transform }
             id="transform"

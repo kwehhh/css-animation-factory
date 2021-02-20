@@ -59,37 +59,43 @@ export default class AnimationContainer extends React.Component {
   }
 
   render() {
+    console.log('render', this.props);
 
-    // console.log('render', this.props);
+    const { keyframes } = this.props;
 
 
+    if (keyframes) {
+      return (
+        <div
+          className="container"
+          style={{
+          position: 'absolute',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '200px',
+          left: 0,
+          bottom: 0,
+          right: 0,
+          boxShadow: '-1px -5px 4px 0px rgba(0,0,0,0.15)'
+        }}>
+          <div
+            className="flex-30"
+            style={{
+              justifyContent: 'space-between',
+              display: 'flex'
+            }}
+          >
+          { this.renderKeyframes() }
+          </div>
+        </div>
+      );
+    }
+
+    return null;
 
     // Animation Container
-    return (
-      <div
-        className="container"
-        style={{
-        position: 'absolute',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '200px',
-        left: 0,
-        bottom: 0,
-        right: 0,
-        boxShadow: '-1px -5px 4px 0px rgba(0,0,0,0.15)'
-      }}>
-        <div
-          className="flex-30"
-          style={{
-            justifyContent: 'space-between',
-            display: 'flex'
-          }}
-        >
-        { this.renderKeyframes() }
-        </div>
-      </div>
-    );
+
 
 
     const { name } = this.state;

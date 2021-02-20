@@ -23,12 +23,14 @@ export default class App extends React.Component {
       // activeElement: null,
       // FOR TESTING....
       activeElement: 0,
+      activeKeyframes: null,
       showElementContainer: true
     };
 
     // console.log('constructor', props, this.state);
     this.handleCloneElement = this.handleCloneElement.bind(this);
     this.handleSelectElement = this.handleSelectElement.bind(this);
+    this.handleSelectKeyframes = this.handleSelectKeyframes.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
     this.handleHideContainer = this.handleHideContainer.bind(this);
     this.handleUpdateClass = this.handleUpdateClass.bind(this);
@@ -202,6 +204,11 @@ export default class App extends React.Component {
     });
   }
 
+  handleSelectKeyframes(activeKeyframes) {
+    console.log('handleSelectKeyframes', activeKeyframes);
+    this.setState({activeKeyframes});
+  }
+
   handleShowContainer() {
     this.setState({showElementContainer: true});
   }
@@ -310,7 +317,8 @@ export default class App extends React.Component {
       keyframes,
       elements,
       onClassChange: this.handleUpdateClass,
-      onKeyframesChange: this.handleUpdateKeyframes
+      onKeyframesChange: this.handleUpdateKeyframes,
+      onSelectKeyframes: this.handleSelectKeyframes
     };
 
 
@@ -357,7 +365,7 @@ export default class App extends React.Component {
         </div>
         <AnimationContainer
           { ...universalProps }
-          keyframes={ this.state.keyframes.orbit }
+          keyframes={ this.state.keyframes[this.state.activeKeyframes] }
           element={ elements[activeElement] }
         />
       </div>
