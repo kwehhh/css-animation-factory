@@ -11,6 +11,8 @@ body {
   background: #2e2442;
   // TODO: Find a more ideal font to go for
   font-family: 'Helvetica', 'Arial', sans-serif;
+  // For animations...
+  overflow: hidden;
 }
 
 .stacking-10 {
@@ -49,13 +51,6 @@ body {
   }
 }
 
-.container {
-  color: white;
-  background: #422e6b;
-  padding: 20px;
-  border-radius: 10px;
-}
-
 // Button
 .MuiButton-containedPrimary.nv-btn {
   background: #4db391;
@@ -86,5 +81,36 @@ body {
     color: white;
     background: rgb(0,212,255);
     background: linear-gradient(90deg, rgba(0,212,255,0.5) 0%, rgba(0,212,255,0.25) 35%, rgba(0,212,255,0) 100%);
+  }
+}
+
+.slide-up {
+  animation: slide-up 0.3s ease;
+}
+
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+  }
+
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+
+.slide-down {
+  animation: slide-down 0.3s ease;
+}
+
+
+@keyframes slide-down {
+  0% {
+    transform: translateY(0%);
+  }
+
+  100% {
+    transform: translateY(100%);
   }
 }

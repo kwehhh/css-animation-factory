@@ -1,0 +1,11 @@
+
+.container {
+  color: white;
+  background: #422e6b;
+  padding: 20px;
+  border-radius: 10px;
+
+  &.hide {
+    display: none !important;
+  }
+}

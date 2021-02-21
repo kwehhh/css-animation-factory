@@ -27,12 +27,25 @@ export default class EditFields extends React.Component {
     super();
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleBlur = this.handleBlur.bind(this);
     this.handleFocus = this.handleFocus.bind(this);
   }
 
   handleChange(key, value) {
     if (this.props.onChange) {
       this.props.onChange(key, value);
+    }
+    if (this.props.onFocus) {
+      this.props.onFocus();
+    }
+  }
+
+
+  // TODO: Create some method to avoid triggering this if not needed
+  handleBlur() {
+    // console.log('handleBlur', this.props);
+    if (this.props.onBlur) {
+      this.props.onBlur();
     }
   }
 
@@ -47,6 +60,7 @@ export default class EditFields extends React.Component {
     return (
       <div>
         <TextField
+          onBlur={ this.handleBlur }
           onFocus={ this.handleFocus }
           onChange={ (e) => { this.handleChange(key, e.target.value) } }
           value={ value }
@@ -79,6 +93,7 @@ export default class EditFields extends React.Component {
         <div>
           <TextField
               onChange={ (e) => { this.handleChange('name', e.target.value) } }
+              onBlur={ this.handleBlur }
               onFocus={ this.handleFocus }
               value={ name }
               id="name"
@@ -100,12 +115,14 @@ export default class EditFields extends React.Component {
             })
           }
           <TextField
+            onBlur={ this.handleBlur }
             onFocus={ this.handleFocus }
             onChange={ (e) => { this.handleChange('background', e.target.value) } }
             value={ background }
             id="standard-basic"
             label="Background" />
           <TextField
+            onBlur={ this.handleBlur }
             onFocus={ this.handleFocus }
             onChange={ (e) => { this.handleChange('transform', e.target.value) } }
             value={ transform }

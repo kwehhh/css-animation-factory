@@ -46,6 +46,7 @@ export default class KeyframesEditor extends React.Component {
               <EditFields
                 key={ keyframe }
                 name={ keyframe }
+                onBlur={ () => { this.props.onSelectKeyframes(null); } }
                 onFocus={ () => { this.props.onSelectKeyframes(name); } }
                 onChange={ (attr, value) => { this.handleKeyframeUpdate(keyframe, attr, value) } }
                 { ...keyframes[keyframe] }

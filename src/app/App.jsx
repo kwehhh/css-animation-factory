@@ -24,6 +24,7 @@ export default class App extends React.Component {
       // FOR TESTING....
       activeElement: 0,
       activeKeyframes: null,
+      // activeKeyframes: 'orbit',
       showElementContainer: true
     };
 
