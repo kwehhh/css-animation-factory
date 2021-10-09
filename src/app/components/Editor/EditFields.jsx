@@ -41,11 +41,12 @@ export default class EditFields extends React.Component {
   }
 
 
-  // TODO: Create some method to avoid triggering this if not needed
+
   handleBlur() {
     // console.log('handleBlur', this.props);
     if (this.props.onBlur) {
-      this.props.onBlur();
+      // TODO: Create some method to avoid triggering this if not needed
+      // this.props.onBlur();
     }
   }
 

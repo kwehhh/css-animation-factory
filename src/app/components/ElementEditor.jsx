@@ -598,11 +598,10 @@ export default class ElementEditor extends React.Component {
 
 
   renderKeyframesEditors() {
-
     const { element, keyframes, ...props } = this.props;
 
 
-    console.log('renderKeyframesEditors', element, this.props);
+
 
 
 
@@ -612,6 +611,9 @@ export default class ElementEditor extends React.Component {
 
 
       const keyframeNames = [];
+
+      // Get Keyframes from class
+      // Use this... push it up, to get it up and store the animation details....
       classes.forEach((key) => {
         // console.log('map', this.props.classes[key]);
 
@@ -619,6 +621,9 @@ export default class ElementEditor extends React.Component {
           keyframeNames.push(this.props.classes[key].animationName);
         }
       });
+
+
+      console.log('renderKeyframesEditors', keyframeNames, this.props);
 
       return (
         <div>

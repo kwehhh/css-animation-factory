@@ -8,9 +8,6 @@ import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import IconButton from '@material-ui/core/IconButton';
 
-
-
-
 const NEW_EL_NAME = 'myNewElement';
 const NEW_CLASS_NAME = 'myNewClass';
 const NEW_KEYFRAMES_NAME = 'myNewKeyframes';

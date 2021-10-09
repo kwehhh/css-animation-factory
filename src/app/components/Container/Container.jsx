@@ -16,7 +16,7 @@ export default class Container extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    console.log('getDerivedStateFromProps', props, state);
+    // console.log('getDerivedStateFromProps', props, state);
 
     if (props.visible) {
       return {
@@ -31,7 +31,7 @@ export default class Container extends React.Component {
     const { visible } = this.props;
     const { animationActive } = this.state;
 
-    console.log('getAnimation', visible, animationActive);
+    // console.log('getAnimation', visible, animationActive);
 
     let animation;
     if (visible === true) {
@@ -55,8 +55,7 @@ export default class Container extends React.Component {
     const { children, className, style, visible } = this.props;
     const { animationActive } = this.state;
 
-
-    console.log('render', this.props, this.state);
+    // console.log('render', this.props, this.state);
 
     return (
       <div

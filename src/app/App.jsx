@@ -1,6 +1,6 @@
 import React from "react";
-import {Helmet} from "react-helmet";
-import AnimationContainer from './components/AnimationContainer.jsx';
+import { Helmet } from "react-helmet";
+import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
 import ElementsContainer from './components/ElementsContainer.jsx';
 import Preview from './components/Preview.jsx';
@@ -23,8 +23,8 @@ export default class App extends React.Component {
       // activeElement: null,
       // FOR TESTING....
       activeElement: 0,
-      activeKeyframes: null,
-      // activeKeyframes: 'orbit',
+      activeKeyframesId: null,
+      // activeKeyframesId: 'orbit',
       showElementContainer: true
     };
 
@@ -190,24 +190,30 @@ export default class App extends React.Component {
     });
   }
 
+  /**
+   * New/Update ....
+   * @param {number} index - ...
+   */
   handleSelectElement(index) {
     this.setState((prevState) => {
       let activeElement;
       if (prevState.activeElement === index) {
-        activeElement = null
-      } else {
-        activeElement = index;
+        return {
+          activeElement: null,
+          // Hide keyframes panel
+          activeKeyframes: null
+        }
       }
 
       return {
-        activeElement
+        activeElement: index
       }
     });
   }
 
-  handleSelectKeyframes(activeKeyframes) {
-    console.log('handleSelectKeyframes', activeKeyframes);
-    this.setState({activeKeyframes});
+  handleSelectKeyframes(activeKeyframeId) {
+    console.log('handleSelectKeyframes', activeKeyframeId);
+    this.setState({activeKeyframeId});
   }
 
   handleShowContainer() {
@@ -232,7 +238,7 @@ export default class App extends React.Component {
     });
   }
 
-  /*
+ /**
    * New/Update ....
    * @param {string} key - ...
    * @param {object|false} props - .... false = DELETE!!!
@@ -312,7 +318,6 @@ export default class App extends React.Component {
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
 
-
     const universalProps = {
       classes,
       keyframes,
@@ -321,7 +326,6 @@ export default class App extends React.Component {
       onKeyframesChange: this.handleUpdateKeyframes,
       onSelectKeyframes: this.handleSelectKeyframes
     };
-
 
     console.log('render', this.state);
 
@@ -366,7 +370,8 @@ export default class App extends React.Component {
         </div>
         <AnimationContainer
           { ...universalProps }
-          keyframes={ this.state.keyframes[this.state.activeKeyframes] }
+          keyframes={ this.state.keyframes[this.state.activeKeyframeId] }
+          keyframesId={ this.state.activeKeyframeId }
           element={ elements[activeElement] }
         />
       </div>
