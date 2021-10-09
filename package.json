@@ -1,6 +1,6 @@
 {
   "name": "css-animation-factory",
-  "version": "1.0.0",
+  "version": "0.0.0-alpha.0",
   "description": "CSS Animation Factory",
   "main": "index.js",
   "scripts": {
@@ -9,18 +9,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PowerGlove/css-animation-factory.git"
+    "url": "git+https://github.com/UnfocusedDrive/css-animation-factory.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/PowerGlove/css-animation-factory/issues"
+    "url": "https://github.com/UnfocusedDrive/css-animation-factory/issues"
   },
-  "homepage": "https://github.com/PowerGlove/css-animation-factory#readme",
+  "homepage": "https://github.com/UnfocusedDrive/css-animation-factory#readme",
   "dependencies": {
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
+    "@nurvus/ui": "git+https://github.com/UnfocusedDrive/nurvus-design-system.git#main",
     "classnames": "^2.2.6",
     "codemirror": "^5.58.3",
     "lodash": "^4.17.20",

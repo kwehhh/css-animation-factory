@@ -91,8 +91,7 @@ export default class AnimationContainer extends React.Component {
         }}
         visible={ isVisible }
       >
-        <div
-        >
+        <div>
           <div
             className="flex-30"
             style={{

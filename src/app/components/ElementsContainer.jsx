@@ -1,6 +1,7 @@
 import React from "react";
 import _ from 'lodash';
-import { Button, ButtonGroup, Tooltip } from '@material-ui/core';
+import { Tooltip } from '@material-ui/core';
+import { Button, ButtonGroup } from '@nurvus/ui';
 import AddNewElement from './AddNewElement.jsx';
 import AddIcon from '@material-ui/icons/Add';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
@@ -176,34 +177,18 @@ export default class ElementsContainer extends React.Component {
           } }
         >
           <div style={{ padding: '0px 20px 20px 20px' }}>
-          <ButtonGroup color="primary" aria-label="outlined primary button group">
-            <Tooltip title="Add New Element">
-              <Button
-                className="nv-btn"
-                size="small"
-                variant="contained"
-                color="primary"
-                onClick={ this.handleOpenModal }
-              >
-                <AddIcon />
-              </Button>
-            </Tooltip>
-            <Tooltip title="Clone Selected Element">
-              <Button
-                className="nv-btn"
-                size="small"
-                variant="contained"
-                color="primary"
-                disabled={ !_.isNumber(activeElement) }
-                onClick={ () => { this.props.onClone(this.props.activeElement) } }
-                style={ {
-                  width: '100%'
-                } }
-              >
-                <FileCopyIcon />
-              </Button>
-            </Tooltip>
-          </ButtonGroup>
+            <ButtonGroup>
+              <Tooltip title="Add New Element">
+                <Button onClick={ this.handleOpenModal }>
+                  <AddIcon />
+                </Button>
+              </Tooltip>
+              <Tooltip title="Clone Selected Element">
+                <Button onClick={ () => { this.props.onClone(this.props.activeElement) } } disabled={ !_.isNumber(activeElement) }>
+                  <FileCopyIcon />
+                </Button>
+              </Tooltip>
+            </ButtonGroup>
             {/* [ADD NEW GROUP] [GROUP EL EMENTS]  [DELETE ELEMENT] */}
           </div>
           { this.renderAddNewElementContainer() }

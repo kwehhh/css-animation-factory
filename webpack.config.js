@@ -26,7 +26,9 @@ module.exports = {
       },
       {
         test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
+        // temp allow usage of externals...
+        // https://stackoverflow.com/questions/53134659/webpack-doesnt-recognize-jsx-code-at-node-modules
+        // exclude: /node_modules/,
         use: {
           loader: "babel-loader"
         }
