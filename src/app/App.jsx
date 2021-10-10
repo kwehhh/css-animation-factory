@@ -318,7 +318,7 @@ export default class App extends React.Component {
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
 
-    const universalProps = {
+    const commonProps = {
       classes,
       keyframes,
       elements,
@@ -327,7 +327,7 @@ export default class App extends React.Component {
       onSelectKeyframes: this.handleSelectKeyframes
     };
 
-    console.log('render', this.state);
+    // console.log('render', this.state);
 
     // TODO: Keep everything OBJ based for now even if possible performance issues. Easier for devs and to work with function wise. Later look into optimatial performacne.
     return (
@@ -338,12 +338,12 @@ export default class App extends React.Component {
           <title>CSS Animation Factory</title>
         </Helmet>
         <Preview
-          { ...universalProps }
+          { ...commonProps }
           leftBoundaryWidth={ containerSpacing + elElementsContainerWidth }
           rightBoundaryWidth={ _.isNumber(activeElement) ? containerSpacing + elContainerWidth : 0 }
         />
         <ElementsContainer
-          { ...universalProps }
+          { ...commonProps }
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
           onClone={ this.handleCloneElement }
@@ -359,7 +359,7 @@ export default class App extends React.Component {
           }}
         >
           <ElementEditor
-            { ...universalProps }
+            { ...commonProps }
             width={ elContainerWidth }
             element={ elements[activeElement] }
             elementProps={ elements[activeElement] }
@@ -369,7 +369,7 @@ export default class App extends React.Component {
           />
         </div>
         <AnimationContainer
-          { ...universalProps }
+          { ...commonProps }
           keyframes={ this.state.keyframes[this.state.activeKeyframeId] }
           keyframesId={ this.state.activeKeyframeId }
           element={ elements[activeElement] }

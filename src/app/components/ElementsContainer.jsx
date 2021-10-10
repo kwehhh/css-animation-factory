@@ -72,38 +72,35 @@ export default class ElementsContainer extends React.Component {
     this.setState({modalVisible: false});
   }
 
-  renderElements() {
-    // console.log('renderElements', this.props);
-    const elements = this.props.elements.map((element, i) => {
+  renderElement(props, i) {
+    console.log('renderElement', props);
 
-      if (element) {
-        const { name } = element;
-        // console.log(element);
+    if (props) {
+      const { elements, name } = props;
+      let className = '';
+      let style = {};
+      if (i === this.props.activeElement) {
+        className = 'active';
+        style = {};
+      }
 
-
-        let className = '';
-        let style = {};
-        if (i === this.props.activeElement) {
-          className = 'active';
-          style = {};
-        }
-
-        // TODO: Add Title label on top "ELEMENTS"
-        return (
-          <div
-            className={ `menu-item ${className} flex-20` }
-            onClick={ () => { this.props.onClick(i) } }
-            style={ {
-              padding: '5px 20px',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              display:'flex',
-              ...style
-            } }
-          >
-            <div style={{
-              display: 'flex'
-              }}>
+      // TODO: Add Title label on top "ELEMENTS"
+      return (
+        <div
+          key={ i }
+          className={ `menu-item ${className}` }
+          onClick={ () => { this.props.onClick(i) } }
+          style={ {
+            padding: '5px 20px',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            display:'flex',
+            flexDirection: 'column',
+            ...style
+          } }
+        >
+          <div className="item flex-20" style={{ display: 'flex' }}>
+            <div style={{ display: 'flex' }}>
               { name }
             </div>
             <div className="flex-0" style={{display:'flex'}}>
@@ -126,17 +123,27 @@ export default class ElementsContainer extends React.Component {
                 </IconButton>
               </Tooltip>
             </div>
-
           </div>
-        );
-      }
-    });;
+          { this.renderElements(elements) }
+        </div>
+      );
+    }
 
-    return (
-      <div>
-        { elements }
-      </div>
-    )
+    return null;
+  }
+
+  renderElements(elements) {
+    console.log('renderElements', elements);
+
+    if (elements) {
+      return (
+        <div className="elements">
+          { elements.map((element, i) => this.renderElement(element, i)) }
+        </div>
+      );
+    }
+
+    return null;
   }
 
   renderAddNewElementContainer() {
@@ -152,12 +159,12 @@ export default class ElementsContainer extends React.Component {
   }
 
   render() {
-    console.log('render', this.props);
+    // console.log('render', this.props);
     // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
     // ADD MULTI SELECT/DRAGGING/ ETC
     // ADD LIST FOR CLASSES AND KEYFRAMES (MAYBE CATEGORIZE THEM FOR THEIR ACCESS)
 
-    const { activeElement } = this.props;
+    const { activeElement, elements } = this.props;
     return (
       <div style={{
         position: 'absolute',
@@ -192,7 +199,7 @@ export default class ElementsContainer extends React.Component {
             {/* [ADD NEW GROUP] [GROUP EL EMENTS]  [DELETE ELEMENT] */}
           </div>
           { this.renderAddNewElementContainer() }
-          { this.renderElements() }
+          { this.renderElements(elements) }
         </div>
       </div>
     );

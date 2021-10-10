@@ -108,20 +108,24 @@ export default class Preview extends React.Component {
     });
   }
 
+  renderElement(props, i) {
+    const { elements, name, classes } = props;
+
+    // console.log('renderElement', props);
+
+    return (
+      <div key={ `${name}-${i}` } className={ this.getClassNames(classes) }>
+        { this.renderElements(elements) }
+      </div>
+    );
+  }
+
   renderElements(elements) {
-    return elements.map((element) => {
-      const { name, classes } = element;
+    if (elements) {
+      return elements.map((element, i) => this.renderElement(element, i));
+    }
 
-      // let classNames;
-      // if (classes) {
-      //   classNames = classes.join(' ');
-      // }
-
-      // console.log('renderElements', element);
-      return (
-        <div key={ name } className={ this.getClassNames(classes) } />
-      );
-    });
+    return null;
   }
 
   // Leftoundary/rightboundary defaiult = 0
@@ -135,7 +139,7 @@ export default class Preview extends React.Component {
     } = this.props;
 
 
-    console.log('render', this.props);
+    // console.log('render', this.props);
 
     return (
       <div

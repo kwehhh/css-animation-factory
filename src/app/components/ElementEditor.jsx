@@ -623,7 +623,7 @@ export default class ElementEditor extends React.Component {
       });
 
 
-      console.log('renderKeyframesEditors', keyframeNames, this.props);
+      // console.log('renderKeyframesEditors', keyframeNames, this.props);
 
       return (
         <div>
@@ -768,7 +768,7 @@ export default class ElementEditor extends React.Component {
       onSubmit
     } = this.props;
 
-    console.log('render', this.props);
+    // console.log('render', this.props);
 
     if (elementProps && visible) {
       const { animation } = elementProps;

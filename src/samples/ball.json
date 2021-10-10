@@ -1,0 +1,44 @@
+{
+  "classes": {
+    "animation-orbit": {
+      "animationName": "orbit",
+      "animationDuration": "4s",
+      "animationIterationCount": "infinite",
+      "animationDirection": "normal",
+      "animationTimingFunction": "linear"
+    },
+    "shape-ball": {
+      "position": "absolute",
+      "borderRadius": "100%",
+      "background": "blue",
+      "width": "50px",
+      "height": "50px"
+    },
+    "classThree": {}
+  },
+  "keyframes": {
+    "orbit": {
+      "0%": {
+        "background": "blue",
+        "transform": "rotate(0deg) translateX(150px) rotate(0deg)"
+      },
+      "50%": {
+        "background": "orange",
+        "transform": "rotate(180deg) translateX(150px) rotate(-180deg)"
+      },
+      "100%": {
+        "background": "blue",
+        "transform": "rotate(360deg) translateX(150px) rotate(-360deg)"
+      }
+    }
+  },
+  "elements": [
+    {
+      "name": "ball",
+      "classes": [
+        "animation-orbit",
+        "shape-ball"
+      ]
+    }
+  ]
+}

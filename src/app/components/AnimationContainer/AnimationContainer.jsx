@@ -42,7 +42,7 @@ export default class AnimationContainer extends React.Component {
   renderKeyframes() {
     const { element, keyframes } = this.props;
 
-    console.log('renderKeyframes', this.props);
+    // console.log('renderKeyframes', this.props);
 
     if (element && keyframes) {
       return Object.keys(keyframes).map((key) => {
@@ -70,11 +70,9 @@ export default class AnimationContainer extends React.Component {
 
   render() {
     const { element, keyframes } = this.props;
-
     const isVisible = Boolean(element && keyframes) || false;
 
-    console.log('render', isVisible, this.props);
-
+    // console.log('render', isVisible, this.props);
 
     return (
       <Container
