@@ -1,7 +1,7 @@
 import React from "react";
 import _ from 'lodash';
+import { Button, ButtonGroup, Layout, Title } from '@nurvus/ui';
 import { Tooltip } from '@material-ui/core';
-import { Button, ButtonGroup } from '@nurvus/ui';
 import AddNewElement from './AddNewElement.jsx';
 import AddIcon from '@material-ui/icons/Add';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
@@ -184,6 +184,14 @@ export default class ElementsContainer extends React.Component {
           } }
         >
           <div style={{ padding: '0px 20px 20px 20px' }}>
+            <Layout display="flex" alignItems="center">
+              <Title level={ 3 }>Layers</Title>
+              <Tooltip title="Add New Element">
+                <Button onClick={ this.handleOpenModal }>
+                  <AddIcon />
+                </Button>
+              </Tooltip>
+            </Layout>
             <ButtonGroup>
               <Tooltip title="Add New Element">
                 <Button onClick={ this.handleOpenModal }>
