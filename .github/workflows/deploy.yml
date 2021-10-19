@@ -27,17 +27,14 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           username: ${{ secrets.SSH_USERNAME }}
           script: |
-            # cd /home/apps # go to app dir
-            # rm -rf memory-leak/ # wipe out app for fresh build
-            # git clone https://github.com/UnfocusedDrive/memory-leak.git # get latest
-            # cd memory-leak # go to app dir
-            # npm install # get latest packages
-            # cd client # go to app client dir
-            # npm install # get latest packages on client
-            # npm run build # build app
-            # rm -rf /var/www/unstable.memoryleak.ai/ # remove directory
-            # mkdir /var/www/unstable.memoryleak.ai
-            # sudo mv -i build/* /var/www/unstable.memoryleak.ai/ # move build to serve dir
-            # # git clone https://github.com/UnfocusedDrive/memory-leak.git
-            # echo 'Successfully deployed to unstable.memoryleak.ai'
+            cd /home/apps # go to app dir
+            rm -rf css-animation-factory/ # wipe out app for fresh build
+            git clone https://github.com/UnfocusedDrive/css-animation-factory.git # get latest
+            cd css-animation-factory # go to app dir
+            npm install # get latest packages
+            npm run build # build app
+            rm -rf /var/www/animated.memoryleak.ai/ # remove directory
+            mkdir /var/www/animated.memoryleak.ai
+            sudo mv -i dist/* /var/www/animated.memoryleak.ai/ # move build to serve dir
+            echo 'Successfully deployed to animated.memoryleak.ai'
 
