@@ -11,4 +11,7 @@ CSS Animation Factory - Sprinkle that CSS into the factory yo!
 ### Build
 1. `npm run build` to generate a build to `/dist` directorry.
 
+### Branches
+1. All commits go to brain `main`
+
 Thanks. Enjoy ~ ;)
