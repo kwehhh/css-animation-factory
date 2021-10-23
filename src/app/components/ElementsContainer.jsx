@@ -1,6 +1,6 @@
 import React from "react";
 import _ from 'lodash';
-import { Button, ButtonGroup, Layout, Title } from '@nurvus/ui';
+import { Button, ButtonGroup, Layout, Menu, Title } from '@nurvus/ui';
 import { Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 import AddIcon from '@material-ui/icons/Add';
@@ -73,7 +73,7 @@ export default class ElementsContainer extends React.Component {
   }
 
   renderElement(props, i) {
-    console.log('renderElement', props);
+    // console.log('renderElement', props);
 
     if (props) {
       const { elements, name } = props;
@@ -133,7 +133,7 @@ export default class ElementsContainer extends React.Component {
   }
 
   renderElements(elements) {
-    console.log('renderElements', elements);
+    // console.log('renderElements', elements);
 
     if (elements) {
       return (
@@ -156,6 +156,21 @@ export default class ElementsContainer extends React.Component {
         onClose={ this.handleCloseModal }
       />
     );
+  }
+
+  getMenuItems(elements) {
+    if (elements) {
+      return elements.map(item => {
+        return {
+          ...item,
+          label: item.name,
+          items: this.getMenuItems(item.elements)
+        }
+      });
+    }
+
+    return [];
+
   }
 
   render() {
@@ -206,6 +221,11 @@ export default class ElementsContainer extends React.Component {
             </ButtonGroup>
             {/* [ADD NEW GROUP] [GROUP EL EMENTS]  [DELETE ELEMENT] */}
           </div>
+          <Menu
+            activePath={ this.props.activePath }
+            items={ this.getMenuItems(elements) }
+            onClick={ (e, path) => this.props.onClick(path) }
+          />
           { this.renderAddNewElementContainer() }
           { this.renderElements(elements) }
         </div>

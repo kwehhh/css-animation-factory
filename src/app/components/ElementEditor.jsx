@@ -768,6 +768,8 @@ export default class ElementEditor extends React.Component {
       onSubmit
     } = this.props;
 
+    // return 'hi';
+
     // console.log('render', this.props);
 
     if (elementProps && visible) {

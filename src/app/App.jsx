@@ -14,6 +14,8 @@ export default class App extends React.Component {
 
     const { data } = props;
     this.state = {
+      // Current Selected Layer/Element
+      activePath: [0, 0, 0],
       // Defaults
       classes: {},
       keyframes: {},
@@ -38,6 +40,15 @@ export default class App extends React.Component {
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
     this.handleUpdateKeyframes = this.handleUpdateKeyframes.bind(this);
+  }
+
+  getActiveElement(path, elements) {
+    return path.reduce((nextElement, index) => {
+      return nextElement.elements[index];
+    }, { elements });
+
+
+    // console.log('active', active, elements[this.state.activeElement]);
   }
 
   getCSSfromStyleObj(style, formatter) {
@@ -190,26 +201,57 @@ export default class App extends React.Component {
     });
   }
 
+
   /**
    * New/Update ....
-   * @param {number} index - ...
+   * @param {number} activePath - ...
    */
-  handleSelectElement(index) {
-    this.setState((prevState) => {
-      let activeElement;
-      if (prevState.activeElement === index) {
-        return {
-          activeElement: null,
-          // Hide keyframes panel
-          activeKeyframes: null
-        }
-      }
-
-      return {
-        activeElement: index
-      }
+   handleSelectElement(activePath) {
+    console.log('handleSelectElement', activePath);
+    this.setState({
+      activePath
     });
+
+
+    // this.setState((prevState) => {
+    //   let activeElement;
+    //   if (prevState.activeElement === index) {
+    //     return {
+    //       activeElement: null,
+    //       // Hide keyframes panel
+    //       activeKeyframes: null
+    //     }
+    //   }
+
+    //   return {
+    //     activeElement: index
+    //   }
+    // });
   }
+
+
+  // /**
+  //  * New/Update ....
+  //  * @param {number} index - ...
+  //  */
+  // handleSelectElement(index) {
+
+
+  //   this.setState((prevState) => {
+  //     let activeElement;
+  //     if (prevState.activeElement === index) {
+  //       return {
+  //         activeElement: null,
+  //         // Hide keyframes panel
+  //         activeKeyframes: null
+  //       }
+  //     }
+
+  //     return {
+  //       activeElement: index
+  //     }
+  //   });
+  // }
 
   handleSelectKeyframes(activeKeyframeId) {
     console.log('handleSelectKeyframes', activeKeyframeId);
@@ -312,13 +354,17 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { activeElement, classes, keyframes, elements } = this.state;
+    const { activeElement, activePath, classes, keyframes, elements } = this.state;
+
+
+    console.log('render', this.state, this.props);
 
     const containerSpacing = 20;
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
 
     const commonProps = {
+      activePath,
       classes,
       keyframes,
       elements,
@@ -329,13 +375,15 @@ export default class App extends React.Component {
 
     // console.log('render', this.state);
 
+
+    // const activeEl = this.getActiveElement(activePath, elements);
+
     // TODO: Keep everything OBJ based for now even if possible performance issues. Easier for devs and to work with function wise. Later look into optimatial performacne.
     return (
       <div>
         <Helmet>
           <style>{ this.getDisplayCSS() }</style>
           <meta charSet="utf-8" />
-          <title>CSS Animation Factory</title>
         </Helmet>
         <Preview
           { ...commonProps }
@@ -344,6 +392,7 @@ export default class App extends React.Component {
         />
         <ElementsContainer
           { ...commonProps }
+
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
           onClone={ this.handleCloneElement }
@@ -361,8 +410,8 @@ export default class App extends React.Component {
           <ElementEditor
             { ...commonProps }
             width={ elContainerWidth }
-            element={ elements[activeElement] }
-            elementProps={ elements[activeElement] }
+            element={ this.getActiveElement(activePath, elements) }
+            elementProps={ this.getActiveElement(activePath, elements) }
             visible={ this.state.showElementContainer }
             onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
             onSubmit={ this.handleUpdateElements }
@@ -372,7 +421,7 @@ export default class App extends React.Component {
           { ...commonProps }
           keyframes={ this.state.keyframes[this.state.activeKeyframeId] }
           keyframesId={ this.state.activeKeyframeId }
-          element={ elements[activeElement] }
+          element={ this.getActiveElement(activePath, elements) }
         />
       </div>
     );
