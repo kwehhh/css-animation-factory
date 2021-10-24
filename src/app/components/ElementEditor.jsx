@@ -117,11 +117,14 @@ export default class ElementEditor extends React.Component {
 
   getElementClassProps(classes, elClasses) {
     const filtered = {};
-    elClasses.forEach((className) => {
-      if (classes && classes[className]) {
-        filtered[className] = classes[className];
-      }
-    });
+    if (elClasses) {
+      elClasses.forEach((className) => {
+        if (classes && classes[className]) {
+          filtered[className] = classes[className];
+        }
+      });
+    }
+
 
     // console.log('getElementClassProps', filtered);
 
@@ -770,7 +773,7 @@ export default class ElementEditor extends React.Component {
 
     // return 'hi';
 
-    // console.log('render', this.props);
+    console.log('render', this.props);
 
     if (elementProps && visible) {
       const { animation } = elementProps;
