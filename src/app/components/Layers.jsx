@@ -1,9 +1,10 @@
 import React from "react";
 import _ from 'lodash';
-import { Button, ButtonGroup, Layout, Menu, Title } from '@nurvus/ui';
+import { Button, ButtonGroup, Layout, Menu, Text, Title } from '@nurvus/ui';
 import { Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 import AddIcon from '@material-ui/icons/Add';
+import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
@@ -13,7 +14,7 @@ const NEW_EL_NAME = 'myNewElement';
 const NEW_CLASS_NAME = 'myNewClass';
 const NEW_KEYFRAMES_NAME = 'myNewKeyframes';
 
-export default class ElementsContainer extends React.Component {
+export default class Layers extends React.Component {
 
   constructor() {
     super();
@@ -72,80 +73,6 @@ export default class ElementsContainer extends React.Component {
     this.setState({modalVisible: false});
   }
 
-  renderElement(props, i) {
-    // console.log('renderElement', props);
-
-    if (props) {
-      const { elements, name } = props;
-      let className = '';
-      let style = {};
-      if (i === this.props.activeElement) {
-        className = 'active';
-        style = {};
-      }
-
-      // TODO: Add Title label on top "ELEMENTS"
-      return (
-        <div
-          key={ i }
-          className={ `menu-item ${className}` }
-          onClick={ () => { this.props.onClick(i) } }
-          style={ {
-            padding: '5px 20px',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            display:'flex',
-            flexDirection: 'column',
-            ...style
-          } }
-        >
-          <div className="item flex-20" style={{ display: 'flex' }}>
-            <div style={{ display: 'flex' }}>
-              { name }
-            </div>
-            <div className="flex-0" style={{display:'flex'}}>
-              <Tooltip title="Hide Element">
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  size="small"
-                >
-                  <RemoveRedEyeIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Lock Element">
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  size="small"
-                >
-                  <LockOpenIcon />
-                </IconButton>
-              </Tooltip>
-            </div>
-          </div>
-          { this.renderElements(elements) }
-        </div>
-      );
-    }
-
-    return null;
-  }
-
-  renderElements(elements) {
-    // console.log('renderElements', elements);
-
-    if (elements) {
-      return (
-        <div className="elements">
-          { elements.map((element, i) => this.renderElement(element, i)) }
-        </div>
-      );
-    }
-
-    return null;
-  }
-
   renderAddNewElementContainer() {
     return (
       <AddNewElement
@@ -178,8 +105,25 @@ export default class ElementsContainer extends React.Component {
     // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
     // ADD MULTI SELECT/DRAGGING/ ETC
     // ADD LIST FOR CLASSES AND KEYFRAMES (MAYBE CATEGORIZE THEM FOR THEIR ACCESS)
-
     const { activeElement, elements } = this.props;
+    const overflowStyle = {
+      textOverflow: 'ellipsis',
+      overflow: 'hidden',
+      whiteSpace: 'nowrap'
+    };
+
+    const itemRenderer = ({ label }) => {
+      return (
+        <Layout display="flex" alignItems="center" justifyContent="space-between">
+          <Text style={ overflowStyle }>{ label }</Text>
+          <Layout display="flex" alignItems="center" justifyContent="space-between">
+            <RemoveRedEyeIcon />
+            <LockOpenIcon />
+          </Layout>
+        </Layout>
+      );
+    };
+
     return (
       <div style={{
         position: 'absolute',
@@ -199,35 +143,38 @@ export default class ElementsContainer extends React.Component {
           } }
         >
           <div style={{ padding: '0px 20px 20px 20px' }}>
-            <Layout display="flex" alignItems="center">
+            <Layout>
               <Title level={ 3 }>Layers</Title>
-              <Tooltip title="Add New Element">
-                <Button onClick={ this.handleOpenModal }>
-                  <AddIcon />
+              <ButtonGroup>
+                <Button>
+                  <Tooltip title="JSON Data">
+                    <DesktopWindowsIcon />
+                  </Tooltip>
                 </Button>
-              </Tooltip>
+                <Tooltip title="Add New Element">
+                  <Button onClick={ this.handleOpenModal }>
+                    <AddIcon />
+                  </Button>
+                </Tooltip>
+                <Tooltip title="Clone Selected Layer">
+                  <Button
+                    onClick={ this.props.onClone }
+                    disabled={ !this.props.activePath.length }
+                  >
+                    <FileCopyIcon />
+                  </Button>
+                </Tooltip>
+              </ButtonGroup>
             </Layout>
-            <ButtonGroup>
-              <Tooltip title="Add New Element">
-                <Button onClick={ this.handleOpenModal }>
-                  <AddIcon />
-                </Button>
-              </Tooltip>
-              <Tooltip title="Clone Selected Element">
-                <Button onClick={ () => { this.props.onClone(this.props.activeElement) } } disabled={ !_.isNumber(activeElement) }>
-                  <FileCopyIcon />
-                </Button>
-              </Tooltip>
-            </ButtonGroup>
             {/* [ADD NEW GROUP] [GROUP EL EMENTS]  [DELETE ELEMENT] */}
           </div>
           <Menu
             activePath={ this.props.activePath }
             items={ this.getMenuItems(elements) }
+            itemRenderer={ itemRenderer }
             onClick={ (e, path) => this.props.onClick(path) }
           />
           { this.renderAddNewElementContainer() }
-          { this.renderElements(elements) }
         </div>
       </div>
     );
