@@ -34,14 +34,16 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: ["style-loader", "css-loader"]
       }
     ]
   },
   plugins: [
-    // OPTIONS DOC: https://github.com/jantimon/html-webpack-plugin#options
+    // HtmlWebpackPlugin doc: https://github.com/jantimon/html-webpack-plugin#options
     new HtmlWebpackPlugin({
-      title: 'CSS Animation Factory'
+      title: 'CSS Animation Factory',
+      // Resolve this -- this creates an error
+      // templateContent: '<div id="app"></div>'
     })
-  ],
+  ]
 };
