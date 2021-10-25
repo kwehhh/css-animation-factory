@@ -2,11 +2,10 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
-import Layers from './components/Layers.jsx';
+import ElementsContainer from './components/ElementsContainer.jsx';
 import Preview from './components/Preview.jsx';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import "./App.scss";
-import { constant } from "lodash";
 
 export default class App extends React.Component {
 
@@ -16,8 +15,7 @@ export default class App extends React.Component {
     const { data } = props;
     this.state = {
       // Current Selected Layer/Element
-      activePath: [],
-      // activePath: [0, 0, 0],
+      activePath: [0, 0, 0],
       // Defaults
       classes: {},
       keyframes: {},
@@ -44,23 +42,13 @@ export default class App extends React.Component {
     this.handleUpdateKeyframes = this.handleUpdateKeyframes.bind(this);
   }
 
-  /**
-   *
-   * @param {*} path
-   * @param {*} elements
-   * @returns {object|null}
-   */
   getActiveElement(path, elements) {
-    if (path.length) {
-      const element = path.reduce((nextElement, index) => {
-        return nextElement.elements[index];
-      }, { elements });
+    return path.reduce((nextElement, index) => {
+      return nextElement.elements[index];
+    }, { elements });
 
-      // console.log('getActiveElement', element, path, elements);
-      return element;
-    }
 
-    return null;
+    // console.log('active', active, elements[this.state.activeElement]);
   }
 
   getCSSfromStyleObj(style, formatter) {
@@ -194,53 +182,76 @@ export default class App extends React.Component {
     return css;
   }
 
-  cloneInsertion(elements = [], path = []) {
-    if (path.length) {
-      const [index, ...nextPath] = path;
-      const newElements = [...elements];
-      const refElement = newElements[index];
-      const extraProps = refElement.elements ? { elements: this.cloneInsertion(refElement.elements, nextPath) } : {};
-      const newElement = {
-        ...refElement,
-        ...extraProps
-      };
-      newElements[index] = newElement;
-
-      // Clone Element
-      if (path.length === 1) {
-        newElements.push(newElement);
-      }
-
-      return newElements;
-    }
-
-    return elements;
-  }
-
-  handleCloneElement() {
+  handleCloneElement(index) {
     this.setState((prevState) => {
+      const prevElements = prevState.elements;
+      // UPDATE: Actually maybe not, since you could use index position for UNIQUE
+      // TODO: ACTUAL COPY If same name..., add a `+1`` to name
+      const clonedElement = {
+        ...prevElements[index]
+      };
+      const newElements = [
+        ...prevElements,
+        clonedElement
+      ];
+
       return {
-        elements: this.cloneInsertion(prevState.elements, prevState.activePath)
+        elements: newElements
       };
     });
   }
+
 
   /**
    * New/Update ....
-   * @param {array} path - ...
+   * @param {number} activePath - ...
    */
-   handleSelectElement(path) {
-    console.log('handleSelectElement', path);
-
-    let activePath = path;
-    if (activePath.join('') === this.state.activePath.join('')) {
-      activePath = [];
-    }
-
+   handleSelectElement(activePath) {
+    console.log('handleSelectElement', activePath);
     this.setState({
       activePath
     });
+
+
+    // this.setState((prevState) => {
+    //   let activeElement;
+    //   if (prevState.activeElement === index) {
+    //     return {
+    //       activeElement: null,
+    //       // Hide keyframes panel
+    //       activeKeyframes: null
+    //     }
+    //   }
+
+    //   return {
+    //     activeElement: index
+    //   }
+    // });
   }
+
+
+  // /**
+  //  * New/Update ....
+  //  * @param {number} index - ...
+  //  */
+  // handleSelectElement(index) {
+
+
+  //   this.setState((prevState) => {
+  //     let activeElement;
+  //     if (prevState.activeElement === index) {
+  //       return {
+  //         activeElement: null,
+  //         // Hide keyframes panel
+  //         activeKeyframes: null
+  //       }
+  //     }
+
+  //     return {
+  //       activeElement: index
+  //     }
+  //   });
+  // }
 
   handleSelectKeyframes(activeKeyframeId) {
     console.log('handleSelectKeyframes', activeKeyframeId);
@@ -344,11 +355,14 @@ export default class App extends React.Component {
 
   render() {
     const { activeElement, activePath, classes, keyframes, elements } = this.state;
+
+
     console.log('render', this.state, this.props);
 
     const containerSpacing = 20;
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
+
     const commonProps = {
       activePath,
       classes,
@@ -359,6 +373,12 @@ export default class App extends React.Component {
       onSelectKeyframes: this.handleSelectKeyframes
     };
 
+    // console.log('render', this.state);
+
+
+    // const activeEl = this.getActiveElement(activePath, elements);
+
+    // TODO: Keep everything OBJ based for now even if possible performance issues. Easier for devs and to work with function wise. Later look into optimatial performacne.
     return (
       <div>
         <Helmet>
@@ -370,8 +390,9 @@ export default class App extends React.Component {
           leftBoundaryWidth={ containerSpacing + elElementsContainerWidth }
           rightBoundaryWidth={ _.isNumber(activeElement) ? containerSpacing + elContainerWidth : 0 }
         />
-        <Layers
+        <ElementsContainer
           { ...commonProps }
+
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
           onClone={ this.handleCloneElement }

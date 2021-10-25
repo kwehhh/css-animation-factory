@@ -39,10 +39,9 @@ module.exports = {
     ]
   },
   plugins: [
-    // HtmlWebpackPlugin doc: https://github.com/jantimon/html-webpack-plugin#options
+    // OPTIONS DOC: https://github.com/jantimon/html-webpack-plugin#options
     new HtmlWebpackPlugin({
-      title: 'CSS Animation Factory',
-      templateContent: '<div id="app"></div>'
+      title: 'CSS Animation Factory'
     })
   ],
 };

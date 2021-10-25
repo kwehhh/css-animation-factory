@@ -6,5 +6,5 @@ import submarine from './samples/submarine.json';
 
 ReactDOM.render(
   <App data={ submarine } />,
-  document.getElementById('app')
+  document.body
 );
