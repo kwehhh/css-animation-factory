@@ -4,6 +4,11 @@ $body-color: red;
   box-sizing: border-box;
 }
 
+// Material UI Override
+.MuiPaper-root {
+  background: #2e2442 !important;
+}
+
 body {
   // reset
   margin: 0;

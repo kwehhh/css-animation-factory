@@ -1,5 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import { Menu, Layout, Link } from '@nurvus/ui';
+import { Drawer } from '@material-ui/core';
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
 import Layers from './components/Layers.jsx';
@@ -29,7 +31,8 @@ export default class App extends React.Component {
       activeElement: 0,
       activeKeyframesId: null,
       // activeKeyframesId: 'orbit',
-      showElementContainer: true
+      showElementContainer: true,
+      showPresets: false,
     };
 
     // console.log('constructor', props, this.state);
@@ -38,6 +41,8 @@ export default class App extends React.Component {
     this.handleSelectKeyframes = this.handleSelectKeyframes.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
     this.handleHideContainer = this.handleHideContainer.bind(this);
+    this.handleShowPresets = this.handleShowPresets.bind(this);
+    this.handleHidePresets = this.handleHidePresets.bind(this);
     this.handleUpdateClass = this.handleUpdateClass.bind(this);
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
@@ -255,6 +260,14 @@ export default class App extends React.Component {
     this.setState({showElementContainer: false});
   }
 
+  handleShowPresets() {
+    this.setState({showPresets: true});
+  }
+
+  handleHidePresets() {
+    this.setState({showPresets: false});
+  }
+
   // new
   handleUpdateElements(element) {
     this.handleHideContainer();
@@ -365,11 +378,31 @@ export default class App extends React.Component {
           <style>{ this.getDisplayCSS() }</style>
           <meta charSet="utf-8" />
         </Helmet>
+        <div style={{
+          height: 30,
+          position: 'fixed',
+          background: '#403960',
+          color: 'white',
+          width: '100%',
+          padding: '5px 10px'
+        }}>
+          <Layout display="flex" alignItems="center" justifyContent="space-between">
+            <div>CSS Animation Factory</div>
+            <Link onClick={ this.handleShowPresets }>Presets</Link>
+          </Layout>
+        </div>
         <Preview
           { ...commonProps }
           leftBoundaryWidth={ containerSpacing + elElementsContainerWidth }
           rightBoundaryWidth={ _.isNumber(activeElement) ? containerSpacing + elContainerWidth : 0 }
         />
+        <div style={{
+        position: 'absolute',
+        top: 30,
+        bottom: 0,
+        left: '20px',
+        padding: '20px 0'
+      }}>
         <Layers
           { ...commonProps }
           activeElement={ activeElement }
@@ -377,10 +410,11 @@ export default class App extends React.Component {
           onClone={ this.handleCloneElement }
           width={ elElementsContainerWidth }
         />
+      </div>
         <div
           style={{
             position: 'absolute',
-            top: 0,
+            top: 30,
             bottom: 0,
             right: '20px',
             padding: '20px 0'
@@ -402,6 +436,30 @@ export default class App extends React.Component {
           keyframesId={ this.state.activeKeyframeId }
           element={ this.getActiveElement(activePath, elements) }
         />
+        <Drawer
+          anchor="right"
+          open={ this.state.showPresets }
+          onClose={ this.handleHidePresets }
+        >
+          <Link onClick={ this.handleHidePresets }>Close Presets</Link>
+          <Menu
+            items={ [
+              {
+                label: 'Item 1',
+              },
+              {
+                label: 'Item 2'
+              },
+              {
+                label: 'Item 3'
+              },
+              {
+                label: 'Item 4'
+              }
+            ] }
+          />
+
+        </Drawer>
       </div>
     );
   }

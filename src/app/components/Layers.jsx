@@ -125,57 +125,48 @@ export default class Layers extends React.Component {
     };
 
     return (
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: '20px',
-        padding: '20px 0'
-      }}>
-
-        <div
-          className="container"
-          style={ {
-            width: this.props.width,
-            maxHeight: '100%',
-            overflowY: 'auto',
-            padding: '20px 0'
-          } }
-        >
-          <div style={{ padding: '0px 20px 20px 20px' }}>
-            <Layout>
-              <Title level={ 3 }>Layers</Title>
-              <ButtonGroup>
-                <Button>
-                  <Tooltip title="JSON Data">
-                    <DesktopWindowsIcon />
-                  </Tooltip>
+      <div
+        className="container"
+        style={ {
+          width: this.props.width,
+          maxHeight: '100%',
+          overflowY: 'auto',
+          padding: '20px 0'
+        } }
+      >
+        <div style={{ padding: '0px 20px 20px 20px' }}>
+          <Layout>
+            <Title level={ 3 }>Layers</Title>
+            <ButtonGroup>
+              <Button>
+                <Tooltip title="JSON Data">
+                  <DesktopWindowsIcon />
+                </Tooltip>
+              </Button>
+              <Tooltip title="Add New Element">
+                <Button onClick={ this.handleOpenModal }>
+                  <AddIcon />
                 </Button>
-                <Tooltip title="Add New Element">
-                  <Button onClick={ this.handleOpenModal }>
-                    <AddIcon />
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Clone Selected Layer">
-                  <Button
-                    onClick={ this.props.onClone }
-                    disabled={ !this.props.activePath.length }
-                  >
-                    <FileCopyIcon />
-                  </Button>
-                </Tooltip>
-              </ButtonGroup>
-            </Layout>
-            {/* [ADD NEW GROUP] [GROUP EL EMENTS]  [DELETE ELEMENT] */}
-          </div>
-          <Menu
-            activePath={ this.props.activePath }
-            items={ this.getMenuItems(elements) }
-            itemRenderer={ itemRenderer }
-            onClick={ (e, path) => this.props.onClick(path) }
-          />
-          { this.renderAddNewElementContainer() }
+              </Tooltip>
+              <Tooltip title="Clone Selected Layer">
+                <Button
+                  onClick={ this.props.onClone }
+                  disabled={ !this.props.activePath.length }
+                >
+                  <FileCopyIcon />
+                </Button>
+              </Tooltip>
+            </ButtonGroup>
+          </Layout>
+          {/* [ADD NEW GROUP] [GROUP EL EMENTS]  [DELETE ELEMENT] */}
         </div>
+        <Menu
+          activePath={ this.props.activePath }
+          items={ this.getMenuItems(elements) }
+          itemRenderer={ itemRenderer }
+          onClick={ (e, path) => this.props.onClick(path) }
+        />
+        { this.renderAddNewElementContainer() }
       </div>
     );
   }
