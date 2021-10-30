@@ -1,8 +1,16 @@
+const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 module.exports = {
   devServer: {
+    before: function(app) {
+      app.get("/getData", function(req, res) {
+        // res.json(data);
+        console.log(req, res);
+        res.json('asddsadsad');
+      });
+    },
     contentBase: './dist',
   },
   entry: './src/index.js',
@@ -37,6 +45,12 @@ module.exports = {
     ]
   },
   plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: 'src/data', to: 'data' },
+        // { from: 'other', to: 'public' },
+      ],
+    }),
     // HtmlWebpackPlugin doc: https://github.com/jantimon/html-webpack-plugin#options
     new HtmlWebpackPlugin({
       title: 'CSS Animation Factory',
