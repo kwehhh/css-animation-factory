@@ -8,7 +8,7 @@ name: Build & Deploy
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ main ]
+    branches: [ fetch.testing ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,10 +31,12 @@ jobs:
             rm -rf css-animation-factory/ # wipe out app for fresh build
             git clone https://github.com/UnfocusedDrive/css-animation-factory.git # get latest
             cd css-animation-factory # go to app dir
+            git fetch
+            git checkout fetch.testing
             npm install # get latest packages
             npm run build # build app
-            rm -rf /var/www/animated.memoryleak.ai/ # remove directory
-            mkdir /var/www/animated.memoryleak.ai
-            sudo mv -i dist/* /var/www/animated.memoryleak.ai/ # move build to serve dir
-            echo 'Successfully deployed to animated.memoryleak.ai'
+            rm -rf /var/www/unstable.memoryleak.ai/ # remove directory
+            mkdir /var/www/unstable.memoryleak.ai
+            sudo mv -i dist/* /var/www/unstable.memoryleak.ai/ # move build to serve dir
+            echo 'Successfully deployed to unstable.memoryleak.ai'
 
