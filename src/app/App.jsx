@@ -33,6 +33,7 @@ export default class App extends React.Component {
       // activeKeyframesId: 'orbit',
       showElementContainer: true,
       showPresets: false,
+      presets: []
     };
 
     // console.log('constructor', props, this.state);
@@ -152,7 +153,8 @@ export default class App extends React.Component {
 
   // Fetch JSON Preset
   componentDidMount() {
-    const file = `data/${this.props.manifest.files[0]}`;
+    const { files } = this.props.manifest;
+    const file = `data/${files[0]}`;
     const data = fetch(file).then(res => res.json()).then(data => {
       this.setState(prevState => {
         return {
@@ -160,6 +162,16 @@ export default class App extends React.Component {
           ...data
         }
       });
+    });
+    Promise.all(files.map(file => fetch(`data/${file}`))).then(responses => {
+      return Promise.all(responses.map(res => res.json()));
+    }).then(presets => {
+      this.setState({presets: presets.map((preset, i) => {
+        return {
+          ...preset,
+          src: files[i]
+        };
+      })});
     });
   }
 
@@ -386,6 +398,8 @@ export default class App extends React.Component {
       onSelectKeyframes: this.handleSelectKeyframes
     };
 
+    const menuItems = this.state.presets.map(preset => ({ label: preset.title }));
+
     return (
       <div>
         <Helmet>
@@ -457,20 +471,7 @@ export default class App extends React.Component {
         >
           <Link onClick={ this.handleHidePresets }>Close Presets</Link>
           <Menu
-            items={ [
-              {
-                label: 'Item 1',
-              },
-              {
-                label: 'Item 2'
-              },
-              {
-                label: 'Item 3'
-              },
-              {
-                label: 'Item 4'
-              }
-            ] }
+            items={ menuItems }
           />
 
         </Drawer>
