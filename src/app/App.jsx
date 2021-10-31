@@ -287,8 +287,29 @@ export default class App extends React.Component {
     this.setState({showPresets: true});
   }
 
-  handleHidePresets() {
-    this.setState({showPresets: false});
+  handleHidePresets(e, path) {
+    this.setState({
+      showPresets: false
+    });
+  }
+
+  /**
+   * Handle set preset
+   * @param {object} e - event
+   * @param {array} path - preset index
+   */
+  handleSetPreset = (e, path) => {
+    let extraProps = {};
+    if (path) {
+      extraProps = {
+        ...this.state.presets[path]
+      };
+    }
+
+    this.setState({
+      showPresets: false,
+      ...extraProps
+    });
   }
 
   // new
@@ -472,6 +493,7 @@ export default class App extends React.Component {
           <Link onClick={ this.handleHidePresets }>Close Presets</Link>
           <Menu
             items={ menuItems }
+            onClick={ this.handleSetPreset }
           />
 
         </Drawer>
