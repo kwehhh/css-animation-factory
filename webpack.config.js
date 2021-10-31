@@ -1,3 +1,4 @@
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
@@ -23,29 +24,32 @@ module.exports = {
       {
         test: /\.s[ac]ss$/i,
         use: [
-          // Creates `style` nodes from JS strings
           "style-loader",
-          // Translates CSS into CommonJS
           "css-loader",
-          // Compiles Sass to CSS
           "sass-loader"
         ],
       },
       {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"]
-      }
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        use: [
+          'file-loader'
+        ]
+      },
     ]
   },
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: 'src/data', to: 'data' },
+        { from: 'src/data', to: 'data' }
       ],
     }),
-    // HtmlWebpackPlugin doc: https://github.com/jantimon/html-webpack-plugin#options
     new HtmlWebpackPlugin({
-      title: 'CSS Animation Factory',
-    })
+      title: 'CSS Animation Factory'
+    }),
+    new CleanWebpackPlugin()
   ]
 };

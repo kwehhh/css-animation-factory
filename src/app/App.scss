@@ -1,5 +1,14 @@
 $body-color: red;
 
+
+
+@font-face {
+  font-family: 'Dancing Script';
+  src:  url('../assets/font/DancingScript-Medium.ttf') format('truetype');
+  font-weight: 500;
+}
+
+
 * {
   box-sizing: border-box;
 }
@@ -18,6 +27,10 @@ body {
   font-family: 'Helvetica', 'Arial', sans-serif;
   // For animations...
   overflow: hidden;
+}
+
+.logo {
+  font-family: 'Dancing Script', cursive;
 }
 
 .stacking-10 {

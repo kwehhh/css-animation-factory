@@ -420,7 +420,12 @@ export default class App extends React.Component {
     };
 
     const menuItems = this.state.presets.map(preset => ({ label: preset.title }));
+    // <link href="assets/font/DancingScript-Medium.ttf" rel="stylesheet"></link>
 
+
+    // <link rel="preconnect" href="https://fonts.googleapis.com" />
+    // <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    // <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&display=swap" rel="stylesheet"></link>
     return (
       <div>
         <Helmet>
@@ -436,7 +441,7 @@ export default class App extends React.Component {
           padding: '5px 10px'
         }}>
           <Layout display="flex" alignItems="center" justifyContent="space-between">
-            <div>CSS Animation Factory</div>
+            <div className="logo">CSS Animation Factory</div>
             <Link onClick={ this.handleShowPresets }>Presets</Link>
           </Layout>
         </div>
