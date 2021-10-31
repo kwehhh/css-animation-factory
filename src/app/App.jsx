@@ -82,8 +82,6 @@ export default class App extends React.Component {
     return css;
   }
 
-
-
   // CSS goes into app HEAD STYLE tag
   getDisplayCSS() {
     const { classes, elements, keyframes } = this.state;
@@ -150,6 +148,19 @@ export default class App extends React.Component {
     // css += `}\n`;
 
     return css;
+  }
+
+  // Fetch JSON Preset
+  componentDidMount() {
+    const file = `data/${this.props.manifest.files[0]}`;
+    const data = fetch(file).then(res => res.json()).then(data => {
+      this.setState(prevState => {
+        return {
+          ...prevState,
+          ...data
+        }
+      });
+    });
   }
 
   createCSSBlock(blockName, cssBlock) {
@@ -357,7 +368,10 @@ export default class App extends React.Component {
 
   render() {
     const { activeElement, activePath, classes, keyframes, elements } = this.state;
-    console.log('render', this.state, this.props);
+    console.log('render', {
+      state: this.state,
+      props: this.props
+    });
 
     const containerSpacing = 20;
     const elContainerWidth = 350;

@@ -1,3 +1,4 @@
+const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
@@ -37,11 +38,14 @@ module.exports = {
     ]
   },
   plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: 'src/data', to: 'data' },
+      ],
+    }),
     // HtmlWebpackPlugin doc: https://github.com/jantimon/html-webpack-plugin#options
     new HtmlWebpackPlugin({
       title: 'CSS Animation Factory',
-      // Resolve this -- this creates an error
-      // templateContent: '<div id="app"></div>'
     })
   ]
 };
