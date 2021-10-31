@@ -4,13 +4,6 @@ const path = require('path');
 
 module.exports = {
   devServer: {
-    before: function(app) {
-      app.get("/getData", function(req, res) {
-        // res.json(data);
-        console.log(req, res);
-        res.json('asddsadsad');
-      });
-    },
     contentBase: './dist',
   },
   entry: './src/index.js',
@@ -48,14 +41,11 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'src/data', to: 'data' },
-        // { from: 'other', to: 'public' },
       ],
     }),
     // HtmlWebpackPlugin doc: https://github.com/jantimon/html-webpack-plugin#options
     new HtmlWebpackPlugin({
       title: 'CSS Animation Factory',
-      // Resolve this -- this creates an error
-      // templateContent: '<div id="app"></div>'
     })
   ]
 };

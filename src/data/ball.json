@@ -1,4 +1,7 @@
 {
+  "author": "UnfoucsedDrive",
+  "title": "Ball",
+  "url": "",
   "classes": {
     "animation-orbit": {
       "animationName": "orbit",
