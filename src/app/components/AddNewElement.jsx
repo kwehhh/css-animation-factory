@@ -1,23 +1,11 @@
 import React from 'react';
-// import { makeStyles } from '@material-ui/core/styles';
+import { FullPageModal, Layout } from '@unfocused/nurvus-ui';
 import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItem from '@material-ui/core/ListItem';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import ElementEditor from './ElementEditor.jsx';
 import Preview from './Preview.jsx';
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 const newClass = 'myNewClass';
 
@@ -89,18 +77,11 @@ export default class AddNewElement extends React.Component {
       ...classProps
     };
 
-    console.log('handleClassChange', localProps, className, classProps, newClassProps);
-
     // set to globall....
     this.props.onClassChange(className, localProps);
-    // set to local
-    // setNewClassProps(localProps);
-    // this.setState({newClassProps: localProps});
   };
 
   render() {
-    // console.log('render', this.props);
-
     const leftBoundary = 300;
     const { config, newClassProps } = this.state;
     const { keyframes, ...props } = this.props;
@@ -108,12 +89,14 @@ export default class AddNewElement extends React.Component {
     const headerHeight = '60px';
 
     return (
-      <Dialog fullScreen open={ this.props.open} onClose={ this.props.onClose } TransitionComponent={Transition}>
-        <AppBar style={{
-          height: headerHeight,
-          position: 'relative'
-          }}>
-          <Toolbar>
+      <FullPageModal
+        visible={ this.props.open }
+        title="Add New Element"
+        headerActions={ (
+          <Layout itemSpacing={ 0 } display="flex">
+            <Button autoFocus color="inherit" onClick={ this.props.onClose }>
+              Save
+            </Button>
             <IconButton
               edge="start"
               color="inherit"
@@ -122,14 +105,9 @@ export default class AddNewElement extends React.Component {
             >
               <CloseIcon />
             </IconButton>
-            <Typography variant="h6">
-              Add New Element
-            </Typography>
-            <Button autoFocus color="inherit" onClick={ this.props.onClose }>
-              save
-            </Button>
-          </Toolbar>
-        </AppBar>
+          </Layout>
+        ) }
+      >
         <div style={{
           display: 'flex',
           flex: '1',
@@ -169,11 +147,9 @@ export default class AddNewElement extends React.Component {
             leftBoundaryWidth={ leftBoundary }
             rightBoundaryWidth={ 0 }
             elements={ [this.state.element] }
-            style={{background: 'black'}}
           />
-          <div style={{display:'flex', flexGrow: '1'}}>3</div>
         </div>
-      </Dialog>
+      </FullPageModal>
     );
   }
 }

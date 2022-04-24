@@ -1,6 +1,6 @@
 import React from "react";
 import _ from 'lodash';
-import { Button, ButtonGroup, Layout, Menu, Text, Title } from '@nurvus/ui';
+import { Button, ButtonGroup, Layout, Menu, Text, Title } from '@unfocused/nurvus-ui';
 import { Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 import AddIcon from '@material-ui/icons/Add';
@@ -64,9 +64,6 @@ export default class Layers extends React.Component {
   }
 
   handleCloseModal() {
-    // const { initialElProps } = this.state;
-    // const { name, el } = initialElProps;
-
     // Assign temp vals to CSS builder
     this.props.onKeyframesChange(NEW_CLASS_NAME, false);
     this.props.onClassChange(NEW_KEYFRAMES_NAME, false);

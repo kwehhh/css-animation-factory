@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { Menu, Layout, Link } from '@nurvus/ui';
+import { Menu, Layout, Link } from '@unfocused/nurvus-ui';
 import { Drawer } from '@material-ui/core';
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
