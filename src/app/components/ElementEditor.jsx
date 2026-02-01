@@ -203,11 +203,11 @@ export default class ElementEditor extends React.Component {
           <input
             style={{
               display: 'block',
-              background: 'hsl(280deg 100% 20%)',
+              background: 'var(--caf-input-bg)',
               width: '100%',
               padding: '10px',
               border: 'none',
-              color: 'white'
+              color: 'var(--caf-text)'
             }}
             value={ elementProps.name }
             onChange={ (e) => { this.handleChange(e.target.value, 'name') } }

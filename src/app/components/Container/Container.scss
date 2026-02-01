@@ -1,10 +1,10 @@
 
 .container {
-  color: white;
-  // background: #422e6b;
-  background: #403960;
+  color: var(--caf-text);
+  background: var(--caf-surface);
   padding: 20px;
   border-radius: 10px;
+  border: 1px solid var(--caf-border);
 
   &.hide {
     display: none !important;

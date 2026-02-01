@@ -523,8 +523,8 @@ export default class App extends React.Component {
         <div style={{
           height: navHeight,
           position: 'fixed',
-          background: '#403960',
-          color: 'white',
+          background: 'var(--caf-surface-2)',
+          color: 'var(--caf-text)',
           width: '100%',
           display: 'flex',
           alignItems: 'center',

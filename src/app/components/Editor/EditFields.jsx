@@ -100,7 +100,7 @@ export default class EditFields extends React.Component {
               id="name"
               label="Name" />
         </div>
-        <div  style={{background: 'purple'}} >
+        <div style={{ background: 'var(--caf-surface-2)', padding: 10, borderRadius: 10, border: '1px solid var(--caf-border)' }} >
           {
             this.renderValueSlider({
               key: 'width',

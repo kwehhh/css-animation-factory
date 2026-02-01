@@ -1,5 +1,17 @@
 $body-color: red;
 
+// Theme tokens (aligned to CodeMirror "material" vibe)
+:root {
+  --caf-bg: #263238;
+  --caf-surface: #2b363f;
+  --caf-surface-2: #1f272e;
+  --caf-text: #eeffff;
+  --caf-muted: rgba(238, 255, 255, 0.7);
+  --caf-border: rgba(238, 255, 255, 0.12);
+  --caf-accent: #ff2d7a;
+  --caf-input-bg: rgba(0, 0, 0, 0.25);
+}
+
 
 
 @font-face {
@@ -15,14 +27,16 @@ $body-color: red;
 
 // Material UI Override
 .MuiPaper-root {
-  background: #2e2442 !important;
+  background: var(--caf-surface) !important;
+  color: var(--caf-text);
 }
 
 body {
   // reset
   margin: 0;
   // color: $body-color;
-  background: #2e2442;
+  background: var(--caf-bg);
+  color: var(--caf-text);
   // TODO: Find a more ideal font to go for
   font-family: 'Helvetica', 'Arial', sans-serif;
   // For animations...
@@ -31,6 +45,19 @@ body {
 
 .logo {
   font-family: 'Dancing Script', cursive;
+}
+
+// Material UI accents
+.MuiTabs-indicator {
+  background-color: var(--caf-accent) !important;
+}
+
+// Nurvus link defaults
+.nurvus.link {
+  color: var(--caf-text);
+}
+.nurvus.link:hover {
+  color: var(--caf-accent);
 }
 
 .stacking-10 {
@@ -77,11 +104,11 @@ body {
 
 .menu-item {
   position: relative;
-  color: #e2e2e2;
+  color: var(--caf-muted);
   cursor: pointer;
 
   &:hover {
-    color: white;
+    color: var(--caf-text);
   }
 
   &.active {
@@ -90,15 +117,14 @@ body {
       position: absolute;
       display: block;
       width: 4px;
-      background: #419fd6;
+      background: var(--caf-accent);
       top: 0;
       left: 0;
       bottom: 0;
     }
 
-    color: white;
-    background: rgb(0,212,255);
-    background: linear-gradient(90deg, rgba(0,212,255,0.5) 0%, rgba(0,212,255,0.25) 35%, rgba(0,212,255,0) 100%);
+    color: var(--caf-text);
+    background: linear-gradient(90deg, rgba(255,45,122,0.22) 0%, rgba(255,45,122,0.12) 35%, rgba(255,45,122,0) 100%);
   }
 }
 
