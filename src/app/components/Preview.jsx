@@ -135,6 +135,7 @@ export default class Preview extends React.Component {
       rightBoundaryWidth,
       elements,
       previewContainerWidth,
+      topBoundaryHeight,
       style
     } = this.props;
 
@@ -148,10 +149,10 @@ export default class Preview extends React.Component {
           justifyContent: 'center',
           alignItems: 'center',
           position: 'absolute',
-          top: '0',
-          left: leftBoundaryWidth,
-          bottom: '0',
-          right: rightBoundaryWidth,
+          top: topBoundaryHeight || 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           ...style
         }}
         className="preview">

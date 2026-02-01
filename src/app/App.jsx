@@ -406,7 +406,7 @@ export default class App extends React.Component {
       props: this.props
     });
 
-    const containerSpacing = 20;
+    const navHeight = 30;
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
     const commonProps = {
@@ -433,12 +433,14 @@ export default class App extends React.Component {
           <meta charSet="utf-8" />
         </Helmet>
         <div style={{
-          height: 30,
+          height: navHeight,
           position: 'fixed',
           background: '#403960',
           color: 'white',
           width: '100%',
-          padding: '5px 10px'
+          padding: '5px 10px',
+          boxSizing: 'border-box',
+          zIndex: 9
         }}>
           <Layout display="flex" alignItems="center" justifyContent="space-between">
             <div className="logo">CSS Animation Factory</div>
@@ -447,12 +449,13 @@ export default class App extends React.Component {
         </div>
         <Preview
           { ...commonProps }
-          leftBoundaryWidth={ containerSpacing + elElementsContainerWidth }
-          rightBoundaryWidth={ _.isNumber(activeElement) ? containerSpacing + elContainerWidth : 0 }
+          leftBoundaryWidth={ 0 }
+          rightBoundaryWidth={ 0 }
+          topBoundaryHeight={ navHeight }
         />
         <div style={{
         position: 'absolute',
-        top: 30,
+        top: navHeight,
         bottom: 0,
         left: '20px',
         padding: '20px 0'
@@ -468,7 +471,7 @@ export default class App extends React.Component {
         <div
           style={{
             position: 'absolute',
-            top: 30,
+            top: navHeight,
             bottom: 0,
             right: '20px',
             padding: '20px 0'

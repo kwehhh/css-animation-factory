@@ -1,0 +1,558 @@
+{
+  "author": "jkantner (adapted)",
+  "title": "Dump Truck Loading Animation",
+  "url": "https://codepen.io/jkantner/pen/EdBJxy",
+  "classes": {
+    "dump-truck-scene": {
+      "position": "absolute",
+      "top": "0",
+      "right": "0",
+      "bottom": "0",
+      "left": "0",
+      "display": "flex",
+      "alignItems": "center",
+      "justifyContent": "center",
+      "background": "#87beff",
+      "overflow": "hidden",
+      "fontSize": "20px",
+      "fontFamily": "\"Anton\", sans-serif"
+    },
+
+    "dump-truck-stage": {
+      "position": "relative",
+      "width": "100%",
+      "height": "100%",
+      "overflow": "visible"
+    },
+
+    "progress-container": {
+      "position": "absolute",
+      "top": "50%",
+      "left": "50%",
+      "transform": "translateX(-50%)",
+      "width": "6em",
+      "height": "7.5em",
+      "zIndex": "2"
+    },
+    "progress-box": {
+      "width": "6em",
+      "height": "4em",
+      "borderRadius": "0 0 0.5em 0.5em",
+      "border": "0.5em solid #505050",
+      "borderTop": "0"
+    },
+    "progress-fill": {
+      "width": "100%",
+      "height": "100%",
+      "background": "#643232",
+      "transform": "scaleY(0)",
+      "transformOrigin": "50% 100%",
+      "animation": "fillDirt 20s linear forwards"
+    },
+    "progress-state": {
+      "position": "absolute",
+      "bottom": "0",
+      "left": "0",
+      "width": "6em",
+      "fontSize": "1.5em",
+      "textAlign": "center",
+      "color": "#222"
+    },
+    "state-load": {
+      "animation": "hideLoad 20s linear forwards"
+    },
+    "state-load::before": {
+      "content": "\"Loading…\""
+    },
+    "state-finish": {
+      "animation": "showFinish 0.3s 20s linear forwards",
+      "visibility": "hidden"
+    },
+    "state-finish::before": {
+      "content": "\"Complete!\""
+    },
+
+    "dump-truck": {
+      "position": "absolute",
+      "opacity": "0",
+      "top": "calc(50% - 4em)",
+      "width": "14em",
+      "height": "8em"
+    },
+    "dump-truck div": {
+      "position": "absolute"
+    },
+    "dump-truck:nth-of-type(2)": {
+      "animation": "backupL 10s ease-in-out 2 forwards",
+      "right": "50%",
+      "transform": "scaleX(-1) translateX(5em)"
+    },
+    "dump-truck:nth-of-type(2) .bucket": {
+      "animation": "dump 10s linear 2"
+    },
+    "dump-truck:nth-of-type(2) .dirt": {
+      "animation": "rotateDirt 10s linear 2"
+    },
+    "dump-truck:nth-of-type(2) .dirt-spill": {
+      "animation": "pourDirt 10s linear 2"
+    },
+    "dump-truck:nth-of-type(2) .wheel": {
+      "animation": "spinL 10s ease-in-out 2"
+    },
+    "dump-truck:last-of-type": {
+      "animation": "backupR 10s 5s ease-in-out 2 forwards",
+      "left": "50%",
+      "transform": "translateX(5em)"
+    },
+    "dump-truck:last-of-type .bucket": {
+      "animation": "dump 10s 5s linear 2"
+    },
+    "dump-truck:last-of-type .dirt": {
+      "animation": "rotateDirt 10s 5s linear 2"
+    },
+    "dump-truck:last-of-type .dirt-spill": {
+      "animation": "pourDirt 10s 5s linear 2"
+    },
+    "dump-truck:last-of-type .wheel": {
+      "animation": "spinR 10s 5s ease-in-out 2"
+    },
+
+    "front": {
+      "background": "linear-gradient(#ff3f30, #ff3f30) 2.7em 0.75em/0.2em 2em, linear-gradient(#a0a0a0, #a0a0a0) 1em 3.5em/0.8em 0.2em, linear-gradient(#505050, #505050) 3.3em 6.1em/0.5em 0.2em, linear-gradient(#505050, #505050) 3.3em 6.8em/0.5em 0.2em, linear-gradient(83deg, #282828 49%, rgba(40, 40, 40, 0) 50%) 1em 0.75em/5em 2em, radial-gradient(3.4em 4.6em at 33% 100%, rgba(255, 255, 255, 0) 49%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 59%, rgba(255, 255, 255, 0) 60%), radial-gradient(3.4em 4.6em at 33% 100%, rgba(255, 63, 48, 0) 49%, #ff3f30 50%)",
+      "backgroundRepeat": "no-repeat",
+      "borderRadius": "10% 20% 5% 25%/10% 50% 5% 100%",
+      "top": "0.4em",
+      "left": "10.1em",
+      "width": "3.9em",
+      "height": "7em"
+    },
+    "bucket": {
+      "background": "repeating-linear-gradient(95deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 0.85em, rgba(0, 0, 0, 0.15) 0.9em, rgba(0, 0, 0, 0.15) 1.75em, rgba(0, 0, 0, 0.15) 1.8em) 0.1em 1.6em/7.8em 3.2em, linear-gradient(#505050, #505050) 8em 0/2em 0.5em, linear-gradient(95deg, rgba(80, 80, 80, 0) 0.45em, #505050 0.5em, #505050 1.45em, rgba(80, 80, 80, 0) 1.5em) 7em 0/1.6em 5.5em, linear-gradient(rgba(80, 80, 80, 0) 1em, #505050 1em) 0 0/7.5em 5.5em",
+      "backgroundRepeat": "no-repeat",
+      "borderRadius": "0 0 0 25%/0 0 0 15%",
+      "top": "0",
+      "left": "0",
+      "width": "10em",
+      "height": "5.5em",
+      "transform": "rotate(0deg)",
+      "transformOrigin": "22% 100%"
+    },
+    "dirt": {
+      "background": "#643232",
+      "borderRadius": "0 0 50% 50%/0 0 100% 100%",
+      "top": "1.1em",
+      "left": "-3.2em",
+      "width": "7.4em",
+      "height": "3em",
+      "transform": "rotate(-25deg)",
+      "transformOrigin": "50% 0",
+      "zIndex": "-1"
+    },
+    "dirt-spill": {
+      "background": "#643232",
+      "borderRadius": "0.4em",
+      "top": "0",
+      "left": "-5.25em",
+      "transform": "rotate(-40deg) scale(1, 1)",
+      "transformOrigin": "5.25em 0em",
+      "width": "5.5em",
+      "height": "0.8em"
+    },
+    "base": {
+      "background": "#7f5b58",
+      "borderRadius": "0.25em",
+      "top": "5.5em",
+      "left": "2em",
+      "width": "8.3em",
+      "height": "1.5em"
+    },
+    "wheel": {
+      "background": "radial-gradient(100% 100%, #282828 9%, rgba(40, 40, 40, 0) 10%), radial-gradient(100% 100%, #a0a0a0 29%, rgba(160, 160, 160, 0) 30%), linear-gradient(90deg, rgba(255, 255, 255, 0.15) 49%, rgba(255, 255, 255, 0) 50%), radial-gradient(100% 100%, #282828 49%, rgba(40, 40, 40, 0) 50%)",
+      "borderRadius": "50%",
+      "bottom": "0",
+      "width": "2.4em",
+      "height": "2.4em"
+    },
+    "wheel-front": {
+      "left": "10.4em"
+    },
+    "wheel-middle": {
+      "left": "4.5em"
+    },
+    "wheel-back": {
+      "left": "2em"
+    }
+  },
+  "keyframes": {
+    "fillDirt": {
+      "0%": {
+        "transform": "scaleY(0)"
+      },
+      "12.49%": {
+        "transform": "scaleY(0)"
+      },
+      "12.5%": {
+        "transform": "scaleY(0.25)"
+      },
+      "37.49%": {
+        "transform": "scaleY(0.25)"
+      },
+      "37.5%": {
+        "transform": "scaleY(0.5)"
+      },
+      "62.49%": {
+        "transform": "scaleY(0.5)"
+      },
+      "62.5%": {
+        "transform": "scaleY(0.75)"
+      },
+      "87.49%": {
+        "transform": "scaleY(0.75)"
+      },
+      "87.5%": {
+        "transform": "scaleY(1)"
+      },
+      "100%": {
+        "transform": "scaleY(1)"
+      }
+    },
+    "backupL": {
+      "0%": {
+        "opacity": "0",
+        "transform": "scaleX(-1) translateX(20em)"
+      },
+      "50%": {
+        "opacity": "0",
+        "transform": "scaleX(-1) translateX(20em)"
+      },
+      "100%": {
+        "opacity": "0",
+        "transform": "scaleX(-1) translateX(20em)"
+      },
+      "12.5%": {
+        "opacity": "1",
+        "transform": "scaleX(-1) translateX(5em)"
+      },
+      "37.5%": {
+        "opacity": "1",
+        "transform": "scaleX(-1) translateX(5em)"
+      }
+    },
+    "backupR": {
+      "0%": {
+        "opacity": "0",
+        "transform": "translateX(20em)"
+      },
+      "50%": {
+        "opacity": "0",
+        "transform": "translateX(20em)"
+      },
+      "100%": {
+        "opacity": "0",
+        "transform": "translateX(20em)"
+      },
+      "12.5%": {
+        "opacity": "1",
+        "transform": "translateX(5em)"
+      },
+      "37.5%": {
+        "opacity": "1",
+        "transform": "translateX(5em)"
+      }
+    },
+    "dump": {
+      "0%": {
+        "transform": "rotate(0deg)"
+      },
+      "12.5%": {
+        "transform": "rotate(0deg)"
+      },
+      "37.5%": {
+        "transform": "rotate(0deg)"
+      },
+      "100%": {
+        "transform": "rotate(0deg)"
+      },
+      "20%": {
+        "transform": "rotate(-40deg)"
+      },
+      "30%": {
+        "transform": "rotate(-40deg)"
+      }
+    },
+    "rotateDirt": {
+      "0%": {
+        "opacity": "0"
+      },
+      "19.9%": {
+        "opacity": "0"
+      },
+      "30.1%": {
+        "opacity": "0"
+      },
+      "100%": {
+        "opacity": "0"
+      },
+      "20%": {
+        "opacity": "1",
+        "transform": "rotate(-40deg)"
+      },
+      "30%": {
+        "opacity": "1",
+        "transform": "rotate(-40deg)"
+      },
+      "25%": {
+        "transform": "rotate(-25deg)"
+      }
+    },
+    "pourDirt": {
+      "0%": {
+        "transform": "rotate(-40deg) scale(0, 0)"
+      },
+      "20%": {
+        "transform": "rotate(-40deg) scale(0, 0)"
+      },
+      "25%": {
+        "transform": "rotate(-40deg) scale(1, 1)"
+      },
+      "30%": {
+        "transform": "rotate(-25deg) scale(0.8, 0)"
+      },
+      "100%": {
+        "transform": "rotate(-25deg) scale(0.8, 0)"
+      }
+    },
+    "spinL": {
+      "0%": {
+        "transform": "rotate(-0.5turn)"
+      },
+      "50%": {
+        "transform": "rotate(-0.5turn)"
+      },
+      "100%": {
+        "transform": "rotate(-0.5turn)"
+      },
+      "12.5%": {
+        "transform": "rotate(-2.5turn)"
+      },
+      "37.5%": {
+        "transform": "rotate(-2.5turn)"
+      }
+    },
+    "spinR": {
+      "0%": {
+        "transform": "rotate(0)"
+      },
+      "50%": {
+        "transform": "rotate(0)"
+      },
+      "100%": {
+        "transform": "rotate(0)"
+      },
+      "12.5%": {
+        "transform": "rotate(-2turn)"
+      },
+      "37.5%": {
+        "transform": "rotate(-2turn)"
+      }
+    },
+    "hideLoad": {
+      "0%": {
+        "visibility": "visible"
+      },
+      "100%": {
+        "visibility": "hidden"
+      }
+    },
+    "showFinish": {
+      "0%": {
+        "transform": "scale(0)",
+        "visibility": "visible"
+      },
+      "80%": {
+        "transform": "scale(1.2)"
+      },
+      "100%": {
+        "transform": "scale(1)",
+        "visibility": "visible"
+      }
+    }
+  },
+  "elements": [
+    {
+      "name": "dump-truck-scene",
+      "classes": [
+        "dump-truck-scene"
+      ],
+      "elements": [
+        {
+          "name": "dump-truck-stage",
+          "classes": [
+            "dump-truck-stage"
+          ],
+          "elements": [
+            {
+              "name": "progress-container",
+              "classes": [
+                "progress-container"
+              ],
+              "elements": [
+                {
+                  "name": "progress-box",
+                  "classes": [
+                    "progress-box"
+                  ],
+                  "elements": [
+                    {
+                      "name": "progress-fill",
+                      "classes": [
+                        "progress-fill"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "state-load",
+                  "classes": [
+                    "progress-state",
+                    "state-load"
+                  ]
+                },
+                {
+                  "name": "state-finish",
+                  "classes": [
+                    "progress-state",
+                    "state-finish"
+                  ]
+                }
+              ]
+            }
+            ,
+            {
+              "name": "dump-truck",
+              "classes": [
+                "dump-truck"
+              ],
+              "elements": [
+                {
+                  "name": "front",
+                  "classes": [
+                    "front"
+                  ]
+                },
+                {
+                  "name": "bucket",
+                  "classes": [
+                    "bucket"
+                  ]
+                },
+                {
+                  "name": "dirt",
+                  "classes": [
+                    "dirt"
+                  ],
+                  "elements": [
+                    {
+                      "name": "dirt-spill",
+                      "classes": [
+                        "dirt-spill"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "base",
+                  "classes": [
+                    "base"
+                  ]
+                },
+                {
+                  "name": "wheel-front",
+                  "classes": [
+                    "wheel",
+                    "wheel-front"
+                  ]
+                },
+                {
+                  "name": "wheel-middle",
+                  "classes": [
+                    "wheel",
+                    "wheel-middle"
+                  ]
+                },
+                {
+                  "name": "wheel-back",
+                  "classes": [
+                    "wheel",
+                    "wheel-back"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "dump-truck",
+              "classes": [
+                "dump-truck"
+              ],
+              "elements": [
+                {
+                  "name": "front",
+                  "classes": [
+                    "front"
+                  ]
+                },
+                {
+                  "name": "bucket",
+                  "classes": [
+                    "bucket"
+                  ]
+                },
+                {
+                  "name": "dirt",
+                  "classes": [
+                    "dirt"
+                  ],
+                  "elements": [
+                    {
+                      "name": "dirt-spill",
+                      "classes": [
+                        "dirt-spill"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "base",
+                  "classes": [
+                    "base"
+                  ]
+                },
+                {
+                  "name": "wheel-front",
+                  "classes": [
+                    "wheel",
+                    "wheel-front"
+                  ]
+                },
+                {
+                  "name": "wheel-middle",
+                  "classes": [
+                    "wheel",
+                    "wheel-middle"
+                  ]
+                },
+                {
+                  "name": "wheel-back",
+                  "classes": [
+                    "wheel",
+                    "wheel-back"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

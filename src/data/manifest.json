@@ -1,6 +1,7 @@
 {
   "files": [
     "ball.json",
-    "submarine.json"
+    "submarine.json",
+    "dump-truck-loading.json"
   ]
 }
