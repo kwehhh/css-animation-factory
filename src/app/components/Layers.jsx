@@ -7,6 +7,7 @@ import AddIcon from '@material-ui/icons/Add';
 import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import IconButton from '@material-ui/core/IconButton';
 
@@ -82,13 +83,15 @@ export default class Layers extends React.Component {
     );
   }
 
-  getMenuItems(elements) {
+  getMenuItems(elements, path = []) {
     if (elements) {
-      return elements.map(item => {
+      return elements.map((item, i) => {
+        const nextPath = [...path, i];
         return {
           ...item,
           label: item.name,
-          items: this.getMenuItems(item.elements)
+          path: nextPath,
+          items: this.getMenuItems(item.elements, nextPath)
         }
       });
     }
@@ -109,13 +112,20 @@ export default class Layers extends React.Component {
       whiteSpace: 'nowrap'
     };
 
-    const itemRenderer = ({ label }) => {
+    const itemRenderer = (item) => {
+      const { label, hidden, path } = item;
+      const handleToggleHidden = (e) => this.props.onToggleHidden?.(e, path);
+
       return (
         <Layout display="flex" alignItems="center" justifyContent="space-between">
           <Text style={ overflowStyle }>{ label }</Text>
           <Layout display="flex" alignItems="center" justifyContent="space-between">
-            <RemoveRedEyeIcon />
-            <LockOpenIcon />
+            <IconButton size="small" onClick={ handleToggleHidden }>
+              { hidden ? <VisibilityOffIcon /> : <RemoveRedEyeIcon /> }
+            </IconButton>
+            <IconButton size="small" onClick={ (e) => e.stopPropagation() }>
+              <LockOpenIcon />
+            </IconButton>
           </Layout>
         </Layout>
       );

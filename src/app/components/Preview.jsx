@@ -109,9 +109,13 @@ export default class Preview extends React.Component {
   }
 
   renderElement(props, i) {
-    const { elements, name, classes } = props;
+    const { elements, name, classes, hidden } = props;
 
     // console.log('renderElement', props);
+
+    if (hidden) {
+      return null;
+    }
 
     return (
       <div key={ `${name}-${i}` } className={ this.getClassNames(classes) }>

@@ -228,15 +228,46 @@ export default class App extends React.Component {
       const newElements = [...elements];
       const refElement = newElements[index];
       const extraProps = refElement.elements ? { elements: this.cloneInsertion(refElement.elements, nextPath) } : {};
-      const newElement = {
-        ...refElement,
-        ...extraProps
-      };
-      newElements[index] = newElement;
+      const newElement = { ...refElement, ...extraProps };
 
       // Clone Element
       if (path.length === 1) {
-        newElements.push(newElement);
+        const getNameRoot = (name = '') => name.replace(/\s+\d+$/, '');
+        const getNextName = (rootName, siblings) => {
+          const root = getNameRoot(rootName);
+          let max = 0;
+
+          siblings.forEach((sibling) => {
+            const siblingName = sibling?.name || '';
+            if (siblingName === root) {
+              max = Math.max(max, 1);
+              return;
+            }
+
+            const match = siblingName.match(new RegExp(`^${_.escapeRegExp(root)}\\s+(\\d+)$`));
+            if (match) {
+              max = Math.max(max, parseInt(match[1], 10));
+            }
+          });
+
+          return { root, max, next: `${root} ${max + 1}` };
+        };
+
+        const { root, max, next } = getNextName(newElement.name, newElements);
+
+        // If this is the first duplicate, rename original to "<root> 1"
+        if (max <= 1 && newElement.name === root) {
+          newElements[index] = { ...newElement, name: `${root} 1` };
+        } else {
+          newElements[index] = newElement;
+        }
+
+        // Ensure the clone is a distinct object (no shared references)
+        const cloneElement = _.cloneDeep(newElements[index]);
+        cloneElement.name = next;
+        newElements.push(cloneElement);
+      } else {
+        newElements[index] = newElement;
       }
 
       return newElements;
@@ -245,10 +276,45 @@ export default class App extends React.Component {
     return elements;
   }
 
+  updateElementAtPath(elements = [], path = [], updater) {
+    if (!path.length) return elements;
+
+    const [index, ...rest] = path;
+    const nextElements = [...elements];
+    const current = nextElements[index];
+
+    if (!current) return elements;
+
+    if (!rest.length) {
+      nextElements[index] = updater(current);
+      return nextElements;
+    }
+
+    const childElements = current.elements || [];
+    nextElements[index] = {
+      ...current,
+      elements: this.updateElementAtPath(childElements, rest, updater)
+    };
+    return nextElements;
+  }
+
   handleCloneElement() {
     this.setState((prevState) => {
       return {
         elements: this.cloneInsertion(prevState.elements, prevState.activePath)
+      };
+    });
+  }
+
+  handleToggleHidden = (e, path) => {
+    if (e?.stopPropagation) e.stopPropagation();
+
+    this.setState((prevState) => {
+      return {
+        elements: this.updateElementAtPath(prevState.elements, path, (el) => ({
+          ...el,
+          hidden: !el.hidden
+        }))
       };
     });
   }
@@ -465,6 +531,7 @@ export default class App extends React.Component {
           activeElement={ activeElement }
           onClick={ this.handleSelectElement }
           onClone={ this.handleCloneElement }
+          onToggleHidden={ this.handleToggleHidden }
           width={ elElementsContainerWidth }
         />
       </div>
