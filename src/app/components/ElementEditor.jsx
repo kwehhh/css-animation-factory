@@ -62,7 +62,7 @@ export default class ElementEditor extends React.Component {
       position: 'none',
       showModal: false,
       activeTab: 'edit',
-      sourceMode: 'json',
+      sourceMode: 'css',
       expanded: !!props.defaultExpanded
     };
 
