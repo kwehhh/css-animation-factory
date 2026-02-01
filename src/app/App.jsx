@@ -36,6 +36,7 @@ export default class App extends React.Component {
       // activeKeyframesId: 'orbit',
       showLayersPanel: true,
       showElementContainer: true,
+      isElementEditorExpanded: true,
       showPresets: false,
       presets: []
     };
@@ -52,6 +53,7 @@ export default class App extends React.Component {
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
     this.handleUpdateKeyframes = this.handleUpdateKeyframes.bind(this);
+    this.handleElementEditorExpandedChange = this.handleElementEditorExpandedChange.bind(this);
   }
 
   handleToggleLayersPanel = (e) => {
@@ -62,6 +64,10 @@ export default class App extends React.Component {
   handleToggleElementPanel = (e) => {
     if (e?.stopPropagation) e.stopPropagation();
     this.setState((prevState) => ({ showElementContainer: !prevState.showElementContainer }));
+  }
+
+  handleElementEditorExpandedChange(isExpanded) {
+    this.setState({ isElementEditorExpanded: !!isExpanded });
   }
 
   /**
@@ -490,6 +496,7 @@ export default class App extends React.Component {
     const containerSpacing = 20;
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
+    const elementEditorWidth = this.state.isElementEditorExpanded ? elContainerWidth * 2 : elContainerWidth;
     const commonProps = {
       activePath,
       classes,
@@ -541,7 +548,7 @@ export default class App extends React.Component {
         <Preview
           { ...commonProps }
           leftBoundaryWidth={ this.state.showLayersPanel ? containerSpacing + elElementsContainerWidth : 0 }
-          rightBoundaryWidth={ this.state.showElementContainer ? containerSpacing + elContainerWidth : 0 }
+          rightBoundaryWidth={ this.state.showElementContainer ? containerSpacing + elementEditorWidth : 0 }
           topBoundaryHeight={ navHeight }
         />
         { this.state.showLayersPanel && (
@@ -574,9 +581,11 @@ export default class App extends React.Component {
           >
             <ElementEditor
               { ...commonProps }
-              width={ elContainerWidth }
+              width={ elementEditorWidth }
               element={ this.getActiveElement(activePath, elements) }
               elementProps={ this.getActiveElement(activePath, elements) }
+              defaultExpanded={ true }
+              onExpandedChange={ this.handleElementEditorExpandedChange }
               visible={ true }
               onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
               onSubmit={ this.handleUpdateElements }

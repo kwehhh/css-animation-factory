@@ -28,7 +28,10 @@ import EditFields from './Editor/EditFields.jsx';
 import KeyframesEditor from './Editor/KeyframesEditor.jsx';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 import { getCSSfromStyleObj } from '../../util/CSSUtil.js';
+import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
+import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
 require('codemirror/mode/css/css');
+require('codemirror/mode/javascript/javascript');
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 
@@ -52,24 +55,46 @@ import 'codemirror/theme/material.css';
 
 export default class ElementEditor extends React.Component {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       editor: {},
       position: 'none',
       showModal: false,
-      activeTab: 'edit'
+      activeTab: 'edit',
+      sourceMode: 'json',
+      expanded: !!props.defaultExpanded
     };
 
     this.handleToggleCodeView = this.handleToggleCodeView.bind(this);
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleTabChange = this.handleTabChange.bind(this);
+    this.handleSourceModeChange = this.handleSourceModeChange.bind(this);
+    this.handleToggleExpanded = this.handleToggleExpanded.bind(this);
   }
 
   handleTabChange(e, value) {
     if (e?.stopPropagation) e.stopPropagation();
     this.setState({ activeTab: value });
+  }
+
+  handleSourceModeChange(e, value) {
+    if (e?.stopPropagation) e.stopPropagation();
+    if (value) {
+      this.setState({ sourceMode: value });
+    }
+  }
+
+  handleToggleExpanded(e) {
+    if (e?.stopPropagation) e.stopPropagation();
+    this.setState((prevState) => {
+      const next = !prevState.expanded;
+      if (this.props.onExpandedChange) {
+        this.props.onExpandedChange(next);
+      }
+      return { expanded: next };
+    });
   }
 
   getSourcePayload(elementProps) {
@@ -97,6 +122,102 @@ export default class ElementEditor extends React.Component {
       resolvedClasses,
       keyframes
     };
+  }
+
+  getCompiledCss(elementProps) {
+    const resolvedClasses = this.getElementClassProps(this.props.classes, elementProps?.classes);
+
+    const blocks = [];
+    if (resolvedClasses) {
+      Object.keys(resolvedClasses).forEach((className) => {
+        blocks.push(`.${className} {\n${getCSSfromStyleObj(resolvedClasses[className])}}`);
+      });
+    }
+
+    const keyframeNames = [];
+    if (elementProps?.classes) {
+      elementProps.classes.forEach((className) => {
+        const classProps = this.props.classes?.[className];
+        if (classProps?.animationName) {
+          keyframeNames.push(classProps.animationName);
+        }
+      });
+    }
+
+    keyframeNames.forEach((name) => {
+      const kf = this.props.keyframes?.[name];
+      if (!kf) return;
+
+      let framesCss = '';
+      Object.keys(kf).forEach((pct, i) => {
+        const formatter = (attr, value) => `  ${attr}: ${value};\n`;
+        const propsCss = getCSSfromStyleObj(kf[pct], formatter);
+        framesCss += `${pct} {\n${propsCss}}\n`;
+        if (i < Object.keys(kf).length - 1) framesCss += '\n';
+      });
+
+      blocks.push(`@keyframes ${name} {\n${framesCss}}`);
+    });
+
+    return `${blocks.join('\n\n')}\n`;
+  }
+
+  renderSourcePane(elementProps) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Tabs
+          value={ this.state.sourceMode }
+          onChange={ this.handleSourceModeChange }
+          variant="fullWidth"
+          style={{ color: '#fff', marginBottom: 10 }}
+        >
+          <Tab value="json" label="JSON" style={{ color: '#fff' }} />
+          <Tab value="css" label="Compiled CSS" style={{ color: '#fff' }} />
+        </Tabs>
+        <div style={{ border: '1px solid rgba(255,255,255,0.15)', flex: 1, minHeight: 0 }}>
+          <CodeMirror
+            value={
+              this.state.sourceMode === 'css'
+                ? this.getCompiledCss(elementProps)
+                : JSON.stringify(this.getSourcePayload(elementProps), null, 2)
+            }
+            options={{
+              mode: this.state.sourceMode === 'css' ? 'css' : 'javascript',
+              theme: 'material',
+              lineNumbers: true,
+              readOnly: true
+            }}
+            editorDidMount={(editor) => editor.setSize(null, '100%')}
+            onBeforeChange={() => {}}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  renderEditPane(elementProps, classes) {
+    return (
+      <React.Fragment>
+        <div>
+          Name
+          <input
+            style={{
+              display: 'block',
+              background: 'hsl(280deg 100% 20%)',
+              width: '100%',
+              padding: '10px',
+              border: 'none',
+              color: 'white'
+            }}
+            value={ elementProps.name }
+            onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
+          />
+        </div>
+        { this.renderClassesTags(elementProps.classes) }
+        { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
+        { this.renderKeyframesEditors() }
+      </React.Fragment>
+    );
   }
 
   // make this slide from bottom like a horizontal sidebar panel
@@ -822,11 +943,14 @@ export default class ElementEditor extends React.Component {
       // externalize style props....
       return (
         <div
-          className="stacking-10 container"
+          className="stacking-10 container element-editor-panel"
           style={ {
             width: this.props.width,
+            height: '100%',
             maxHeight: '100%',
-            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
             ...this.props.style
           } }
         >
@@ -841,51 +965,49 @@ export default class ElementEditor extends React.Component {
               paddingBottom: 10
             }}
           >
-            <Tabs
-              value={ this.state.activeTab }
-              onChange={ this.handleTabChange }
-              variant="fullWidth"
-              style={{ color: '#fff' }}
-            >
-              <Tab value="source" label="Source" style={{ color: '#fff' }} />
-              <Tab value="edit" label="Edit" style={{ color: '#fff' }} />
-            </Tabs>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              { !this.state.expanded && (
+                <Tabs
+                  value={ this.state.activeTab }
+                  onChange={ this.handleTabChange }
+                  variant="fullWidth"
+                  style={{ color: '#fff', flex: 1 }}
+                >
+                  <Tab value="source" label="Source" style={{ color: '#fff' }} />
+                  <Tab value="edit" label="Edit" style={{ color: '#fff' }} />
+                </Tabs>
+              ) }
+              <IconButton
+                size="small"
+                onClick={ this.handleToggleExpanded }
+                style={{ color: '#fff' }}
+                title={ this.state.expanded ? 'Collapse' : 'Expand' }
+              >
+                { this.state.expanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon /> }
+              </IconButton>
+            </div>
           </div>
 
-          { this.state.activeTab === 'source' ? (
-            <div style={{ paddingTop: 10 }}>
-              <TextField
-                label="Source"
-                variant="outlined"
-                fullWidth
-                multiline
-                minRows={ 20 }
-                value={ JSON.stringify(this.getSourcePayload(elementProps), null, 2) }
-                InputProps={{ readOnly: true }}
-              />
-            </div>
-          ) : (
-            <React.Fragment>
-              <div>
-                Name
-                <input
-                  style={{
-                    display: 'block',
-                    background: 'hsl(280deg 100% 20%)',
-                    width: '100%',
-                    padding: '10px',
-                    border: 'none',
-                    color: 'white'
-                  }}
-                  value={ elementProps.name }
-                  onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
-                />
+          <div style={{ flex: 1, minHeight: 0, paddingTop: 10 }}>
+            { this.state.expanded ? (
+              <div style={{ display: 'flex', flexDirection: 'row', height: '100%', gap: 10 }}>
+                <div style={{ flex: '1 1 50%', minWidth: 0 }}>
+                  { this.renderSourcePane(elementProps) }
+                </div>
+                <div style={{ flex: '1 1 50%', minWidth: 0, overflowY: 'auto' }}>
+                  { this.renderEditPane(elementProps, classes) }
+                </div>
               </div>
-              { this.renderClassesTags(elementProps.classes) }
-              { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
-              { this.renderKeyframesEditors() }
-            </React.Fragment>
-          ) }
+            ) : this.state.activeTab === 'source' ? (
+              <div style={{ height: '100%' }}>
+                { this.renderSourcePane(elementProps) }
+              </div>
+            ) : (
+              <div style={{ height: '100%', overflowY: 'auto' }}>
+                { this.renderEditPane(elementProps, classes) }
+              </div>
+            ) }
+          </div>
         </div>
       );
     }
