@@ -154,8 +154,8 @@ export default class Preview extends React.Component {
           alignItems: 'center',
           position: 'absolute',
           top: topBoundaryHeight || 0,
-          left: 0,
-          right: 0,
+          left: leftBoundaryWidth || 0,
+          right: rightBoundaryWidth || 0,
           bottom: 0,
           ...style
         }}

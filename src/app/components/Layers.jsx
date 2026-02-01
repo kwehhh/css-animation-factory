@@ -120,10 +120,10 @@ export default class Layers extends React.Component {
         <Layout display="flex" alignItems="center" justifyContent="space-between">
           <Text style={ overflowStyle }>{ label }</Text>
           <Layout display="flex" alignItems="center" justifyContent="space-between">
-            <IconButton size="small" onClick={ handleToggleHidden }>
+            <IconButton size="small" onClick={ handleToggleHidden } style={{ color: '#fff' }}>
               { hidden ? <VisibilityOffIcon /> : <RemoveRedEyeIcon /> }
             </IconButton>
-            <IconButton size="small" onClick={ (e) => e.stopPropagation() }>
+            <IconButton size="small" onClick={ (e) => e.stopPropagation() } style={{ color: '#fff' }}>
               <LockOpenIcon />
             </IconButton>
           </Layout>
@@ -143,7 +143,7 @@ export default class Layers extends React.Component {
       >
         <div style={{ padding: '0px 20px 20px 20px' }}>
           <Layout>
-            <Title level={ 3 }>Layers</Title>
+            <Title level={ 3 } style={{ color: '#fff' }}>Layers</Title>
             <ButtonGroup>
               <Button>
                 <Tooltip title="JSON Data">

@@ -2,6 +2,9 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import { Menu, Layout, Link } from '@unfocused/nurvus-ui';
 import { Drawer } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
+import ViewListIcon from '@material-ui/icons/ViewList';
+import TuneIcon from '@material-ui/icons/Tune';
 import _ from "lodash";
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
@@ -31,6 +34,7 @@ export default class App extends React.Component {
       activeElement: 0,
       activeKeyframesId: null,
       // activeKeyframesId: 'orbit',
+      showLayersPanel: true,
       showElementContainer: true,
       showPresets: false,
       presets: []
@@ -48,6 +52,16 @@ export default class App extends React.Component {
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
     this.handleUpdateKeyframes = this.handleUpdateKeyframes.bind(this);
+  }
+
+  handleToggleLayersPanel = (e) => {
+    if (e?.stopPropagation) e.stopPropagation();
+    this.setState((prevState) => ({ showLayersPanel: !prevState.showLayersPanel }));
+  }
+
+  handleToggleElementPanel = (e) => {
+    if (e?.stopPropagation) e.stopPropagation();
+    this.setState((prevState) => ({ showElementContainer: !prevState.showElementContainer }));
   }
 
   /**
@@ -473,6 +487,7 @@ export default class App extends React.Component {
     });
 
     const navHeight = 30;
+    const containerSpacing = 20;
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
     const commonProps = {
@@ -504,56 +519,70 @@ export default class App extends React.Component {
           background: '#403960',
           color: 'white',
           width: '100%',
-          padding: '5px 10px',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 10px',
           boxSizing: 'border-box',
           zIndex: 9
         }}>
-          <Layout display="flex" alignItems="center" justifyContent="space-between">
+          <Layout display="flex" alignItems="center" justifyContent="space-between" style={{ width: '100%', height: '100%' }}>
             <div className="logo">CSS Animation Factory</div>
-            <Link onClick={ this.handleShowPresets }>Presets</Link>
+            <Layout display="flex" alignItems="center" style={{ height: '100%' }}>
+              <IconButton size="small" onClick={ this.handleToggleLayersPanel } style={{ color: '#fff' }}>
+                <ViewListIcon />
+              </IconButton>
+              <IconButton size="small" onClick={ this.handleToggleElementPanel } style={{ color: '#fff' }}>
+                <TuneIcon />
+              </IconButton>
+              <Link onClick={ this.handleShowPresets }>Presets</Link>
+            </Layout>
           </Layout>
         </div>
         <Preview
           { ...commonProps }
-          leftBoundaryWidth={ 0 }
-          rightBoundaryWidth={ 0 }
+          leftBoundaryWidth={ this.state.showLayersPanel ? containerSpacing + elElementsContainerWidth : 0 }
+          rightBoundaryWidth={ this.state.showElementContainer ? containerSpacing + elContainerWidth : 0 }
           topBoundaryHeight={ navHeight }
         />
-        <div style={{
-        position: 'absolute',
-        top: navHeight,
-        bottom: 0,
-        left: '20px',
-        padding: '20px 0'
-      }}>
-        <Layers
-          { ...commonProps }
-          activeElement={ activeElement }
-          onClick={ this.handleSelectElement }
-          onClone={ this.handleCloneElement }
-          onToggleHidden={ this.handleToggleHidden }
-          width={ elElementsContainerWidth }
-        />
-      </div>
-        <div
-          style={{
+        { this.state.showLayersPanel && (
+          <div style={{
             position: 'absolute',
             top: navHeight,
             bottom: 0,
-            right: '20px',
+            left: '20px',
             padding: '20px 0'
-          }}
-        >
-          <ElementEditor
-            { ...commonProps }
-            width={ elContainerWidth }
-            element={ this.getActiveElement(activePath, elements) }
-            elementProps={ this.getActiveElement(activePath, elements) }
-            visible={ this.state.showElementContainer }
-            onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
-            onSubmit={ this.handleUpdateElements }
-          />
-        </div>
+          }}>
+            <Layers
+              { ...commonProps }
+              activeElement={ activeElement }
+              onClick={ this.handleSelectElement }
+              onClone={ this.handleCloneElement }
+              onToggleHidden={ this.handleToggleHidden }
+              width={ elElementsContainerWidth }
+            />
+          </div>
+        ) }
+        { this.state.showElementContainer && (
+          <div
+            style={{
+              position: 'absolute',
+              top: navHeight,
+              bottom: 0,
+              right: '20px',
+              padding: '20px 0'
+            }}
+          >
+            <ElementEditor
+              { ...commonProps }
+              width={ elContainerWidth }
+              element={ this.getActiveElement(activePath, elements) }
+              elementProps={ this.getActiveElement(activePath, elements) }
+              visible={ true }
+              onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
+              onSubmit={ this.handleUpdateElements }
+            />
+          </div>
+        ) }
         <AnimationContainer
           { ...commonProps }
           keyframes={ this.state.keyframes[this.state.activeKeyframeId] }
