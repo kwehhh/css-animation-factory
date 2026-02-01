@@ -18,6 +18,8 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Tabs,
+  Tab,
   IconButton,
   CloseIcon
 } from '@material-ui/core';
@@ -55,12 +57,46 @@ export default class ElementEditor extends React.Component {
     this.state = {
       editor: {},
       position: 'none',
-      showModal: false
+      showModal: false,
+      activeTab: 'edit'
     };
 
     this.handleToggleCodeView = this.handleToggleCodeView.bind(this);
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleTabChange = this.handleTabChange.bind(this);
+  }
+
+  handleTabChange(e, value) {
+    if (e?.stopPropagation) e.stopPropagation();
+    this.setState({ activeTab: value });
+  }
+
+  getSourcePayload(elementProps) {
+    const resolvedClasses = this.getElementClassProps(this.props.classes, elementProps?.classes);
+
+    const keyframeNames = [];
+    if (elementProps?.classes) {
+      elementProps.classes.forEach((className) => {
+        const classProps = this.props.classes?.[className];
+        if (classProps?.animationName) {
+          keyframeNames.push(classProps.animationName);
+        }
+      });
+    }
+
+    const keyframes = {};
+    keyframeNames.forEach((name) => {
+      if (this.props.keyframes?.[name]) {
+        keyframes[name] = this.props.keyframes[name];
+      }
+    });
+
+    return {
+      element: elementProps,
+      resolvedClasses,
+      keyframes
+    };
   }
 
   // make this slide from bottom like a horizontal sidebar panel
@@ -796,24 +832,60 @@ export default class ElementEditor extends React.Component {
         >
           { this.customizedDialogs() }
 
-          <div>
-            Name
-            <input
-              style={{
-                display: 'block',
-                background: 'hsl(280deg 100% 20%)',
-                width: '100%',
-                padding: '10px',
-                border: 'none',
-                color: 'white'
-              }}
-              value={ elementProps.name }
-              onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
-            />
+          <div
+            style={{
+              position: 'sticky',
+              top: 0,
+              background: '#2e2442',
+              zIndex: 2,
+              paddingBottom: 10
+            }}
+          >
+            <Tabs
+              value={ this.state.activeTab }
+              onChange={ this.handleTabChange }
+              variant="fullWidth"
+              style={{ color: '#fff' }}
+            >
+              <Tab value="source" label="Source" style={{ color: '#fff' }} />
+              <Tab value="edit" label="Edit" style={{ color: '#fff' }} />
+            </Tabs>
           </div>
-          { this.renderClassesTags(elementProps.classes) }
-          { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
-          { this.renderKeyframesEditors() }
+
+          { this.state.activeTab === 'source' ? (
+            <div style={{ paddingTop: 10 }}>
+              <TextField
+                label="Source"
+                variant="outlined"
+                fullWidth
+                multiline
+                minRows={ 20 }
+                value={ JSON.stringify(this.getSourcePayload(elementProps), null, 2) }
+                InputProps={{ readOnly: true }}
+              />
+            </div>
+          ) : (
+            <React.Fragment>
+              <div>
+                Name
+                <input
+                  style={{
+                    display: 'block',
+                    background: 'hsl(280deg 100% 20%)',
+                    width: '100%',
+                    padding: '10px',
+                    border: 'none',
+                    color: 'white'
+                  }}
+                  value={ elementProps.name }
+                  onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
+                />
+              </div>
+              { this.renderClassesTags(elementProps.classes) }
+              { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
+              { this.renderKeyframesEditors() }
+            </React.Fragment>
+          ) }
         </div>
       );
     }
