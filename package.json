@@ -5,13 +5,13 @@
   "private": true,
   "main": "src/index.js",
   "scripts": {
-    "watch": "webpack --watch",
-    "start": "webpack serve --mode=development",
-    "start:production": "webpack serve --mode=production",
-    "start-styleguide": "webpack serve --config styleguide/webpack.config.js",
+    "watch": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --watch",
+    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack serve --mode=development",
+    "start:production": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack serve --mode=production",
+    "start-styleguide": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack serve --config styleguide/webpack.config.js",
     "styleguide": "styleguidist server",
     "styleguide:build": "styleguidist build",
-    "build": "webpack --mode=production"
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.2",
@@ -33,6 +33,7 @@
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^9.0.1",
+    "cross-env": "^10.1.0",
     "css-loader": "^5.0.0",
     "file-loader": "^6.2.0",
     "html-loader": "^1.3.2",

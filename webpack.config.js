@@ -7,6 +7,19 @@ module.exports = {
   devServer: {
     contentBase: './dist',
   },
+  resolve: {
+    extensions: ['.js', '.jsx', '.json'],
+    // The upstream git dependency `@unfocused/nurvus-ui` can install without built `dist/`
+    // on modern Node versions. Alias to a local clone's `src/` so the app can compile.
+    alias: {
+      '@unfocused/nurvus-ui': path.resolve(__dirname, '../nurvus-design-system/src'),
+      // Prevent "Invalid hook call" by forcing a single React instance.
+      // Without this, Webpack may pull React from ../nurvus-design-system/node_modules.
+      react: path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+    },
+    modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
+  },
   entry: './src/index.js',
   output: {
     filename: 'bundle.js',
