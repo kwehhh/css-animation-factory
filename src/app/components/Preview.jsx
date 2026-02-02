@@ -97,7 +97,8 @@ export default class Preview extends React.Component {
     const nextPath = [...path, i];
     return (
       <div
-        key={ `${name}-${nextPath.join('-')}` }
+        // Key MUST be stable across renames to avoid remounting and restarting CSS animations.
+        key={ `path-${nextPath.join('-')}` }
         className={ this.getClassNames(classes) }
         onClick={ (e) => this.handleElementClick(e, nextPath) }
         onMouseDown={ (e) => this.handleElementClick(e, nextPath) }
