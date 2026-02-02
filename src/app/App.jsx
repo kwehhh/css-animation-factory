@@ -318,6 +318,56 @@ export default class App extends React.Component {
     return nextElements;
   }
 
+  removeElementAtPath(elements = [], path = []) {
+    if (!path.length) return elements;
+    const [index, ...rest] = path;
+    const nextElements = [...elements];
+    const current = nextElements[index];
+    if (!current) return elements;
+
+    if (!rest.length) {
+      nextElements.splice(index, 1);
+      return nextElements;
+    }
+
+    const childElements = current.elements || [];
+    nextElements[index] = {
+      ...current,
+      elements: this.removeElementAtPath(childElements, rest)
+    };
+    return nextElements;
+  }
+
+  adjustActivePathAfterRemoval(activePath = [], removedPath = []) {
+    if (!activePath.length || !removedPath.length) return activePath;
+
+    // If the removed path is a prefix of the active path, clear selection.
+    const isPrefix = removedPath.every((v, i) => activePath[i] === v);
+    if (isPrefix) return [];
+
+    // If same parent, and active index is after removed index, decrement it.
+    if (activePath.length === removedPath.length) {
+      const parentMatches = removedPath.slice(0, -1).every((v, i) => activePath[i] === v);
+      if (parentMatches) {
+        const removedIdx = removedPath[removedPath.length - 1];
+        const activeIdx = activePath[activePath.length - 1];
+        if (activeIdx > removedIdx) {
+          return [...activePath.slice(0, -1), activeIdx - 1];
+        }
+      }
+    }
+
+    return activePath;
+  }
+
+  handleRemoveElement = (e, path) => {
+    if (e?.stopPropagation) e.stopPropagation();
+    this.setState((prevState) => ({
+      elements: this.removeElementAtPath(prevState.elements, path),
+      activePath: this.adjustActivePathAfterRemoval(prevState.activePath, path)
+    }));
+  }
+
   handleCloneElement() {
     this.setState((prevState) => {
       return {
@@ -561,6 +611,7 @@ export default class App extends React.Component {
               onClick={ this.handleSelectElement }
               onClone={ this.handleCloneElement }
               onToggleHidden={ this.handleToggleHidden }
+              onRemove={ this.handleRemoveElement }
               width={ elElementsContainerWidth }
             />
           </div>

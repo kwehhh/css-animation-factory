@@ -9,6 +9,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import IconButton from '@material-ui/core/IconButton';
 
 const NEW_EL_NAME = 'myNewElement';
@@ -115,16 +116,20 @@ export default class Layers extends React.Component {
     const itemRenderer = (item) => {
       const { label, hidden, path } = item;
       const handleToggleHidden = (e) => this.props.onToggleHidden?.(e, path);
+      const handleRemove = (e) => this.props.onRemove?.(e, path);
 
       return (
         <Layout display="flex" alignItems="center" justifyContent="space-between">
-          <Text style={ overflowStyle }>{ label }</Text>
+          <Text className="caf-text-xs" style={ overflowStyle }>{ label }</Text>
           <Layout display="flex" alignItems="center" justifyContent="space-between">
-            <IconButton size="small" onClick={ handleToggleHidden } style={{ color: '#fff' }}>
-              { hidden ? <VisibilityOffIcon /> : <RemoveRedEyeIcon /> }
+            <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleToggleHidden }>
+              { hidden ? <VisibilityOffIcon fontSize="small" /> : <RemoveRedEyeIcon fontSize="small" /> }
             </IconButton>
-            <IconButton size="small" onClick={ (e) => e.stopPropagation() } style={{ color: '#fff' }}>
-              <LockOpenIcon />
+            <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleRemove } title="Remove">
+              <DeleteOutlineIcon fontSize="small" />
+            </IconButton>
+            <IconButton className="caf-iconbtn-xs" size="small" onClick={ (e) => e.stopPropagation() } title="Lock (stub)">
+              <LockOpenIcon fontSize="small" />
             </IconButton>
           </Layout>
         </Layout>

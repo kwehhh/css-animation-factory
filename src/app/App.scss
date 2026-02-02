@@ -80,6 +80,21 @@ body {
   padding: var(--caf-nav-icon-pad);
 }
 
+// Compact icon buttons in side panels (Layers etc)
+.caf-iconbtn-xs {
+  padding: var(--caf-space-2) !important;
+  color: #fff !important;
+}
+.caf-iconbtn-xs svg {
+  font-size: 18px;
+}
+
+// Small body text (matches navbar spec)
+.caf-text-xs {
+  font-size: var(--caf-nav-font-size);
+  line-height: var(--caf-nav-line-height);
+}
+
 // Reusable "brand/title" typography (matches navbar logo spec)
 .caf-title {
   font-family: inherit;
