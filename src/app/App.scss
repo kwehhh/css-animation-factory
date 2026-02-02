@@ -43,6 +43,29 @@ body {
   overflow: hidden;
 }
 
+.app-root {
+  // Create an isolated stacking context so user CSS (z-index/transform/etc)
+  // inside the preview can't "escape" and cover the UI chrome (header/panels).
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  isolation: isolate;
+}
+
+.app-header {
+  z-index: 30;
+}
+
+// Preview should stay behind panels/header, but still be clickable.
+.preview {
+  z-index: 0;
+}
+
+// App chrome panels sit above the preview (without affecting user-layer z-index).
+.app-panel {
+  z-index: 20;
+}
+
 .logo {
   font-family: 'Dancing Script', cursive;
 }

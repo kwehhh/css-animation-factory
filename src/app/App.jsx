@@ -344,20 +344,21 @@ export default class App extends React.Component {
    * @param {array} path - ...
    */
    handleSelectElement(path) {
-    console.log('handleSelectElement', path);
-
     let activePath = path;
-    if (activePath.join('') === this.state.activePath.join('')) {
+    const isSamePath = _.isEqual(activePath, this.state.activePath);
+    if (isSamePath) {
       activePath = [];
     }
 
+    // If the user selects a layer, ensure the Element Editor panel is visible.
+    // (If they clicked the already-selected layer to deselect, don't force it open.)
     this.setState({
-      activePath
+      activePath,
+      showElementContainer: activePath.length ? true : this.state.showElementContainer
     });
   }
 
   handleSelectKeyframes(activeKeyframeId) {
-    console.log('handleSelectKeyframes', activeKeyframeId);
     this.setState({activeKeyframeId});
   }
 
@@ -398,7 +399,6 @@ export default class App extends React.Component {
     });
   }
 
-  // new
   handleUpdateElements(element) {
     this.handleHideContainer();
 
@@ -496,6 +496,7 @@ export default class App extends React.Component {
     const containerSpacing = 20;
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
+    const bottomBoundaryHeight = 200;
     const elementEditorWidth = this.state.isElementEditorExpanded ? elContainerWidth * 2 : elContainerWidth;
     const commonProps = {
       activePath,
@@ -515,12 +516,12 @@ export default class App extends React.Component {
     // <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     // <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&display=swap" rel="stylesheet"></link>
     return (
-      <div>
+      <div className="app-root">
         <Helmet>
           <style>{ this.getDisplayCSS() }</style>
           <meta charSet="utf-8" />
         </Helmet>
-        <div style={{
+        <div className="app-header" style={{
           height: navHeight,
           position: 'fixed',
           background: 'var(--caf-surface-2)',
@@ -530,7 +531,6 @@ export default class App extends React.Component {
           alignItems: 'center',
           padding: '0 10px',
           boxSizing: 'border-box',
-          zIndex: 9
         }}>
           <Layout display="flex" alignItems="center" justifyContent="space-between" style={{ width: '100%', height: '100%' }}>
             <div className="logo">CSS Animation Factory</div>
@@ -547,17 +547,19 @@ export default class App extends React.Component {
         </div>
         <Preview
           { ...commonProps }
-          leftBoundaryWidth={ this.state.showLayersPanel ? containerSpacing + elElementsContainerWidth : 0 }
-          rightBoundaryWidth={ this.state.showElementContainer ? containerSpacing + elementEditorWidth : 0 }
+          leftBoundaryWidth={ 0 }
+          rightBoundaryWidth={ 0 }
           topBoundaryHeight={ navHeight }
+          bottomBoundaryHeight={ bottomBoundaryHeight }
+          onSelectElement={ this.handleSelectElement }
         />
         { this.state.showLayersPanel && (
-          <div style={{
+          <div className="app-panel app-panel--left" style={{
             position: 'absolute',
             top: navHeight,
             bottom: 0,
             left: '20px',
-            padding: '20px 0'
+            padding: '20px 0',
           }}>
             <Layers
               { ...commonProps }
@@ -571,12 +573,13 @@ export default class App extends React.Component {
         ) }
         { this.state.showElementContainer && (
           <div
+            className="app-panel app-panel--right"
             style={{
               position: 'absolute',
               top: navHeight,
               bottom: 0,
               right: '20px',
-              padding: '20px 0'
+              padding: '20px 0',
             }}
           >
             <ElementEditor

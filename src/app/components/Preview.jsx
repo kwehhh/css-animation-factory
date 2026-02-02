@@ -4,20 +4,6 @@ export default class Preview extends React.Component {
 
   constructor() {
     super();
-    // this.state = {
-    //   activeElement: null,
-    //   // activeElement: 0,
-    //   elements: [
-    //     {
-    //       name: 'ballz',
-    //       css: '.ballz {\n  background: blue;\n  width: 50px;\n  height: 50px;\n}'
-    //     },
-    //     {
-    //       name: 'two'
-    //     }
-    //   ],
-    //   showElementContainer: true
-    // };
 
     this.handleSelectElement = this.handleSelectElement.bind(this);
     this.handleShowContainer = this.handleShowContainer.bind(this);
@@ -26,18 +12,6 @@ export default class Preview extends React.Component {
     this.handleUpdateElement = this.handleUpdateElement.bind(this);
   }
 
-  // getCSS() {
-  //   let css = '';
-  //   this.state.elements.forEach((element) => {
-  //     // const { }
-  //     if (element.css) {
-  //       css = `${css}\n${element.css}`;
-  //     }
-
-  //   });
-
-  //   return css;
-  // }
 
  /**
    * // Extract to utils.....
@@ -90,8 +64,6 @@ export default class Preview extends React.Component {
   }
 
   handleUpdateElement(element, index) {
-    // this.handleHideContainer();
-
     this.setState((prevState) => {
       const newElements = [
         ...prevState.elements
@@ -108,25 +80,37 @@ export default class Preview extends React.Component {
     });
   }
 
-  renderElement(props, i) {
-    const { elements, name, classes, hidden } = props;
+  handleElementClick = (e, path) => {
+    if (e?.stopPropagation) e.stopPropagation();
+    if (this.props.onSelectElement) {
+      this.props.onSelectElement(path);
+    }
+  }
 
-    // console.log('renderElement', props);
+  renderElement(props, i, path = []) {
+    const { elements, name, classes, hidden } = props;
 
     if (hidden) {
       return null;
     }
 
+    const nextPath = [...path, i];
     return (
-      <div key={ `${name}-${i}` } className={ this.getClassNames(classes) }>
-        { this.renderElements(elements) }
+      <div
+        key={ `${name}-${nextPath.join('-')}` }
+        className={ this.getClassNames(classes) }
+        onClick={ (e) => this.handleElementClick(e, nextPath) }
+        onMouseDown={ (e) => this.handleElementClick(e, nextPath) }
+        onTouchStart={ (e) => this.handleElementClick(e, nextPath) }
+      >
+        { this.renderElements(elements, nextPath) }
       </div>
     );
   }
 
-  renderElements(elements) {
+  renderElements(elements, path = []) {
     if (elements) {
-      return elements.map((element, i) => this.renderElement(element, i));
+      return elements.map((element, i) => this.renderElement(element, i, path));
     }
 
     return null;
@@ -137,14 +121,12 @@ export default class Preview extends React.Component {
     const {
       leftBoundaryWidth,
       rightBoundaryWidth,
+      bottomBoundaryHeight,
       elements,
-      previewContainerWidth,
       topBoundaryHeight,
       style
     } = this.props;
 
-
-    // console.log('render', this.props);
 
     return (
       <div
@@ -156,7 +138,9 @@ export default class Preview extends React.Component {
           top: topBoundaryHeight || 0,
           left: leftBoundaryWidth || 0,
           right: rightBoundaryWidth || 0,
-          bottom: 0,
+          bottom: bottomBoundaryHeight || 0,
+          width: '100%',
+          height: '100%',
           ...style
         }}
         className="preview">
