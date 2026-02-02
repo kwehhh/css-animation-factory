@@ -522,7 +522,7 @@ export default class App extends React.Component {
             itemSpacing={ 0 }
             style={{ width: '100%', height: '100%' }}
           >
-            <div className="logo">CSS Animation Factory</div>
+            <div className="caf-title">CSS Animation Factory</div>
             <Layout
               className="app-header-actions"
               display="flex"

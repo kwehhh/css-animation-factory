@@ -1157,6 +1157,9 @@ export default class ElementEditor extends React.Component {
             ...this.props.style
           } }
         >
+          <div className="caf-panel-title">
+            Elemental Editor
+          </div>
           { this.customizedDialogs() }
 
           <div

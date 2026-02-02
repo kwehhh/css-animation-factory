@@ -80,8 +80,22 @@ body {
   padding: var(--caf-nav-icon-pad);
 }
 
-.logo {
+// Reusable "brand/title" typography (matches navbar logo spec)
+.caf-title {
   font-family: inherit;
+  font-size: var(--caf-nav-font-size);
+  line-height: var(--caf-nav-line-height);
+  font-weight: var(--caf-nav-font-weight);
+}
+
+.caf-panel-title {
+  @extend .caf-title;
+  padding: var(--caf-space-8) var(--caf-space-12);
+}
+
+// Back-compat (older uses)
+.logo {
+  @extend .caf-title;
 }
 
 // Keep CodeMirror consistent with app font.

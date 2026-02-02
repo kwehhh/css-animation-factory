@@ -143,7 +143,7 @@ export default class Layers extends React.Component {
       >
         <div style={{ padding: 'var(--caf-space-0) var(--caf-space-16) var(--caf-space-16) var(--caf-space-16)' }}>
           <Layout>
-            <Title level={ 3 } style={{ color: '#fff' }}>Layers</Title>
+            <div className="caf-title">Layers</div>
             <ButtonGroup>
               <Button>
                 <Tooltip title="JSON Data">
