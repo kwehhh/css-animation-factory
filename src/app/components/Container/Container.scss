@@ -4,7 +4,7 @@
   // 20% opacity surface (fallback first, then token-based when supported)
   background: rgba(43, 54, 63, 0.2); // --caf-surface (#2b363f)
   background: color-mix(in srgb, var(--caf-surface) 20%, transparent);
-  padding: 20px;
+  padding: var(--caf-space-16);
   border-radius: 10px;
   border: 1px solid var(--caf-border);
 

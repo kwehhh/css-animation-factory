@@ -478,7 +478,7 @@ export default class App extends React.Component {
   render() {
     const { activeElement, activePath, classes, keyframes, elements } = this.state;
 
-    const navHeight = 30;
+    const navHeight = 32;
     const containerSpacing = 20;
     const elContainerWidth = 350;
     const elElementsContainerWidth = 180;
@@ -507,24 +507,32 @@ export default class App extends React.Component {
           <style>{ this.getDisplayCSS() }</style>
           <meta charSet="utf-8" />
         </Helmet>
-        <div className="app-header" style={{
-          height: navHeight,
-          position: 'fixed',
-          background: 'var(--caf-surface-2)',
-          color: 'var(--caf-text)',
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 10px',
-          boxSizing: 'border-box',
-        }}>
-          <Layout display="flex" alignItems="center" justifyContent="space-between" style={{ width: '100%', height: '100%' }}>
+        <div
+          className="app-header"
+          style={{
+            // Keep JS the source of truth for layout boundaries.
+            // Styling lives in `App.scss`.
+            '--caf-nav-height': `${navHeight}px`
+          }}
+        >
+          <Layout
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            itemSpacing={ 0 }
+            style={{ width: '100%', height: '100%' }}
+          >
             <div className="logo">CSS Animation Factory</div>
-            <Layout display="flex" alignItems="center" style={{ height: '100%' }}>
-              <IconButton size="small" onClick={ this.handleToggleLayersPanel } style={{ color: '#fff' }}>
+            <Layout
+              className="app-header-actions"
+              display="flex"
+              alignItems="center"
+              itemSpacing={ 0 }
+            >
+              <IconButton size="small" onClick={ this.handleToggleLayersPanel }>
                 <ViewListIcon />
               </IconButton>
-              <IconButton size="small" onClick={ this.handleToggleElementPanel } style={{ color: '#fff' }}>
+              <IconButton size="small" onClick={ this.handleToggleElementPanel }>
                 <TuneIcon />
               </IconButton>
               <Link onClick={ this.handleShowPresets }>Presets</Link>
@@ -544,8 +552,8 @@ export default class App extends React.Component {
             position: 'absolute',
             top: navHeight,
             bottom: 0,
-            left: '20px',
-            padding: '20px 0',
+            left: 'var(--caf-space-16)',
+            padding: 'var(--caf-space-16) var(--caf-space-0)',
           }}>
             <Layers
               { ...commonProps }
@@ -564,8 +572,8 @@ export default class App extends React.Component {
               position: 'absolute',
               top: navHeight,
               bottom: 0,
-              right: '20px',
-              padding: '20px 0',
+              right: 'var(--caf-space-16)',
+              padding: 'var(--caf-space-16) var(--caf-space-0)',
             }}
           >
             <ElementEditor

@@ -1,48 +1,9 @@
-$body-color: red;
+@import './variables.scss';
 
-// Theme tokens (aligned to CodeMirror "material" vibe)
-:root {
-  --caf-bg: #263238;
-  --caf-surface: #2b363f;
-  --caf-surface-2: #1f272e;
-  --caf-text: #eeffff;
-  --caf-muted: rgba(238, 255, 255, 0.7);
-  --caf-border: rgba(238, 255, 255, 0.12);
-  --caf-accent: #ff2d7a;
-  --caf-input-bg: rgba(0, 0, 0, 0.25);
+html {
+  // Inter + 4px grid friendly baseline
+  font-size: var(--caf-font-size-base);
 }
-
-@font-face {
-  font-family: 'InterVariable';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('../assets/fonts/inter/InterVariable.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'InterVariable';
-  font-style: italic;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('../assets/fonts/inter/InterVariable-Italic.woff2') format('woff2');
-}
-
-// Basic static fallback for older engines
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../assets/fonts/inter/Inter-Regular.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Inter';
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../assets/fonts/inter/Inter-Italic.woff2') format('woff2');
-}
-
 
 * {
   box-sizing: border-box;
@@ -57,12 +18,12 @@ $body-color: red;
 body {
   // reset
   margin: 0;
-  // color: $body-color;
   background: var(--caf-bg);
   color: var(--caf-text);
+  font-size: 1rem;
+  line-height: 1.5; // 16px * 1.5 = 24px
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-optical-sizing: auto;
-  // For animations...
   overflow: hidden;
 }
 
@@ -82,17 +43,41 @@ body {
 }
 
 .app-header {
-  z-index: 30;
+  position: fixed;
+  background: var(--caf-surface-2);
+  color: var(--caf-text);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: var(--caf-space-0) var(--caf-nav-pad-x);
+  box-sizing: border-box;
+  font-size: var(--caf-nav-font-size);
+  line-height: var(--caf-nav-line-height);
+  font-weight: var(--caf-nav-font-weight);
+  height: var(--caf-nav-height);
+  z-index: var(--caf-z-header);
 }
 
 // Preview should stay behind panels/header, but still be clickable.
 .preview {
-  z-index: 0;
+  z-index: var(--caf-z-preview);
 }
 
 // App chrome panels sit above the preview (without affecting user-layer z-index).
 .app-panel {
-  z-index: 20;
+  z-index: var(--caf-z-panel);
+}
+
+.app-header-actions {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--caf-nav-item-gap);
+}
+
+.app-header .MuiIconButton-root {
+  color: #fff;
+  padding: var(--caf-nav-icon-pad);
 }
 
 .logo {

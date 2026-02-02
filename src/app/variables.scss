@@ -1,0 +1,75 @@
+// Theme tokens (aligned to CodeMirror "material" vibe)
+// Prefix note: `--caf-*` stands for "CSS Animation Factory".
+:root {
+  // Typography baseline
+  --caf-font-size-base: 16px;
+
+  --caf-bg: #263238;
+  --caf-surface: #2b363f;
+  --caf-surface-2: #1f272e;
+  --caf-text: #eeffff;
+  --caf-muted: rgba(238, 255, 255, 0.7);
+  --caf-border: rgba(238, 255, 255, 0.12);
+  --caf-accent: #ff2d7a;
+  --caf-input-bg: rgba(0, 0, 0, 0.25);
+
+  // Spacing scale (px) — use for padding/margin/gaps
+  --caf-space-0: 0px;
+  --caf-space-2: 2px;
+  --caf-space-4: 4px;
+  --caf-space-8: 8px;
+  --caf-space-12: 12px;
+  --caf-space-16: 16px;
+  --caf-space-24: 24px;
+  --caf-space-32: 32px;
+  --caf-space-48: 48px;
+  --caf-space-64: 64px;
+
+  // Z-index layers
+  --caf-z-preview: 0;
+  --caf-z-panel: 20;
+  --caf-z-header: 30;
+
+  // Ultra-compact navbar tokens
+  --caf-nav-height: 32px;
+  --caf-nav-pad-x: var(--caf-space-8);
+  --caf-nav-item-gap: var(--caf-space-8);
+  --caf-nav-icon-pad: var(--caf-space-2);
+  --caf-nav-font-size: 12px;
+  --caf-nav-line-height: 16px;
+  --caf-nav-font-weight: 500;
+}
+
+// Typography (local Inter assets)
+@font-face {
+  font-family: 'InterVariable';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/inter/InterVariable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'InterVariable';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/inter/InterVariable-Italic.woff2') format('woff2');
+}
+
+// Basic static fallback for older engines
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/inter/Inter-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/inter/Inter-Italic.woff2') format('woff2');
+}

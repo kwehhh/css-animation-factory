@@ -138,10 +138,10 @@ export default class Layers extends React.Component {
           width: this.props.width,
           maxHeight: '100%',
           overflowY: 'auto',
-          padding: '20px 0'
+          padding: 'var(--caf-space-16) var(--caf-space-0)'
         } }
       >
-        <div style={{ padding: '0px 20px 20px 20px' }}>
+        <div style={{ padding: 'var(--caf-space-0) var(--caf-space-16) var(--caf-space-16) var(--caf-space-16)' }}>
           <Layout>
             <Title level={ 3 } style={{ color: '#fff' }}>Layers</Title>
             <ButtonGroup>
