@@ -12,12 +12,35 @@ $body-color: red;
   --caf-input-bg: rgba(0, 0, 0, 0.25);
 }
 
-
-
 @font-face {
-  font-family: 'Dancing Script';
-  src:  url('../assets/font/DancingScript-Medium.ttf') format('truetype');
-  font-weight: 500;
+  font-family: 'InterVariable';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/inter/InterVariable.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'InterVariable';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/inter/InterVariable-Italic.woff2') format('woff2');
+}
+
+// Basic static fallback for older engines
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/inter/Inter-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/inter/Inter-Italic.woff2') format('woff2');
 }
 
 
@@ -37,10 +60,16 @@ body {
   // color: $body-color;
   background: var(--caf-bg);
   color: var(--caf-text);
-  // TODO: Find a more ideal font to go for
-  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-optical-sizing: auto;
   // For animations...
   overflow: hidden;
+}
+
+@supports (font-variation-settings: normal) {
+  body {
+    font-family: 'InterVariable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
 }
 
 .app-root {
@@ -67,7 +96,12 @@ body {
 }
 
 .logo {
-  font-family: 'Dancing Script', cursive;
+  font-family: inherit;
+}
+
+// Keep CodeMirror consistent with app font.
+.CodeMirror {
+  font-family: inherit;
 }
 
 // Material UI accents
