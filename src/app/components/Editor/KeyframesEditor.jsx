@@ -22,7 +22,7 @@ export default class KeyframesEditor extends React.Component {
       [id]: newKeyframe
     };
 
-    console.log('handleKeyframeUpdate', name, newKeyframes, id, attr, value);
+    // console.log('handleKeyframeUpdate', name, newKeyframes, id, attr, value);
     this.props.onKeyframesChange(name, newKeyframes);
   }
 

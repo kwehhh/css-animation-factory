@@ -51,7 +51,7 @@ export default class App extends React.Component {
     this.handleHidePresets = this.handleHidePresets.bind(this);
     this.handleUpdateClass = this.handleUpdateClass.bind(this);
     this.handleUpdateElements = this.handleUpdateElements.bind(this);
-    this.handleUpdateElement = this.handleUpdateElement.bind(this);
+    this.handleUpdateElementAtPath = this.handleUpdateElementAtPath.bind(this);
     this.handleUpdateKeyframes = this.handleUpdateKeyframes.bind(this);
     this.handleElementEditorExpandedChange = this.handleElementEditorExpandedChange.bind(this);
   }
@@ -423,8 +423,6 @@ export default class App extends React.Component {
         ...prevState.classes,
       };
 
-      console.log('handleUpdateClass', newClasses, key, props);
-
       // delete
       if (props === false) {
         delete newClasses[key];
@@ -458,39 +456,27 @@ export default class App extends React.Component {
         newKeyframes[key] = props;
       }
 
-      console.log('handleUpdateKeyframes', newKeyframes, key, props);
-
       return {
         keyframes: newKeyframes
       };
     });
   }
 
-  handleUpdateElement(element, index) {
-    // this.handleHideContainer();
+  handleUpdateElementAtPath(elementPatch, path = []) {
+    if (!path.length) return;
 
     this.setState((prevState) => {
-      const newElements = [
-        ...prevState.elements
-      ];
-
-      newElements[index] = {
-        ...newElements[index],
-        ...element
-      };
-
       return {
-        elements: newElements
+        elements: this.updateElementAtPath(prevState.elements, path, (el) => ({
+          ...el,
+          ...elementPatch
+        }))
       };
     });
   }
 
   render() {
     const { activeElement, activePath, classes, keyframes, elements } = this.state;
-    console.log('render', {
-      state: this.state,
-      props: this.props
-    });
 
     const navHeight = 30;
     const containerSpacing = 20;
@@ -590,7 +576,7 @@ export default class App extends React.Component {
               defaultExpanded={ true }
               onExpandedChange={ this.handleElementEditorExpandedChange }
               visible={ true }
-              onChange={ (props) => { this.handleUpdateElement(props, activeElement) } }
+              onChange={ (props) => { this.handleUpdateElementAtPath(props, activePath) } }
               onSubmit={ this.handleUpdateElements }
             />
           </div>

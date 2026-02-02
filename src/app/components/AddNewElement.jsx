@@ -63,7 +63,7 @@ export default class AddNewElement extends React.Component {
       ...newProp
     };
 
-    console.log('handleChange');
+    // console.log('handleChange');
     // setConfig(props);
     // this.setState({config: props});
   };

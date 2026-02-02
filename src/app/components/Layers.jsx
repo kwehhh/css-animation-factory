@@ -156,12 +156,14 @@ export default class Layers extends React.Component {
                 </Button>
               </Tooltip>
               <Tooltip title="Clone Selected Layer">
-                <Button
-                  onClick={ this.props.onClone }
-                  disabled={ !this.props.activePath.length }
-                >
-                  <FileCopyIcon />
-                </Button>
+                <span style={{ display: 'inline-flex' }}>
+                  <Button
+                    onClick={ this.props.onClone }
+                    disabled={ !this.props.activePath.length }
+                  >
+                    <FileCopyIcon />
+                  </Button>
+                </span>
               </Tooltip>
             </ButtonGroup>
           </Layout>

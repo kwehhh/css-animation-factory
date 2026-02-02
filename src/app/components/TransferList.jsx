@@ -51,7 +51,7 @@ export default function TransferList(props) {
   const unassigned = [];
   const keyMap = [];
   Object.keys(props.classes).forEach((item, i) => {
-    console.log(item, i);
+    // console.log(item, i);
 
     keyMap.push(item);
     if (props.setClasses.indexOf(item) !== -1) {
@@ -72,7 +72,7 @@ export default function TransferList(props) {
   const [right, setRight] = React.useState(assigned);
 
 
-  console.log('TransferList', left, right, keyMap, props);
+  // console.log('TransferList', left, right, keyMap, props);
 
   // const [left, setLeft] = React.useState([0, 1, 2, 3]);
   // const [right, setRight] = React.useState([4, 5, 6, 7]);

@@ -63,6 +63,14 @@ export default class ElementEditor extends React.Component {
       showModal: false,
       activeTab: 'edit',
       sourceMode: 'css',
+      sourceText: {
+        json: '',
+        css: ''
+      },
+      sourceError: {
+        json: null,
+        css: null
+      },
       expanded: !!props.defaultExpanded
     };
 
@@ -72,6 +80,23 @@ export default class ElementEditor extends React.Component {
     this.handleTabChange = this.handleTabChange.bind(this);
     this.handleSourceModeChange = this.handleSourceModeChange.bind(this);
     this.handleToggleExpanded = this.handleToggleExpanded.bind(this);
+    this.handleSourceBeforeChange = this.handleSourceBeforeChange.bind(this);
+
+    this._sourceApplyTimer = null;
+  }
+
+  componentDidUpdate(prevProps) {
+    // Reset editor buffers only when selection changes (not when element props update).
+    // This prevents cursor jumping while doing live updates.
+    if (!_.isEqual(prevProps.activePath, this.props.activePath)) {
+      this.setState({
+        sourceText: {
+          json: this.getGeneratedSourceValue('json', this.props.elementProps),
+          css: this.getGeneratedSourceValue('css', this.props.elementProps)
+        },
+        sourceError: { json: null, css: null }
+      });
+    }
   }
 
   handleTabChange(e, value) {
@@ -82,7 +107,13 @@ export default class ElementEditor extends React.Component {
   handleSourceModeChange(e, value) {
     if (e?.stopPropagation) e.stopPropagation();
     if (value) {
-      this.setState({ sourceMode: value });
+      this.setState((prevState) => ({
+        sourceMode: value,
+        sourceText: {
+          ...prevState.sourceText,
+          [value]: prevState.sourceText?.[value] || this.getGeneratedSourceValue(value, this.props.elementProps)
+        }
+      }));
     }
   }
 
@@ -162,7 +193,182 @@ export default class ElementEditor extends React.Component {
     return `${blocks.join('\n\n')}\n`;
   }
 
+  getGeneratedSourceValue(mode, elementProps) {
+    return mode === 'css'
+      ? this.getCompiledCss(elementProps)
+      : JSON.stringify(this.getSourcePayload(elementProps), null, 2);
+  }
+
+  handleSourceBeforeChange(editor, data, value) {
+    const mode = this.state.sourceMode;
+    this.setState((prevState) => ({
+      sourceText: { ...prevState.sourceText, [mode]: value },
+      sourceError: { ...prevState.sourceError, [mode]: null }
+    }));
+
+    // Live-update: debounce applying until the user pauses typing briefly.
+    if (this._sourceApplyTimer) clearTimeout(this._sourceApplyTimer);
+    this._sourceApplyTimer = setTimeout(() => {
+      this.applySourceText(mode, value);
+    }, 200);
+  }
+
+  stripCssComments(cssText = '') {
+    return cssText.replace(/\/\*[\s\S]*?\*\//g, '');
+  }
+
+  findMatchingBrace(src, openIdx) {
+    let depth = 0;
+    for (let i = openIdx; i < src.length; i++) {
+      const ch = src[i];
+      if (ch === '{') depth += 1;
+      if (ch === '}') {
+        depth -= 1;
+        if (depth === 0) return i;
+      }
+    }
+    return -1;
+  }
+
+  parseDeclarations(block = '') {
+    const out = {};
+    const body = this.stripCssComments(block);
+    const re = /([-\w]+)\s*:\s*([^;]+)\s*;?/g;
+    let match;
+    // eslint-disable-next-line no-cond-assign
+    while ((match = re.exec(body))) {
+      const rawKey = (match[1] || '').trim();
+      const rawValue = (match[2] || '').trim();
+      if (!rawKey) continue;
+      out[camelize(rawKey)] = rawValue;
+    }
+    return out;
+  }
+
+  parseKeyframesBlock(block = '') {
+    const keyframes = {};
+    const src = this.stripCssComments(block);
+    let i = 0;
+    while (i < src.length) {
+      while (i < src.length && /\s/.test(src[i])) i += 1;
+      if (i >= src.length) break;
+
+      // Read selector (e.g. "0%" / "from" / "to") up to "{"
+      const selectorStart = i;
+      while (i < src.length && src[i] !== '{') i += 1;
+      if (i >= src.length) break;
+
+      const selector = src.slice(selectorStart, i).trim();
+      const openIdx = i;
+      const closeIdx = this.findMatchingBrace(src, openIdx);
+      if (closeIdx === -1) break;
+
+      const body = src.slice(openIdx + 1, closeIdx);
+      if (selector) {
+        keyframes[selector] = this.parseDeclarations(body);
+      }
+
+      i = closeIdx + 1;
+    }
+    return keyframes;
+  }
+
+  parseCompiledCss(cssText = '') {
+    const classes = {};
+    const keyframes = {};
+    const src = this.stripCssComments(cssText);
+
+    let i = 0;
+    while (i < src.length) {
+      while (i < src.length && /\s/.test(src[i])) i += 1;
+      if (i >= src.length) break;
+
+      // .className { ... }
+      if (src[i] === '.') {
+        i += 1;
+        const nameStart = i;
+        while (i < src.length && /[-_a-zA-Z0-9]/.test(src[i])) i += 1;
+        const className = src.slice(nameStart, i).trim();
+
+        while (i < src.length && src[i] !== '{') i += 1;
+        if (i >= src.length) break;
+        const openIdx = i;
+        const closeIdx = this.findMatchingBrace(src, openIdx);
+        if (closeIdx === -1) break;
+        const body = src.slice(openIdx + 1, closeIdx);
+        if (className) {
+          classes[className] = this.parseDeclarations(body);
+        }
+        i = closeIdx + 1;
+        continue;
+      }
+
+      // @keyframes name { ... }
+      if (src.startsWith('@keyframes', i)) {
+        i += '@keyframes'.length;
+        while (i < src.length && /\s/.test(src[i])) i += 1;
+        const nameStart = i;
+        while (i < src.length && /[-_a-zA-Z0-9]/.test(src[i])) i += 1;
+        const kfName = src.slice(nameStart, i).trim();
+
+        while (i < src.length && src[i] !== '{') i += 1;
+        if (i >= src.length) break;
+        const openIdx = i;
+        const closeIdx = this.findMatchingBrace(src, openIdx);
+        if (closeIdx === -1) break;
+
+        const body = src.slice(openIdx + 1, closeIdx);
+        if (kfName) {
+          keyframes[kfName] = this.parseKeyframesBlock(body);
+        }
+        i = closeIdx + 1;
+        continue;
+      }
+
+      i += 1;
+    }
+
+    return { classes, keyframes };
+  }
+
+  applySourceText(mode, text) {
+    try {
+      if (mode === 'json') {
+        const parsed = JSON.parse(text || '');
+        const payload = (parsed && parsed.element) ? parsed : { element: parsed };
+
+        if (payload.resolvedClasses && _.isObject(payload.resolvedClasses)) {
+          Object.keys(payload.resolvedClasses).forEach((className) => {
+            this.props.onClassChange?.(className, payload.resolvedClasses[className]);
+          });
+        }
+        if (payload.keyframes && _.isObject(payload.keyframes)) {
+          Object.keys(payload.keyframes).forEach((name) => {
+            this.props.onKeyframesChange?.(name, payload.keyframes[name]);
+          });
+        }
+        if (payload.element && _.isObject(payload.element)) {
+          this.props.onChange?.(payload.element);
+        }
+      } else {
+        const parsed = this.parseCompiledCss(text);
+        Object.keys(parsed.classes).forEach((className) => {
+          this.props.onClassChange?.(className, parsed.classes[className]);
+        });
+        Object.keys(parsed.keyframes).forEach((name) => {
+          this.props.onKeyframesChange?.(name, parsed.keyframes[name]);
+        });
+      }
+    } catch (err) {
+      this.setState((prevState) => ({
+        sourceError: { ...prevState.sourceError, [mode]: err?.message || String(err) }
+      }));
+    }
+  }
+
   renderSourcePane(elementProps) {
+    const mode = this.state.sourceMode;
+    const err = this.state.sourceError?.[mode];
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Tabs
@@ -174,21 +380,22 @@ export default class ElementEditor extends React.Component {
           <Tab value="json" label="JSON" style={{ color: '#fff' }} />
           <Tab value="css" label="Compiled CSS" style={{ color: '#fff' }} />
         </Tabs>
+        { err && (
+          <div style={{ color: '#ff6b6b', fontSize: 12, marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            { err }
+          </div>
+        ) }
         <div style={{ border: '1px solid rgba(255,255,255,0.15)', flex: 1, minHeight: 0 }}>
           <CodeMirror
-            value={
-              this.state.sourceMode === 'css'
-                ? this.getCompiledCss(elementProps)
-                : JSON.stringify(this.getSourcePayload(elementProps), null, 2)
-            }
+            value={ this.state.sourceText?.[mode] || this.getGeneratedSourceValue(mode, elementProps) }
             options={{
               mode: this.state.sourceMode === 'css' ? 'css' : 'javascript',
               theme: 'material',
               lineNumbers: true,
-              readOnly: true
+              readOnly: false
             }}
             editorDidMount={(editor) => editor.setSize(null, '100%')}
-            onBeforeChange={() => {}}
+            onBeforeChange={ this.handleSourceBeforeChange }
           />
         </div>
       </div>
@@ -361,7 +568,7 @@ export default class ElementEditor extends React.Component {
       });
 
       // TODO: Handle multi key value .. border: 1px solid white;
-      console.log('getStyleObjFromCM', obj);
+      // console.log('getStyleObjFromCM', obj);
 
 
     }
@@ -414,7 +621,7 @@ export default class ElementEditor extends React.Component {
     } else {
       // this does not work if CM was not used...
       css = this.getStyleObjFromCM(props);
-      console.log('handleToggleCodeView', css);
+      // console.log('handleToggleCodeView', css);
     }
 
 
@@ -429,8 +636,6 @@ export default class ElementEditor extends React.Component {
    * @param {string} key - prop to change
    */
   handleChange(value, key) {
-    console.log('handleChange', value, key);
-
     let formatedVal = value;
     if (key === 'classes') {
       formatedVal = [
@@ -482,7 +687,7 @@ export default class ElementEditor extends React.Component {
           }}
           onBeforeChange={(editor, data, value) => {
             // this.setState({value});
-            console.log('onBeforeChange', editor, data, value);
+            // console.log('onBeforeChange', editor, data, value);
             const key = `animation.keyframes[${i}]`;
             this.handleChange(value, key)
           }}
@@ -616,7 +821,7 @@ export default class ElementEditor extends React.Component {
           }}
           onBeforeChange={(editor, data, value) => {
             // this.setState({value});
-            console.log('onBeforeChange', editor, data, value);
+            // console.log('onBeforeChange', editor, data, value);
             this.handleChange(value, 'css');
             this.handleEditorChange(editor, 'css');
           }}
@@ -713,8 +918,6 @@ export default class ElementEditor extends React.Component {
             label="Animation Timing Function" />
         </React.Fragment>
       );
-    } else {
-      console.log('ERRRO');
     }
 
     return (
@@ -836,11 +1039,11 @@ export default class ElementEditor extends React.Component {
           {
             classes.map((item, i) => (
               <Chip
+                key={ `${item}-${i}` }
                 size="small"
                 label={ item }
                 onDelete={
                   () => {
-                    console.log('delete', i, this.props);
                     this.handleChange(i, 'classes');
                   }
                 }
@@ -930,7 +1133,7 @@ export default class ElementEditor extends React.Component {
 
     // return 'hi';
 
-    console.log('render', this.props);
+    // console.log('render', this.props);
 
     if (elementProps && visible) {
       const { animation } = elementProps;
