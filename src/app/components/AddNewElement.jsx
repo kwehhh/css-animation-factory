@@ -3,7 +3,6 @@ import { FullPageModal, Layout } from '@unfocused/nurvus-ui';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import Slide from '@material-ui/core/Slide';
 import ElementEditor from './ElementEditor.jsx';
 import Preview from './Preview.jsx';
 
@@ -58,14 +57,19 @@ export default class AddNewElement extends React.Component {
 
   // Change to Element
   handleChange(newProp) {
-    const props = {
-      ...config,
-      ...newProp
-    };
-
-    // console.log('handleChange');
-    // setConfig(props);
-    // this.setState({config: props});
+    this.setState((prevState) => {
+      const nextConfig = {
+        ...prevState.config,
+        ...newProp
+      };
+      return {
+        config: nextConfig,
+        element: {
+          ...(prevState.element || {}),
+          ...nextConfig
+        }
+      };
+    });
   };
 
 

@@ -1,5 +1,5 @@
 import React from "react";
-import _, { filter } from 'lodash';
+import _ from 'lodash';
 import {
   Button,
   Chip,
@@ -8,20 +8,14 @@ import {
   DialogActions,
   DialogTitle,
   DialogContent,
-  MuiDialogTitle,
-  MuiMuiDialogContent,
-  MuiMuiDialogActions,
-  Modal,
   Select,
   Slider,
   MenuItem,
   TextField,
   Tooltip,
-  Typography,
   Tabs,
   Tab,
   IconButton,
-  CloseIcon
 } from '@material-ui/core';
 import TransferList from './TransferList.jsx';
 import EditFields from './Editor/EditFields.jsx';
@@ -427,23 +421,10 @@ export default class ElementEditor extends React.Component {
     );
   }
 
-  // make this slide from bottom like a horizontal sidebar panel
   customizedDialogs() {
-    // const [open, setOpen] = React.useState(false);
-    const open = true;
-
-    // const handleClickOpen = () => {
-    //   this.setState({showModal: true});
-    // };
     const handleClose = () => {
       this.setState({showModal: false});
     };
-
-
-
-  //   <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-  //   Assign Classes
-  // </Button>
 
     return (
       <div>
@@ -489,15 +470,10 @@ export default class ElementEditor extends React.Component {
       });
     }
 
-
-    // console.log('getElementClassProps', filtered);
-
     return filtered;
   }
 
   getPropsFromMap(src, map) {
-    // console.log('getPropsFromMap', src, map);
-
     if (src && map) {
       const newMap = [];
       src.forEach((item, i) => {
@@ -513,10 +489,6 @@ export default class ElementEditor extends React.Component {
           }
         });
       }
-
-        // if (_.isObject(item)) {
-        //   console.log(item, index);
-        // }
       });
 
 
@@ -525,8 +497,6 @@ export default class ElementEditor extends React.Component {
         const prop = {
           [camelize(newMap[0].value)]: newMap[1].value
         };
-
-        // console.log('getPropsFromMap', prop);
         return prop;
       }
 
@@ -576,34 +546,20 @@ export default class ElementEditor extends React.Component {
 
   getPropsFromLine({ styles }) {
     if (styles) {
-      // const tags = [];
-      // const variables = [];
       const markers = [];
       styles.forEach((item, i) => {
         if (item === 'tag') {
-          // console.log('getPropsFromLine', styles[i - 1]);
-          // tags.push(styles[i - 1]);
           markers.push({
             name: 'key',
             index: styles[i - 1]
           });
         }
         if (item === 'variable-3' || item === 'number') {
-          // console.log('getPropsFromLine', styles[i - 1]);
-          // variables.push(styles[i - 1]);
           markers.push({
             name: 'value',
             index: styles[i - 1]
           });
         }
-        // if (item === 'number') {
-        //   // console.log('getPropsFromLine', styles[i - 1]);
-        //   // variables.push(styles[i - 1]);
-        //   markers.push({
-        //     name: 'value',
-        //     index: styles[i - 1]
-        //   });
-        // }
       });
 
       return markers;
@@ -621,11 +577,7 @@ export default class ElementEditor extends React.Component {
     } else {
       // this does not work if CM was not used...
       css = this.getStyleObjFromCM(props);
-      // console.log('handleToggleCodeView', css);
     }
-
-
-    // const css = getCSSfromStyleObj(this.props.elementProps.props);
 
     this.handleChange(css, 'props');
   }
@@ -669,12 +621,6 @@ export default class ElementEditor extends React.Component {
     }
   }
 
-  // handleSubmit() {
-  //   this.props.onSubmit({
-  //     name: this.state.name
-  //   });
-  // }
-
   renderKeyFrames(keyframes) {
     return keyframes.map((keyframe, i) => {
       return (
@@ -686,8 +632,6 @@ export default class ElementEditor extends React.Component {
             lineNumbers: true
           }}
           onBeforeChange={(editor, data, value) => {
-            // this.setState({value});
-            // console.log('onBeforeChange', editor, data, value);
             const key = `animation.keyframes[${i}]`;
             this.handleChange(value, key)
           }}
@@ -803,12 +747,7 @@ export default class ElementEditor extends React.Component {
   }
 
 
-  // REMOVE ENTIRE BLOCK
-  // NEED TO EXTRACT OUT LOGIC FOR CM VIEW USAGE
   renderElementProperties(css) {
-
-    // console.log('renderElementProperties', css);
-
     let propContainer;
     if (_.isString(css)) {
       propContainer = (
@@ -820,8 +759,6 @@ export default class ElementEditor extends React.Component {
             lineNumbers: true
           }}
           onBeforeChange={(editor, data, value) => {
-            // this.setState({value});
-            // console.log('onBeforeChange', editor, data, value);
             this.handleChange(value, 'css');
             this.handleEditorChange(editor, 'css');
           }}
@@ -931,7 +868,6 @@ export default class ElementEditor extends React.Component {
     );
   }
 
-  // REMOVE AFTER CODEMIRROR IS EXTRACTED
   renderElementKeyframes(keyframes) {
     if (!_.isString(keyframes)) {
       return (
@@ -950,7 +886,6 @@ export default class ElementEditor extends React.Component {
             lineNumbers: true
           }}
           onBeforeChange={(editor, data, value) => {
-            // this.setState({value});
             // console.log('onBeforeChange', editor, data, value);
             this.handleChange(value, 'keyframes');
           }}
@@ -1130,8 +1065,6 @@ export default class ElementEditor extends React.Component {
       visible = true,
       onSubmit
     } = this.props;
-
-    // return 'hi';
 
     // console.log('render', this.props);
 

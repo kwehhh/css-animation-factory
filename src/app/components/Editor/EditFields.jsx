@@ -1,34 +1,28 @@
 import React from "react";
 import {
-  Button,
-  Chip,
-  Divider,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  MuiDialogTitle,
-  MuiMuiDialogContent,
-  MuiMuiDialogActions,
-  Modal,
-  Select,
   Slider,
-  MenuItem,
   TextField,
-  Tooltip,
-  Typography,
-  IconButton,
-  CloseIcon
 } from '@material-ui/core';
 
 export default class EditFields extends React.Component {
 
   constructor() {
     super();
+    this.state = {
+      sliderValues: {}
+    };
+    this._rafId = null;
+    this._pending = null;
 
     this.handleChange = this.handleChange.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
     this.handleFocus = this.handleFocus.bind(this);
+  }
+
+  componentWillUnmount() {
+    if (this._rafId) cancelAnimationFrame(this._rafId);
+    this._rafId = null;
+    this._pending = null;
   }
 
   handleChange(key, value) {
@@ -58,20 +52,59 @@ export default class EditFields extends React.Component {
   }
 
   renderValueSlider({ key, value, label }) {
+    const safeValue = value ?? '';
+    const numeric = parseInt(String(safeValue || '').replace(/px$/, ''), 10);
+    const hasNumber = Number.isFinite(numeric);
+    const liveValue = this.state.sliderValues[key];
+    const sliderValue = Number.isFinite(liveValue) ? liveValue : (hasNumber ? numeric : 0);
+
+    // If this property isn't numeric (or missing), don't render a slider for it.
+    // This avoids confusing "blank" inputs for classes like `animation-orbit`.
+    if (!hasNumber) {
+      return null;
+    }
+
     return (
       <div>
         <TextField
           onBlur={ this.handleBlur }
           onFocus={ this.handleFocus }
           onChange={ (e) => { this.handleChange(key, e.target.value) } }
-          value={ value }
+          value={ safeValue }
           id={ key }
           label={ label } />
         <Slider
-          onChange={
-            (e, value) => { this.handleChange(key, `${value}px`) }
-          }
-          value={ parseInt(value, 10) }
+          onChange={ (e, next) => {
+            const nextNumber = Array.isArray(next) ? next[0] : next;
+            if (Number.isFinite(nextNumber)) {
+              this.setState((prevState) => ({
+                sliderValues: { ...prevState.sliderValues, [key]: nextNumber }
+              }));
+
+              // Live update while dragging, throttled to animation frames.
+              this._pending = { key, value: nextNumber };
+              if (!this._rafId) {
+                this._rafId = requestAnimationFrame(() => {
+                  this._rafId = null;
+                  const pending = this._pending;
+                  this._pending = null;
+                  if (pending) {
+                    this.handleChange(pending.key, `${pending.value}px`);
+                  }
+                });
+              }
+            }
+          } }
+          onChangeCommitted={ (e, next) => {
+            const nextNumber = Array.isArray(next) ? next[0] : next;
+            if (Number.isFinite(nextNumber)) {
+              // Ensure last committed value is applied.
+              this.handleChange(key, `${nextNumber}px`);
+            }
+          } }
+          value={ sliderValue }
+          min={ 0 }
+          max={ 400 }
           aria-labelledby="continuous-slider"
         />
       </div>
@@ -91,15 +124,17 @@ export default class EditFields extends React.Component {
 
     return (
       <div>
-        <div>
-          <TextField
-              onChange={ (e) => { this.handleChange('name', e.target.value) } }
-              onBlur={ this.handleBlur }
-              onFocus={ this.handleFocus }
-              value={ name }
-              id="name"
-              label="Name" />
-        </div>
+        { name != null && (
+          <div>
+            <TextField
+                onChange={ (e) => { this.handleChange('name', e.target.value) } }
+                onBlur={ this.handleBlur }
+                onFocus={ this.handleFocus }
+                value={ name }
+                id="name"
+                label="Name" />
+          </div>
+        ) }
         <div style={{ background: 'var(--caf-surface-2)', padding: 10, borderRadius: 10, border: '1px solid var(--caf-border)' }} >
           {
             this.renderValueSlider({
@@ -115,20 +150,24 @@ export default class EditFields extends React.Component {
               label: 'Height'
             })
           }
-          <TextField
-            onBlur={ this.handleBlur }
-            onFocus={ this.handleFocus }
-            onChange={ (e) => { this.handleChange('background', e.target.value) } }
-            value={ background }
-            id="standard-basic"
-            label="Background" />
-          <TextField
-            onBlur={ this.handleBlur }
-            onFocus={ this.handleFocus }
-            onChange={ (e) => { this.handleChange('transform', e.target.value) } }
-            value={ transform }
-            id="transform"
-            label="Transform" />
+          { background != null && (
+            <TextField
+              onBlur={ this.handleBlur }
+              onFocus={ this.handleFocus }
+              onChange={ (e) => { this.handleChange('background', e.target.value) } }
+              value={ background }
+              id="standard-basic"
+              label="Background" />
+          ) }
+          { transform != null && (
+            <TextField
+              onBlur={ this.handleBlur }
+              onFocus={ this.handleFocus }
+              onChange={ (e) => { this.handleChange('transform', e.target.value) } }
+              value={ transform }
+              id="transform"
+              label="Transform" />
+          ) }
         </div>
       </div>
     );
