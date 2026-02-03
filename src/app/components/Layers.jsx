@@ -1,6 +1,6 @@
 import React from "react";
 import _ from 'lodash';
-import { Button, ButtonGroup, Layout, Menu, Text, Title } from '@unfocused/nurvus-ui';
+import { Layout, Menu, Text } from '@unfocused/nurvus-ui';
 import { Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 import AddIcon from '@material-ui/icons/Add';
@@ -149,28 +149,45 @@ export default class Layers extends React.Component {
         <div style={{ padding: 'var(--caf-space-0) var(--caf-space-16) var(--caf-space-16) var(--caf-space-16)' }}>
           <Layout>
             <div className="caf-title">Layers</div>
-            <ButtonGroup>
-              <Button>
-                <Tooltip title="JSON Data">
-                  <DesktopWindowsIcon />
-                </Tooltip>
-              </Button>
+            <Layout display="flex" alignItems="center" itemSpacing={ 0 }>
+              <Tooltip title="JSON Data">
+                <span style={{ display: 'inline-flex' }}>
+                  <IconButton
+                    className="caf-iconbtn-nav"
+                    size="small"
+                    onClick={ (e) => e.stopPropagation() }
+                    aria-label="JSON Data"
+                  >
+                    <DesktopWindowsIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
               <Tooltip title="Add New Element">
-                <Button onClick={ this.handleOpenModal }>
-                  <AddIcon />
-                </Button>
+                <span style={{ display: 'inline-flex' }}>
+                  <IconButton
+                    className="caf-iconbtn-nav"
+                    size="small"
+                    onClick={ this.handleOpenModal }
+                    aria-label="Add New Element"
+                  >
+                    <AddIcon fontSize="small" />
+                  </IconButton>
+                </span>
               </Tooltip>
               <Tooltip title="Clone Selected Layer">
                 <span style={{ display: 'inline-flex' }}>
-                  <Button
+                  <IconButton
+                    className="caf-iconbtn-nav"
+                    size="small"
                     onClick={ this.props.onClone }
                     disabled={ !this.props.activePath.length }
+                    aria-label="Clone Selected Layer"
                   >
-                    <FileCopyIcon />
-                  </Button>
+                    <FileCopyIcon fontSize="small" />
+                  </IconButton>
                 </span>
               </Tooltip>
-            </ButtonGroup>
+            </Layout>
           </Layout>
           {/* [ADD NEW GROUP] [GROUP EL EMENTS]  [DELETE ELEMENT] */}
         </div>

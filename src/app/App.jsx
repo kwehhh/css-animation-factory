@@ -1,7 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { Menu, Layout, Link } from '@unfocused/nurvus-ui';
-import { Drawer } from '@material-ui/core';
+import { Drawer, Tooltip } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import TuneIcon from '@material-ui/icons/Tune';
@@ -579,12 +579,26 @@ export default class App extends React.Component {
               alignItems="center"
               itemSpacing={ 0 }
             >
-              <IconButton size="small" onClick={ this.handleToggleLayersPanel }>
-                <ViewListIcon />
-              </IconButton>
-              <IconButton size="small" onClick={ this.handleToggleElementPanel }>
-                <TuneIcon />
-              </IconButton>
+              <Tooltip title={ this.state.showLayersPanel ? 'Hide Layers panel' : 'Show Layers panel' }>
+                <IconButton
+                  className="caf-iconbtn-nav"
+                  size="small"
+                  onClick={ this.handleToggleLayersPanel }
+                  aria-label={ this.state.showLayersPanel ? 'Hide Layers panel' : 'Show Layers panel' }
+                >
+                  <ViewListIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={ this.state.showElementContainer ? 'Hide Element editor' : 'Show Element editor' }>
+                <IconButton
+                  className="caf-iconbtn-nav"
+                  size="small"
+                  onClick={ this.handleToggleElementPanel }
+                  aria-label={ this.state.showElementContainer ? 'Hide Element editor' : 'Show Element editor' }
+                >
+                  <TuneIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
               <Link onClick={ this.handleShowPresets }>Presets</Link>
             </Layout>
           </Layout>

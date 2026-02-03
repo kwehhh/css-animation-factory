@@ -80,6 +80,12 @@ body {
   padding: var(--caf-nav-icon-pad);
 }
 
+// Reusable compact icon-button styling (matches navbar icons)
+.caf-iconbtn-nav.MuiIconButton-root {
+  color: #fff;
+  padding: var(--caf-nav-icon-pad);
+}
+
 // Compact icon buttons in side panels (Layers etc)
 .caf-iconbtn-xs {
   padding: var(--caf-space-2) !important;
@@ -116,6 +122,19 @@ body {
 // Keep CodeMirror consistent with app font.
 .CodeMirror {
   font-family: inherit;
+  font-size: var(--caf-nav-font-size);
+  line-height: var(--caf-nav-line-height);
+}
+
+// Make CodeMirror background match translucent panels (override theme)
+.cm-s-material.CodeMirror,
+.cm-s-material .CodeMirror-gutters {
+  background: transparent !important;
+}
+
+.CodeMirror pre {
+  font-size: inherit;
+  line-height: inherit;
 }
 
 // Material UI accents
