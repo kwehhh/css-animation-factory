@@ -1,6 +1,10 @@
 .app-header {
   position: fixed;
-  background: var(--caf-surface-2);
+  // Match panel/container "frosted" surface.
+  background: var(--caf-surface);
+  background: color-mix(in srgb, var(--caf-surface) 80%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
   color: var(--caf-text);
   width: 100%;
   display: flex;
@@ -12,17 +16,17 @@
   font-weight: var(--caf-nav-font-weight);
   height: var(--caf-nav-height);
   z-index: var(--caf-z-header);
-}
+  
+  .app-header-actions {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--caf-nav-item-gap);
+  }
 
-.app-header-actions {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  gap: var(--caf-nav-item-gap);
-}
-
-.app-header .MuiIconButton-root {
-  color: #fff;
-  padding: var(--caf-nav-icon-pad);
+  .MuiIconButton-root {
+    color: #fff;
+    padding: var(--caf-nav-icon-pad);
+  }
 }
 

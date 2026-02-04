@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Layout, Menu, Text } from '@unfocused/nurvus-ui';
 import { Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
+import Container from './Container/Container.jsx';
 import AddIcon from '@material-ui/icons/Add';
 import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
@@ -102,7 +103,6 @@ export default class Layers extends React.Component {
   }
 
   render() {
-    // console.log('render', this.props);
     // REFERENCE ADOBE FLASH OR OBS FOR ACTIONS
     // ADD MULTI SELECT/DRAGGING/ ETC
     // ADD LIST FOR CLASSES AND KEYFRAMES (MAYBE CATEGORIZE THEM FOR THEIR ACCESS)
@@ -137,16 +137,17 @@ export default class Layers extends React.Component {
     };
 
     return (
-      <div
-        className="container"
+      <Container
+        visible={ true }
         style={ {
           width: this.props.width,
           maxHeight: '100%',
           overflowY: 'auto',
-          padding: 'var(--caf-space-16) var(--caf-space-0)'
+          // Keep this panel compact like the app nav.
+          padding: 'var(--caf-space-4) var(--caf-nav-pad-x)',
         } }
       >
-        <div style={{ padding: 'var(--caf-space-0) var(--caf-space-16) var(--caf-space-16) var(--caf-space-16)' }}>
+        <div style={{ marginBottom: 'var(--caf-space-8)' }}>
           <Layout>
             <div className="caf-title">Layers</div>
             <Layout display="flex" alignItems="center" itemSpacing={ 0 }>
@@ -198,7 +199,7 @@ export default class Layers extends React.Component {
           onClick={ (e, path) => this.props.onClick(path) }
         />
         { this.renderAddNewElementContainer() }
-      </div>
+      </Container>
     );
   }
 }

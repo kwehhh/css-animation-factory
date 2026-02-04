@@ -576,8 +576,8 @@ export default class App extends React.Component {
             position: 'absolute',
             top: navHeight,
             bottom: 0,
-            left: 'var(--caf-space-16)',
-            padding: 'var(--caf-space-16) var(--caf-space-0)',
+            left: 0,
+            padding: 'var(--caf-space-0)',
           }}>
             <Layers
               { ...commonProps }
@@ -597,13 +597,16 @@ export default class App extends React.Component {
               position: 'absolute',
               top: navHeight,
               bottom: 0,
-              right: 'var(--caf-space-16)',
-              padding: 'var(--caf-space-16) var(--caf-space-0)',
+              right: 0,
+              padding: 'var(--caf-space-0)',
             }}
           >
             <ElementEditor
               { ...commonProps }
               width={ elementEditorWidth }
+              style={{
+                padding: 'var(--caf-space-4) var(--caf-nav-pad-x)',
+              }}
               element={ this.getActiveElement(activePath, elements) }
               elementProps={ this.getActiveElement(activePath, elements) }
               defaultExpanded={ true }

@@ -18,7 +18,8 @@ html {
 body {
   // reset
   margin: 0;
-  background: var(--caf-bg);
+  // Darker canvas so panels/header read as "floating" surfaces.
+  background: var(--caf-surface-2);
   color: var(--caf-text);
   font-size: 1rem;
   line-height: 1.5; // 16px * 1.5 = 24px
@@ -173,20 +174,66 @@ body {
     color: var(--caf-text);
   }
 
-  &.active {
+  // Nurvus uses either `.active` or `[data-active=true]` depending on component.
+  &.active,
+  &[data-active=true] {
     &::before {
       content: '';
       position: absolute;
       display: block;
-      width: 4px;
+      width: 3px;
+      // Keep the accent cue, but make it subtler than the old bright fill.
       background: var(--caf-accent);
+      background: color-mix(in srgb, var(--caf-accent) 25%, transparent);
       top: 0;
       left: 0;
       bottom: 0;
     }
 
     color: var(--caf-text);
-    background: linear-gradient(90deg, rgba(255,45,122,0.22) 0%, rgba(255,45,122,0.12) 35%, rgba(255,45,122,0) 100%);
+    // Near-black selection surface with just a hint of accent tint.
+    // Fallback first (older engines), then token-based mix when supported.
+    background:
+      linear-gradient(90deg, rgba(0,0,0,0.34) 0%, rgba(0,0,0,0.14) 55%, rgba(0,0,0,0) 100%),
+      linear-gradient(90deg, rgba(255,45,122,0.06) 0%, rgba(255,45,122,0.02) 40%, rgba(255,45,122,0) 100%) !important;
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--caf-surface-2) 75%, transparent) 0%,
+        color-mix(in srgb, var(--caf-surface-2) 35%, transparent) 55%,
+        transparent 100%
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--caf-accent) 6%, transparent) 0%,
+        color-mix(in srgb, var(--caf-accent) 2%, transparent) 40%,
+        transparent 100%
+      ) !important;
+  }
+}
+
+// Nurvus menu can ship more-specific active styles; override them here.
+.nurvus.menu {
+  .menu-item.active,
+  .menu-item[data-active=true],
+  .nurvus.menu-item.active,
+  .nurvus.menu-item[data-active=true] {
+    background:
+      linear-gradient(90deg, rgba(0,0,0,0.34) 0%, rgba(0,0,0,0.14) 55%, rgba(0,0,0,0) 100%),
+      linear-gradient(90deg, rgba(255,45,122,0.06) 0%, rgba(255,45,122,0.02) 40%, rgba(255,45,122,0) 100%) !important;
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--caf-surface-2) 75%, transparent) 0%,
+        color-mix(in srgb, var(--caf-surface-2) 35%, transparent) 55%,
+        transparent 100%
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--caf-accent) 6%, transparent) 0%,
+        color-mix(in srgb, var(--caf-accent) 2%, transparent) 40%,
+        transparent 100%
+      ) !important;
   }
 }
 
