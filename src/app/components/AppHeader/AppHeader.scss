@@ -1,0 +1,28 @@
+.app-header {
+  position: fixed;
+  background: var(--caf-surface-2);
+  color: var(--caf-text);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: var(--caf-space-0) var(--caf-nav-pad-x);
+  box-sizing: border-box;
+  font-size: var(--caf-nav-font-size);
+  line-height: var(--caf-nav-line-height);
+  font-weight: var(--caf-nav-font-weight);
+  height: var(--caf-nav-height);
+  z-index: var(--caf-z-header);
+}
+
+.app-header-actions {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--caf-nav-item-gap);
+}
+
+.app-header .MuiIconButton-root {
+  color: #fff;
+  padding: var(--caf-nav-icon-pad);
+}
+

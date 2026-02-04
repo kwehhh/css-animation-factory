@@ -2,6 +2,8 @@
 // Prefix note: `--caf-*` stands for "CSS Animation Factory".
 :root {
   // Typography baseline
+  // Inter is commonly used with a 16px base (matches browser default),
+  // so we keep the app baseline at 16px for predictable scale.
   --caf-font-size-base: 16px;
 
   --caf-bg: #263238;

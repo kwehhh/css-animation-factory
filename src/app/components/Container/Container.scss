@@ -1,9 +1,12 @@
 
 .container {
   color: var(--caf-text);
-  // 20% opacity surface (fallback first, then token-based when supported)
-  background: rgba(43, 54, 63, 0.2); // --caf-surface (#2b363f)
-  background: color-mix(in srgb, var(--caf-surface) 20%, transparent);
+  // Frosted-glass surface: translucent fill + blur what's behind it.
+  // 80% opacity surface (fallback first, then token-based when supported)
+  background: var(--caf-surface-2);
+  background: color-mix(in srgb, var(--caf-surface-2) 80%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
   padding: var(--caf-space-16);
   border-radius: 10px;
   border: 1px solid var(--caf-border);

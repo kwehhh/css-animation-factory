@@ -1,12 +1,10 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { Menu, Layout, Link } from '@unfocused/nurvus-ui';
-import { Drawer, Tooltip } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
-import ViewListIcon from '@material-ui/icons/ViewList';
-import TuneIcon from '@material-ui/icons/Tune';
+import { Menu, Link } from '@unfocused/nurvus-ui';
+import { Drawer } from '@material-ui/core';
 import _ from "lodash";
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
+import AppHeader from './components/AppHeader/AppHeader.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
 import Layers from './components/Layers.jsx';
 import Preview from './components/Preview.jsx';
@@ -557,52 +555,14 @@ export default class App extends React.Component {
           <style>{ this.getDisplayCSS() }</style>
           <meta charSet="utf-8" />
         </Helmet>
-        <div
-          className="app-header"
-          style={{
-            // Keep JS the source of truth for layout boundaries.
-            // Styling lives in `App.scss`.
-            '--caf-nav-height': `${navHeight}px`
-          }}
-        >
-          <Layout
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            itemSpacing={ 0 }
-            style={{ width: '100%', height: '100%' }}
-          >
-            <div className="caf-title">CSS Animation Factory</div>
-            <Layout
-              className="app-header-actions"
-              display="flex"
-              alignItems="center"
-              itemSpacing={ 0 }
-            >
-              <Tooltip title={ this.state.showLayersPanel ? 'Hide Layers panel' : 'Show Layers panel' }>
-                <IconButton
-                  className="caf-iconbtn-nav"
-                  size="small"
-                  onClick={ this.handleToggleLayersPanel }
-                  aria-label={ this.state.showLayersPanel ? 'Hide Layers panel' : 'Show Layers panel' }
-                >
-                  <ViewListIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={ this.state.showElementContainer ? 'Hide Element editor' : 'Show Element editor' }>
-                <IconButton
-                  className="caf-iconbtn-nav"
-                  size="small"
-                  onClick={ this.handleToggleElementPanel }
-                  aria-label={ this.state.showElementContainer ? 'Hide Element editor' : 'Show Element editor' }
-                >
-                  <TuneIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Link onClick={ this.handleShowPresets }>Presets</Link>
-            </Layout>
-          </Layout>
-        </div>
+        <AppHeader
+          navHeight={ navHeight }
+          showLayersPanel={ this.state.showLayersPanel }
+          showElementContainer={ this.state.showElementContainer }
+          onToggleLayersPanel={ this.handleToggleLayersPanel }
+          onToggleElementPanel={ this.handleToggleElementPanel }
+          onShowPresets={ this.handleShowPresets }
+        />
         <Preview
           { ...commonProps }
           leftBoundaryWidth={ 0 }
