@@ -6,6 +6,7 @@ import _ from "lodash";
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
 import AppHeader from './components/AppHeader/AppHeader.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
+import ExportModal from './components/ExportModal/ExportModal.jsx';
 import Layers from './components/Layers.jsx';
 import Preview from './components/Preview.jsx';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
@@ -35,6 +36,7 @@ export default class App extends React.Component {
       showLayersPanel: true,
       showElementContainer: true,
       isElementEditorExpanded: true,
+      showExport: false,
       showPresets: false,
       presets: []
     };
@@ -52,6 +54,16 @@ export default class App extends React.Component {
     this.handleUpdateElementAtPath = this.handleUpdateElementAtPath.bind(this);
     this.handleUpdateKeyframes = this.handleUpdateKeyframes.bind(this);
     this.handleElementEditorExpandedChange = this.handleElementEditorExpandedChange.bind(this);
+  }
+
+  handleShowExport = (e) => {
+    if (e?.stopPropagation) e.stopPropagation();
+    this.setState({ showExport: true });
+  }
+
+  handleHideExport = (e) => {
+    if (e?.stopPropagation) e.stopPropagation();
+    this.setState({ showExport: false });
   }
 
   handleToggleLayersPanel = (e) => {
@@ -75,16 +87,20 @@ export default class App extends React.Component {
    * @returns {object|null}
    */
   getActiveElement(path, elements) {
-    if (path.length) {
-      const element = path.reduce((nextElement, index) => {
-        return nextElement.elements[index];
-      }, { elements });
+    if (!path?.length) return null;
+    if (!elements) return null;
 
-      // console.log('getActiveElement', element, path, elements);
-      return element;
+    // Traverse defensively: selection paths can become stale after deletes/preset swaps.
+    let current = { elements };
+    for (const index of path) {
+      const nextElements = current?.elements;
+      if (!Array.isArray(nextElements)) return null;
+      const next = nextElements[index];
+      if (!next) return null;
+      current = next;
     }
 
-    return null;
+    return current || null;
   }
 
   getCSSfromStyleObj(style, formatter) {
@@ -559,9 +575,16 @@ export default class App extends React.Component {
           navHeight={ navHeight }
           showLayersPanel={ this.state.showLayersPanel }
           showElementContainer={ this.state.showElementContainer }
+          onShowExport={ this.handleShowExport }
           onToggleLayersPanel={ this.handleToggleLayersPanel }
           onToggleElementPanel={ this.handleToggleElementPanel }
           onShowPresets={ this.handleShowPresets }
+        />
+        <ExportModal
+          open={ this.state.showExport }
+          onClose={ this.handleHideExport }
+          elements={ this.state.elements }
+          css={ this.getDisplayCSS() }
         />
         <Preview
           { ...commonProps }

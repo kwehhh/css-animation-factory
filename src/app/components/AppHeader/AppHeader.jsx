@@ -10,6 +10,7 @@ export default function AppHeader({
   navHeight,
   showLayersPanel,
   showElementContainer,
+  onShowExport,
   onToggleLayersPanel,
   onToggleElementPanel,
   onShowPresets,
@@ -37,6 +38,7 @@ export default function AppHeader({
           alignItems="center"
           itemSpacing={0}
         >
+          <Link onClick={onShowExport}>Export</Link>
           <Tooltip title={showLayersPanel ? 'Hide Layers panel' : 'Show Layers panel'}>
             <IconButton
               className="caf-iconbtn-nav"
