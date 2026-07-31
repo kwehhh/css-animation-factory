@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Link } from '@nurvus/design-system';
+import { Layout, Button } from '@nurvus/design-system';
 import { Tooltip } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
@@ -38,7 +38,7 @@ export default function AppHeader({
           alignItems="center"
           itemSpacing={0}
         >
-          <Link onClick={onShowExport}>Export</Link>
+          <Button type="secondary" size="mini" onClick={onShowExport}>Export</Button>
           <Tooltip title={showLayersPanel ? 'Hide Layers panel' : 'Show Layers panel'}>
             <IconButton
               className="caf-iconbtn-nav"
@@ -59,7 +59,7 @@ export default function AppHeader({
               <TuneIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Link onClick={onShowPresets}>Presets</Link>
+          <Button type="secondary" size="mini" onClick={onShowPresets}>Presets</Button>
         </Layout>
       </Layout>
     </div>
