@@ -9,12 +9,10 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
-    // The upstream git dependency `@unfocused/nurvus-ui` can install without built `dist/`
-    // on modern Node versions. Alias to a local clone's `src/` so the app can compile.
+    // `@nurvus/design-system` is consumed from the npm registry (prebuilt `dist/`),
+    // so no local-src alias is needed. Keep React pinned to this app's copy so a
+    // single React instance is used (guards against "Invalid hook call").
     alias: {
-      '@unfocused/nurvus-ui': path.resolve(__dirname, '../nurvus-design-system/src'),
-      // Prevent "Invalid hook call" by forcing a single React instance.
-      // Without this, Webpack may pull React from ../nurvus-design-system/node_modules.
       react: path.resolve(__dirname, 'node_modules/react'),
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
     },

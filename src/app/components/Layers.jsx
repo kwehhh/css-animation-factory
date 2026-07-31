@@ -1,6 +1,6 @@
 import React from "react";
 import _ from 'lodash';
-import { Layout, Menu, Text } from '@unfocused/nurvus-ui';
+import { Layout, Menu, Text } from '@nurvus/design-system';
 import { Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 import Container from './Container/Container.jsx';

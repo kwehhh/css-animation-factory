@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Link } from '@unfocused/nurvus-ui';
+import { Layout, Link } from '@nurvus/design-system';
 import { Tooltip } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
