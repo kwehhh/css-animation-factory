@@ -88,24 +88,28 @@ export default class Preview extends React.Component {
   }
 
   renderElement(props, i, path = []) {
-    const { elements, name, classes, hidden } = props;
+    const { elements, tag = 'div', attributes = {}, classes, hidden } = props;
 
     if (hidden) {
       return null;
     }
 
     const nextPath = [...path, i];
-    return (
-      <div
+    // An element can be ANY DOM/SVG node: `tag` (default 'div') + arbitrary
+    // `attributes` (id, d, viewBox, points, transform, …). React switches to
+    // the SVG namespace automatically for svg/g/path/etc.
+    return React.createElement(
+      tag,
+      {
         // Key MUST be stable across renames to avoid remounting and restarting CSS animations.
-        key={ `path-${nextPath.join('-')}` }
-        className={ this.getClassNames(classes) }
-        onClick={ (e) => this.handleElementClick(e, nextPath) }
-        onMouseDown={ (e) => this.handleElementClick(e, nextPath) }
-        onTouchStart={ (e) => this.handleElementClick(e, nextPath) }
-      >
-        { this.renderElements(elements, nextPath) }
-      </div>
+        key: `path-${nextPath.join('-')}`,
+        className: this.getClassNames(classes),
+        ...attributes,
+        onClick: (e) => this.handleElementClick(e, nextPath),
+        onMouseDown: (e) => this.handleElementClick(e, nextPath),
+        onTouchStart: (e) => this.handleElementClick(e, nextPath)
+      },
+      this.renderElements(elements, nextPath)
     );
   }
 
