@@ -414,10 +414,80 @@ export default class ElementEditor extends React.Component {
             onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
           />
         </div>
+        { this.renderAttributes(elementProps) }
         { this.renderClassesTags(elementProps.classes) }
         { this.renderClassProperties(this.getElementClassProps(classes, elementProps.classes)) }
         { this.renderKeyframesEditors() }
       </React.Fragment>
+    );
+  }
+
+  /**
+   * Edit the element's DOM node type (`tag`) and its `attributes`
+   * (id, d, points, transform, viewBox, …) — the pieces that make an element
+   * any DOM/SVG node. Changes flow through onChange -> updateElementAtPath.
+   */
+  renderAttributes(elementProps) {
+    const tag = elementProps.tag || 'div';
+    const attributes = elementProps.attributes || {};
+    const inputStyle = {
+      background: 'var(--caf-input-bg)',
+      width: '100%',
+      padding: '8px',
+      border: 'none',
+      color: 'var(--caf-text)'
+    };
+
+    const updateAttr = (key, value) => {
+      this.handleChange({ ...attributes, [key]: value }, 'attributes');
+    };
+    const removeAttr = (key) => {
+      const next = { ...attributes };
+      delete next[key];
+      this.handleChange(next, 'attributes');
+    };
+
+    const attrKeys = Object.keys(attributes);
+
+    return (
+      <div style={{ marginTop: 12 }}>
+        <div style={{ marginBottom: 4 }}>TAG</div>
+        <input
+          style={{ ...inputStyle, display: 'block', marginBottom: 10 }}
+          value={ tag }
+          onChange={ (e) => this.handleChange(e.target.value || 'div', 'tag') }
+        />
+        <div style={{ marginBottom: 4 }}>ATTRIBUTES</div>
+        { attrKeys.length === 0 && (
+          <div style={{ opacity: 0.6, fontSize: 12, marginBottom: 6 }}>No attributes</div>
+        ) }
+        { attrKeys.map((key) => (
+          <div key={ key } style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
+            <span style={{ minWidth: 64, fontSize: 12, opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis' }} title={ key }>{ key }</span>
+            <input
+              style={{ ...inputStyle, flex: 1, minWidth: 0 }}
+              value={ attributes[key] }
+              onChange={ (e) => updateAttr(key, e.target.value) }
+            />
+            <span
+              style={{ cursor: 'pointer', opacity: 0.6, padding: '0 4px' }}
+              title="Remove attribute"
+              onClick={ () => removeAttr(key) }
+            >×</span>
+          </div>
+        )) }
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          onClick={ () => {
+            const key = window.prompt('Attribute name (e.g. id, d, transform):');
+            if (key) updateAttr(key.trim(), '');
+          } }
+        >
+          Add attribute
+        </Button>
+      </div>
     );
   }
 
