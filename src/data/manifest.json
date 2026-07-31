@@ -2,6 +2,7 @@
   "files": [
     "ball.json",
     "submarine.json",
-    "dump-truck-loading.json"
+    "dump-truck-loading.json",
+    "404-monkey.json"
   ]
 }

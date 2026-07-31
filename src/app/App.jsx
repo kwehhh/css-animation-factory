@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { Menu, Link } from '@unfocused/nurvus-ui';
+import { Menu, Link } from '@nurvus/design-system';
 import { Drawer } from '@material-ui/core';
 import _ from "lodash";
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
@@ -10,6 +10,7 @@ import ExportModal from './components/ExportModal/ExportModal.jsx';
 import Layers from './components/Layers.jsx';
 import Preview from './components/Preview.jsx';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
+import { svgToElements } from '../util/svgToElements.js';
 import "./App.scss";
 
 export default class App extends React.Component {
@@ -26,6 +27,9 @@ export default class App extends React.Component {
       classes: {},
       keyframes: {},
       elements: [],
+      // SVG presets carry a raw `svg` string (expanded into an editable element
+      // tree on load) + raw `css` injected verbatim.
+      css: '',
       // Assign
       ...data,
       // activeElement: null,
@@ -167,6 +171,12 @@ export default class App extends React.Component {
       });
     }
 
+    // Raw CSS from a markup/SVG preset — injected verbatim (fills, @keyframes, id rules).
+    // Only present while such a preset is active; cleared on preset switch.
+    if (this.state.css) {
+      displayCSS += `\n${this.state.css}\n`;
+    }
+
     // console.log('getDisplayCSS', displayCSS);
     return displayCSS;
   };
@@ -185,27 +195,32 @@ export default class App extends React.Component {
     return css;
   }
 
+  // Expand a preset carrying a raw `svg` string into an editable element tree.
+  expandPreset(preset) {
+    if (preset && preset.svg && !(preset.elements && preset.elements.length)) {
+      return { ...preset, elements: svgToElements(preset.svg) };
+    }
+    return preset;
+  }
+
   // Fetch JSON Preset
   componentDidMount() {
     const { files } = this.props.manifest;
     const file = `data/${files[0]}`;
-    const data = fetch(file).then(res => res.json()).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          ...data
-        }
-      });
+    fetch(file).then(res => res.json()).then(data => {
+      const expanded = this.expandPreset(data);
+      this.setState(prevState => ({
+        ...prevState,
+        ...expanded
+      }));
     });
     Promise.all(files.map(file => fetch(`data/${file}`))).then(responses => {
       return Promise.all(responses.map(res => res.json()));
     }).then(presets => {
-      this.setState({presets: presets.map((preset, i) => {
-        return {
-          ...preset,
-          src: files[i]
-        };
-      })});
+      this.setState({ presets: presets.map((preset, i) => ({
+        ...this.expandPreset(preset),
+        src: files[i]
+      })) });
     });
   }
 
@@ -450,16 +465,19 @@ export default class App extends React.Component {
    * @param {array} path - preset index
    */
   handleSetPreset = (e, path) => {
-    let extraProps = {};
-    if (path) {
-      extraProps = {
-        ...this.state.presets[path]
-      };
-    }
+    // `path` is a Menu path array like [index]; it coerces to the preset index.
+    const preset = path ? this.state.presets[path] : null;
 
     this.setState({
       showPresets: false,
-      ...extraProps
+      // Reset all preset-driven fields first so nothing leaks between presets
+      // (especially SVG css when switching to/from a div-based preset).
+      elements: [],
+      classes: {},
+      keyframes: {},
+      css: '',
+      activePath: [],
+      ...(preset || {})
     });
   }
 
