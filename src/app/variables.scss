@@ -6,14 +6,18 @@
   // so we keep the app baseline at 16px for predictable scale.
   --caf-font-size-base: 16px;
 
-  --caf-bg: #263238;
-  --caf-surface: #2b363f;
-  --caf-surface-2: #1f272e;
-  --caf-text: #eeffff;
-  --caf-muted: rgba(238, 255, 255, 0.7);
-  --caf-border: rgba(238, 255, 255, 0.12);
-  --caf-accent: #ff2d7a;
-  --caf-input-bg: rgba(0, 0, 0, 0.25);
+  // NURVUS "Tokyo Night / electric" — purple-biased navy, one neon accent.
+  // See .ai-assist/design-nurvus-tokyo-night.md for the shared recipe.
+  --caf-bg: #181a2b;                       // raised chrome (header base)
+  --caf-surface: #1f2236;                  // panels / cards
+  --caf-surface-2: #131422;                // darkest ground (body / canvas)
+  --caf-text: #e8eaf3;
+  --caf-muted: rgba(232, 234, 243, 0.6);
+  --caf-border: rgba(138, 137, 250, 0.18); // faint neon-purple hairline
+  --caf-accent: #6e6df8;                   // electric neon (NURVUS primary-400)
+  --caf-accent-strong: #504ff6;            // primary-500 for solid fills
+  --caf-glow: rgba(80, 79, 246, 0.45);
+  --caf-input-bg: rgba(9, 10, 22, 0.45);
 
   // Spacing scale (px) — use for padding/margin/gaps
   --caf-space-0: 0px;

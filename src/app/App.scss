@@ -55,14 +55,14 @@ body {
 
 // Reusable compact icon-button styling (matches navbar icons)
 .caf-iconbtn-nav.MuiIconButton-root {
-  color: #fff;
+  color: var(--caf-text);
   padding: var(--caf-nav-icon-pad);
 }
 
 // Compact icon buttons in side panels (Layers etc)
 .caf-iconbtn-xs {
   padding: var(--caf-space-2) !important;
-  color: #fff !important;
+  color: var(--caf-text) !important;
 }
 .caf-iconbtn-xs svg {
   font-size: 18px;
@@ -161,8 +161,26 @@ body {
 
 // Button
 .MuiButton-containedPrimary.nv-btn {
-  background: #4db391;
-  color: #2e2442;
+  background: var(--caf-accent-strong);
+  color: #fff;
+  box-shadow: 0 0 14px var(--caf-glow);
+}
+
+// Nurvus DS buttons (header Export / Presets, modal actions). The DS default
+// text is dark navy — invisible on our dark chrome — so recolor to neon-on-dark.
+.nurvus.button {
+  color: var(--caf-text) !important;
+  background: rgba(110, 109, 248, 0.14) !important;
+  background: color-mix(in srgb, var(--caf-accent) 14%, transparent) !important;
+  border: 1px solid var(--caf-border) !important;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    background: rgba(110, 109, 248, 0.24) !important;
+    background: color-mix(in srgb, var(--caf-accent) 24%, transparent) !important;
+    border-color: var(--caf-accent) !important;
+    box-shadow: 0 0 12px var(--caf-glow);
+  }
 }
 
 .menu-item {
@@ -195,7 +213,7 @@ body {
     // Fallback first (older engines), then token-based mix when supported.
     background:
       linear-gradient(90deg, rgba(0,0,0,0.34) 0%, rgba(0,0,0,0.14) 55%, rgba(0,0,0,0) 100%),
-      linear-gradient(90deg, rgba(255,45,122,0.06) 0%, rgba(255,45,122,0.02) 40%, rgba(255,45,122,0) 100%) !important;
+      linear-gradient(90deg, rgba(110,109,248,0.10) 0%, rgba(110,109,248,0.03) 40%, rgba(110,109,248,0) 100%) !important;
     background:
       linear-gradient(
         90deg,
@@ -220,7 +238,7 @@ body {
   .nurvus.menu-item[data-active=true] {
     background:
       linear-gradient(90deg, rgba(0,0,0,0.34) 0%, rgba(0,0,0,0.14) 55%, rgba(0,0,0,0) 100%),
-      linear-gradient(90deg, rgba(255,45,122,0.06) 0%, rgba(255,45,122,0.02) 40%, rgba(255,45,122,0) 100%) !important;
+      linear-gradient(90deg, rgba(110,109,248,0.10) 0%, rgba(110,109,248,0.03) 40%, rgba(110,109,248,0) 100%) !important;
     background:
       linear-gradient(
         90deg,

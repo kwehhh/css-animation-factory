@@ -369,17 +369,17 @@ export default class ElementEditor extends React.Component {
           value={ this.state.sourceMode }
           onChange={ this.handleSourceModeChange }
           variant="fullWidth"
-          style={{ color: '#fff', marginBottom: 10 }}
+          style={{ color: 'var(--caf-text)', marginBottom: 10 }}
         >
-          <Tab value="json" label="JSON" style={{ color: '#fff' }} />
-          <Tab value="css" label="Compiled CSS" style={{ color: '#fff' }} />
+          <Tab value="json" label="JSON" style={{ color: 'var(--caf-text)' }} />
+          <Tab value="css" label="Compiled CSS" style={{ color: 'var(--caf-text)' }} />
         </Tabs>
         { err && (
           <div style={{ color: '#ff6b6b', fontSize: 12, marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             { err }
           </div>
         ) }
-        <div style={{ border: '1px solid rgba(255,255,255,0.15)', flex: 1, minHeight: 0 }}>
+        <div style={{ border: '1px solid var(--caf-border)', flex: 1, minHeight: 0 }}>
           <CodeMirror
             value={ this.state.sourceText?.[mode] || this.getGeneratedSourceValue(mode, elementProps) }
             options={{
@@ -1170,7 +1170,7 @@ export default class ElementEditor extends React.Component {
             style={{
               position: 'sticky',
               top: 0,
-              background: '#2e2442',
+              background: 'var(--caf-surface)',
               zIndex: 2,
               paddingBottom: 10
             }}
@@ -1181,16 +1181,16 @@ export default class ElementEditor extends React.Component {
                   value={ this.state.activeTab }
                   onChange={ this.handleTabChange }
                   variant="fullWidth"
-                  style={{ color: '#fff', flex: 1 }}
+                  style={{ color: 'var(--caf-text)', flex: 1 }}
                 >
-                  <Tab value="source" label="Source" style={{ color: '#fff' }} />
-                  <Tab value="edit" label="Edit" style={{ color: '#fff' }} />
+                  <Tab value="source" label="Source" style={{ color: 'var(--caf-text)' }} />
+                  <Tab value="edit" label="Edit" style={{ color: 'var(--caf-text)' }} />
                 </Tabs>
               ) }
               <IconButton
                 size="small"
                 onClick={ this.handleToggleExpanded }
-                style={{ color: '#fff' }}
+                style={{ color: 'var(--caf-text)' }}
                 title={ this.state.expanded ? 'Collapse' : 'Expand' }
               >
                 { this.state.expanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon /> }

@@ -25,7 +25,7 @@
   }
 
   .MuiIconButton-root {
-    color: #fff;
+    color: var(--caf-text);
     padding: var(--caf-nav-icon-pad);
   }
 }
