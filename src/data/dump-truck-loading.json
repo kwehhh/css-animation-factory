@@ -380,31 +380,31 @@
   },
   "elements": [
     {
-      "name": "dump-truck-scene",
+      "displayName": "dump-truck-scene",
       "classes": [
         "dump-truck-scene"
       ],
       "elements": [
         {
-          "name": "dump-truck-stage",
+          "displayName": "dump-truck-stage",
           "classes": [
             "dump-truck-stage"
           ],
           "elements": [
             {
-              "name": "progress-container",
+              "displayName": "progress-container",
               "classes": [
                 "progress-container"
               ],
               "elements": [
                 {
-                  "name": "progress-box",
+                  "displayName": "progress-box",
                   "classes": [
                     "progress-box"
                   ],
                   "elements": [
                     {
-                      "name": "progress-fill",
+                      "displayName": "progress-fill",
                       "classes": [
                         "progress-fill"
                       ]
@@ -412,14 +412,14 @@
                   ]
                 },
                 {
-                  "name": "state-load",
+                  "displayName": "state-load",
                   "classes": [
                     "progress-state",
                     "state-load"
                   ]
                 },
                 {
-                  "name": "state-finish",
+                  "displayName": "state-finish",
                   "classes": [
                     "progress-state",
                     "state-finish"
@@ -429,31 +429,31 @@
             }
             ,
             {
-              "name": "dump-truck",
+              "displayName": "dump-truck",
               "classes": [
                 "dump-truck"
               ],
               "elements": [
                 {
-                  "name": "front",
+                  "displayName": "front",
                   "classes": [
                     "front"
                   ]
                 },
                 {
-                  "name": "bucket",
+                  "displayName": "bucket",
                   "classes": [
                     "bucket"
                   ]
                 },
                 {
-                  "name": "dirt",
+                  "displayName": "dirt",
                   "classes": [
                     "dirt"
                   ],
                   "elements": [
                     {
-                      "name": "dirt-spill",
+                      "displayName": "dirt-spill",
                       "classes": [
                         "dirt-spill"
                       ]
@@ -461,27 +461,27 @@
                   ]
                 },
                 {
-                  "name": "base",
+                  "displayName": "base",
                   "classes": [
                     "base"
                   ]
                 },
                 {
-                  "name": "wheel-front",
+                  "displayName": "wheel-front",
                   "classes": [
                     "wheel",
                     "wheel-front"
                   ]
                 },
                 {
-                  "name": "wheel-middle",
+                  "displayName": "wheel-middle",
                   "classes": [
                     "wheel",
                     "wheel-middle"
                   ]
                 },
                 {
-                  "name": "wheel-back",
+                  "displayName": "wheel-back",
                   "classes": [
                     "wheel",
                     "wheel-back"
@@ -490,31 +490,31 @@
               ]
             },
             {
-              "name": "dump-truck",
+              "displayName": "dump-truck",
               "classes": [
                 "dump-truck"
               ],
               "elements": [
                 {
-                  "name": "front",
+                  "displayName": "front",
                   "classes": [
                     "front"
                   ]
                 },
                 {
-                  "name": "bucket",
+                  "displayName": "bucket",
                   "classes": [
                     "bucket"
                   ]
                 },
                 {
-                  "name": "dirt",
+                  "displayName": "dirt",
                   "classes": [
                     "dirt"
                   ],
                   "elements": [
                     {
-                      "name": "dirt-spill",
+                      "displayName": "dirt-spill",
                       "classes": [
                         "dirt-spill"
                       ]
@@ -522,27 +522,27 @@
                   ]
                 },
                 {
-                  "name": "base",
+                  "displayName": "base",
                   "classes": [
                     "base"
                   ]
                 },
                 {
-                  "name": "wheel-front",
+                  "displayName": "wheel-front",
                   "classes": [
                     "wheel",
                     "wheel-front"
                   ]
                 },
                 {
-                  "name": "wheel-middle",
+                  "displayName": "wheel-middle",
                   "classes": [
                     "wheel",
                     "wheel-middle"
                   ]
                 },
                 {
-                  "name": "wheel-back",
+                  "displayName": "wheel-back",
                   "classes": [
                     "wheel",
                     "wheel-back"

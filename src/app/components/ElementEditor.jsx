@@ -410,8 +410,8 @@ export default class ElementEditor extends React.Component {
               border: 'none',
               color: 'var(--caf-text)'
             }}
-            value={ elementProps.name }
-            onChange={ (e) => { this.handleChange(e.target.value, 'name') } }
+            value={ elementProps.displayName }
+            onChange={ (e) => { this.handleChange(e.target.value, 'displayName') } }
           />
         </div>
         { this.renderAttributes(elementProps) }
@@ -500,7 +500,7 @@ export default class ElementEditor extends React.Component {
       <div>
         <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={ this.state.showModal }>
           <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-            Assign Classes to { this.props.elementProps.name }
+            Assign Classes to { this.props.elementProps.displayName }
           </DialogTitle>
           <DialogContent dividers>
             <TransferList
@@ -982,7 +982,8 @@ export default class ElementEditor extends React.Component {
 
       // Get Keyframes from class
       // Use this... push it up, to get it up and store the animation details....
-      classes.forEach((key) => {
+      // Guard: SVG group/svg nodes can have no `classes`.
+      (classes || []).forEach((key) => {
         // console.log('map', this.props.classes[key]);
 
         if (this.props.classes[key] && this.props.classes[key].animationName) {

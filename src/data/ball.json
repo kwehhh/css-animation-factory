@@ -37,7 +37,7 @@
   },
   "elements": [
     {
-      "name": "ball",
+      "displayName": "ball",
       "classes": [
         "animation-orbit",
         "shape-ball"

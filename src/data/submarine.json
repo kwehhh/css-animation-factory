@@ -56,19 +56,19 @@
   },
   "elements": [
     {
-      "name": "circle-wrapper",
+      "displayName": "circle-wrapper",
       "classes": [
         "circle-wrapper"
       ],
       "elements": [
         {
-          "name": "bubble",
+          "displayName": "bubble",
           "classes": [
             "bubble"
           ],
           "elements": [
             {
-              "name": "droplet",
+              "displayName": "droplet",
               "classes": [
                 "droplet"
               ]

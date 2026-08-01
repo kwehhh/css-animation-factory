@@ -1,5 +1,5 @@
 import React from 'react';
-import { FullPageModal, Layout } from '@nurvus/design-system';
+import { FullPageModal, Layout } from '@nurvus/ui';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';

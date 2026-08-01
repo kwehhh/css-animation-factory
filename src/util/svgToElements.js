@@ -40,7 +40,7 @@ function nodeToElement(node) {
   const tag = node.tagName;
   const attributes = {};
   const classes = [];
-  let name = tag;
+  let displayName = tag;
 
   Array.from(node.attributes).forEach((attr) => {
     const an = attr.name;
@@ -55,13 +55,13 @@ function nodeToElement(node) {
     }
     if (an === 'id') {
       attributes.id = attr.value;
-      name = attr.value; // use id as the human-readable layer name when present
+      displayName = attr.value; // use id as the human-readable layer label when present
       return;
     }
     attributes[reactAttrName(an)] = attr.value;
   });
 
-  const element = { name, tag };
+  const element = { displayName, tag };
   if (classes.length) element.classes = classes;
   if (Object.keys(attributes).length) element.attributes = attributes;
 

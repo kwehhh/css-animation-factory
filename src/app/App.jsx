@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { Menu, Link } from '@nurvus/design-system';
+import { Menu, Link } from '@nurvus/ui';
 import { Drawer } from '@material-ui/core';
 import _ from "lodash";
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
@@ -11,6 +11,7 @@ import Layers from './components/Layers.jsx';
 import Preview from './components/Preview.jsx';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
+import { cssToModel } from '../util/cssToModel.js';
 import "./App.scss";
 
 export default class App extends React.Component {
@@ -195,12 +196,29 @@ export default class App extends React.Component {
     return css;
   }
 
-  // Expand a preset carrying a raw `svg` string into an editable element tree.
+  // Expand a preset into the editable model:
+  //  - raw `svg` string -> element tree (Layers)
+  //  - raw `css` string -> classes + keyframes (Element Editor can resolve them);
+  //    id/grouped rules stay as raw `css` and are still injected verbatim.
   expandPreset(preset) {
-    if (preset && preset.svg && !(preset.elements && preset.elements.length)) {
-      return { ...preset, elements: svgToElements(preset.svg) };
+    if (!preset) return preset;
+    let next = preset;
+
+    if (preset.svg && !(preset.elements && preset.elements.length)) {
+      next = { ...next, elements: svgToElements(preset.svg) };
     }
-    return preset;
+
+    if (preset.css) {
+      const { classes, keyframes, rest } = cssToModel(preset.css);
+      next = {
+        ...next,
+        classes: { ...(next.classes || {}), ...classes },
+        keyframes: { ...(next.keyframes || {}), ...keyframes },
+        css: rest
+      };
+    }
+
+    return next;
   }
 
   // Fetch JSON Preset
@@ -287,7 +305,7 @@ export default class App extends React.Component {
           let max = 0;
 
           siblings.forEach((sibling) => {
-            const siblingName = sibling?.name || '';
+            const siblingName = sibling?.displayName || '';
             if (siblingName === root) {
               max = Math.max(max, 1);
               return;
@@ -302,18 +320,18 @@ export default class App extends React.Component {
           return { root, max, next: `${root} ${max + 1}` };
         };
 
-        const { root, max, next } = getNextName(newElement.name, newElements);
+        const { root, max, next } = getNextName(newElement.displayName, newElements);
 
         // If this is the first duplicate, rename original to "<root> 1"
-        if (max <= 1 && newElement.name === root) {
-          newElements[index] = { ...newElement, name: `${root} 1` };
+        if (max <= 1 && newElement.displayName === root) {
+          newElements[index] = { ...newElement, displayName: `${root} 1` };
         } else {
           newElements[index] = newElement;
         }
 
         // Ensure the clone is a distinct object (no shared references)
         const cloneElement = _.cloneDeep(newElements[index]);
-        cloneElement.name = next;
+        cloneElement.displayName = next;
         newElements.push(cloneElement);
       } else {
         newElements[index] = newElement;

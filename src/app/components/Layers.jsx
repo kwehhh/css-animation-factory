@@ -1,6 +1,6 @@
 import React from "react";
 import _ from 'lodash';
-import { Layout, Menu, Text } from '@nurvus/design-system';
+import { Layout, Menu, Text } from '@nurvus/ui';
 import { Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 import Container from './Container/Container.jsx';
@@ -25,7 +25,7 @@ export default class Layers extends React.Component {
       modalVisible: false,
       // Initial State for New Element
       initialElProps: {
-        name: NEW_EL_NAME,
+        displayName: NEW_EL_NAME,
         classes: [NEW_CLASS_NAME]
       }
     };
@@ -91,7 +91,7 @@ export default class Layers extends React.Component {
         const nextPath = [...path, i];
         return {
           ...item,
-          label: item.name,
+          label: item.displayName,
           path: nextPath,
           items: this.getMenuItems(item.elements, nextPath)
         }
