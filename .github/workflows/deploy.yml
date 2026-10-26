@@ -1,48 +1,60 @@
-# Auto Deploy to VPS
-# Need the following for setup...
+# Build the factory in GitHub Actions, then rsync the static dist/ to the
+# nurvus box as jcage. Served at https://johnyagiz.dev/css-animation-factory/
+# by the johnyagiz.dev nginx block (location /css-animation-factory/ →
+# /var/www/css-animation-factory/, a jcage-owned dir). Same pattern as
+# nurvus-design-system → design.nurvus.ai: build in CI, never on the box, no sudo.
 #
-
+# Replaces the old memoryleak.ai workflow, which SSHed to a dead host and
+# tried to build there (it failed on every push since 2026-02).
+#
+# Repo secrets (Settings → Secrets and variables → Actions), the same values
+# as in kwehhh/nurvus-design-system: SSH_HOST, SSH_USERNAME, SSH_KEY.
 name: Build & Deploy
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ main ]
+  workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# One deploy at a time, in push order.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
 jobs:
-  # This workflow contains a single job called "deploy"
   deploy:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Deploy App
-        uses: appleboy/ssh-action@v0.1.4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.SSH_HOST }}
-          key: ${{ secrets.SSH_KEY }}
-          username: ${{ secrets.SSH_USERNAME }}
-          script: |
-            cd /home/apps # go to app dir
-            rm -rf css-animation-factory/ # wipe out app for fresh build
-            git clone https://github.com/UnfocusedDrive/css-animation-factory.git # get latest
-            cd css-animation-factory # go to app dir
-            npm install # get latest packages
-            npm run build # build app
+          node-version: '22.x'
 
-            # Staging
-            rm -rf /var/www/unstable.memoryleak.ai/css-animation-factory # remove directory
-            mkdir /var/www/unstable.memoryleak.ai/css-animation-factory
-            sudo mv -i dist/* /var/www/unstable.memoryleak.ai/css-animation-factory # move build to serve dir
-            echo 'Successfully deployed to unstable.memoryleak.ai/css-animation-factory'
+      - name: Install dependencies
+        run: npm ci
 
-            # Production
-            # rm -rf /var/www/animated.memoryleak.ai/ # remove directory
-            # mkdir /var/www/animated.memoryleak.ai
-            # sudo mv -i dist/* /var/www/animated.memoryleak.ai/ # move build to serve dir
-            # echo 'Successfully deployed to animated.memoryleak.ai'
+      # The build script sets NODE_OPTIONS=--openssl-legacy-provider itself.
+      - name: Build
+        run: npm run build
 
+      - name: Deploy to johnyagiz.dev/css-animation-factory (rsync as jcage)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_USERNAME" ] || [ -z "$SSH_KEY" ]; then
+            echo "::error::Set the SSH_HOST, SSH_USERNAME and SSH_KEY repo secrets (same values as kwehhh/nurvus-design-system)."
+            exit 1
+          fi
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            dist/ \
+            "$SSH_USERNAME@$SSH_HOST:/var/www/css-animation-factory/"
+          echo "Deployed to https://johnyagiz.dev/css-animation-factory/"
