@@ -61,17 +61,18 @@ export default class Layers extends React.Component {
       animationTimingFunction: 'cubic-bezier(0.280, 0.840, 0.420, 1)'
     };
 
-    // Assign temp vals to CSS builder
+    // Assign temp vals to CSS builder. `record: false`: opening the dialog is
+    // not an edit, so it must not become an undo step.
     // TODO: Batch both these to a single setState call
-    this.props.onClassChange(NEW_CLASS_NAME, props);
-    this.props.onKeyframesChange(NEW_KEYFRAMES_NAME, keyframes);
+    this.props.onClassChange(NEW_CLASS_NAME, props, { record: false });
+    this.props.onKeyframesChange(NEW_KEYFRAMES_NAME, keyframes, { record: false });
     this.setState({modalVisible: true});
   }
 
   handleCloseModal() {
     // Assign temp vals to CSS builder
-    this.props.onKeyframesChange(NEW_CLASS_NAME, false);
-    this.props.onClassChange(NEW_KEYFRAMES_NAME, false);
+    this.props.onKeyframesChange(NEW_CLASS_NAME, false, { record: false });
+    this.props.onClassChange(NEW_KEYFRAMES_NAME, false, { record: false });
     this.setState({modalVisible: false});
   }
 

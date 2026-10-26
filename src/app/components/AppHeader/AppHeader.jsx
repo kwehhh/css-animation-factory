@@ -4,13 +4,19 @@ import { Tooltip } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import TuneIcon from '@material-ui/icons/Tune';
-import { shortcutLabel } from '../../../util/keyboard.js';
+import UndoIcon from '@material-ui/icons/Undo';
+import RedoIcon from '@material-ui/icons/Redo';
+import { IS_MAC, shortcutLabel } from '../../../util/keyboard.js';
 import './AppHeader.scss';
 
 export default function AppHeader({
   navHeight,
   showLayersPanel,
   showElementContainer,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
   onShowExport,
   onToggleLayersPanel,
   onToggleElementPanel,
@@ -39,6 +45,33 @@ export default function AppHeader({
           alignItems="center"
           itemSpacing={0}
         >
+          {/* span wrappers: a disabled button fires no mouse events, so the Tooltip needs one */}
+          <Tooltip title={`Undo (${shortcutLabel('Z')})`}>
+            <span style={{ display: 'inline-flex' }}>
+              <IconButton
+                className="caf-iconbtn-nav"
+                size="small"
+                onClick={onUndo}
+                disabled={!canUndo}
+                aria-label="Undo"
+              >
+                <UndoIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title={`Redo (${IS_MAC ? shortcutLabel('Z', { shift: true }) : shortcutLabel('Y')})`}>
+            <span style={{ display: 'inline-flex' }}>
+              <IconButton
+                className="caf-iconbtn-nav"
+                size="small"
+                onClick={onRedo}
+                disabled={!canRedo}
+                aria-label="Redo"
+              >
+                <RedoIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
           <Button type="secondary" size="mini" onClick={onShowExport}>Export</Button>
           <Tooltip title={`${showLayersPanel ? 'Hide' : 'Show'} Layers panel (${shortcutLabel('B')})`}>
             <IconButton

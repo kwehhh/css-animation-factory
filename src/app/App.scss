@@ -57,6 +57,12 @@ body {
 .caf-iconbtn-nav.MuiIconButton-root {
   color: var(--caf-text);
   padding: var(--caf-nav-icon-pad);
+
+  // e.g. Undo with nothing to undo: same ink, clearly faded.
+  &.Mui-disabled {
+    color: var(--caf-text);
+    opacity: 0.35;
+  }
 }
 
 // Compact icon buttons in side panels (Layers etc)

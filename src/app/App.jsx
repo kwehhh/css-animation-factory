@@ -20,6 +20,14 @@ import "./App.scss";
 const LAYERS_WIDTH = { default: 180, min: 180, max: 480 };
 const LAYERS_WIDTH_STORAGE_KEY = 'caf.layersWidth';
 
+// Undo/redo history. Only the animation itself is undoable; selection and
+// panel layout are UI state and stay where they are.
+const HISTORY_DOC_KEYS = ['elements', 'classes', 'keyframes', 'css'];
+const HISTORY_LIMIT = 100;
+// Edits to the same field closer together than this become one undo step
+// (one slider drag, one typed value) instead of one step per keystroke.
+const HISTORY_MERGE_MS = 1000;
+
 function readStoredLayersWidth() {
   try {
     const stored = Number(window.localStorage.getItem(LAYERS_WIDTH_STORAGE_KEY));
@@ -62,8 +70,17 @@ export default class App extends React.Component {
       isElementEditorExpanded: true,
       showExport: false,
       showPresets: false,
-      presets: []
+      presets: [],
+      canUndo: false,
+      canRedo: false
     };
+
+    // Snapshots of HISTORY_DOC_KEYS. `last` describes the newest recorded change
+    // so the next one can merge into it (see recordHistory).
+    this.history = { past: [], future: [], last: null };
+    // Filled by noteHistoryChange() just before a handler's setState.
+    this.historyHint = null;
+    this.isApplyingHistory = false;
 
     // console.log('constructor', props, this.state);
     this.handleCloneElement = this.handleCloneElement.bind(this);
@@ -260,6 +277,8 @@ export default class App extends React.Component {
     const file = `data/${files[0]}`;
     fetch(file).then(res => res.json()).then(data => {
       const expanded = this.expandPreset(data);
+      // The starting preset is where history begins, not an undoable step.
+      this.noteHistoryChange({ record: false });
       this.setState(prevState => ({
         ...prevState,
         ...expanded
@@ -275,19 +294,136 @@ export default class App extends React.Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const hint = this.historyHint;
+    const isApplyingHistory = this.isApplyingHistory;
+    this.historyHint = null;
+    this.isApplyingHistory = false;
+
+    // Every change to the animation passes through here, whichever handler made
+    // it, so nothing can bypass history. Undo/redo itself is not recorded.
+    const docChanged = HISTORY_DOC_KEYS.some((key) => prevState[key] !== this.state[key]);
+    if (!docChanged || isApplyingHistory || (hint && hint.record === false)) return;
+
+    this.recordHistory(prevState, hint && hint.key);
+  }
+
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown);
   }
 
   /**
-   * App-wide Cmd/Ctrl shortcuts. Text fields and the code editors keep their own.
+   * Every handler that changes the animation calls this just before its
+   * setState. `key` lets repeated edits of the same field merge into one step;
+   * `record: false` marks a change that is not a user edit. React can batch
+   * several handlers into one update: it is recorded if ANY of them is a real
+   * edit, so a non-edit can never swallow one. (A change with no note at all
+   * is recorded too.)
+   */
+  noteHistoryChange({ key = null, record = true } = {}) {
+    const prev = this.historyHint;
+    this.historyHint = {
+      key,
+      record: record || !!(prev && prev.record)
+    };
+  }
+
+  getDocSnapshot(state) {
+    return _.pick(state, HISTORY_DOC_KEYS);
+  }
+
+  /**
+   * Save the animation as it was before a change, unless the change merges into
+   * the previous step: same synchronous run (e.g. the source editor applying
+   * several classes at once), or the same field edited again within
+   * HISTORY_MERGE_MS. State is never mutated in place, so snapshots share
+   * everything that did not change.
+   */
+  recordHistory(prevState, key = null) {
+    const now = Date.now();
+    const { last } = this.history;
+    const merge = !!last && (last.sameRun || (!!key && last.key === key && now - last.time < HISTORY_MERGE_MS));
+
+    if (!merge) {
+      this.history.past.push(this.getDocSnapshot(prevState));
+      if (this.history.past.length > HISTORY_LIMIT) {
+        this.history.past.shift();
+      }
+    }
+    this.history.future = [];
+
+    const entry = { key, time: now, sameRun: true };
+    this.history.last = entry;
+    setTimeout(() => { entry.sameRun = false; }, 0);
+
+    this.syncHistoryButtons();
+  }
+
+  syncHistoryButtons() {
+    const canUndo = this.history.past.length > 0;
+    const canRedo = this.history.future.length > 0;
+    if (canUndo !== this.state.canUndo || canRedo !== this.state.canRedo) {
+      this.setState({ canUndo, canRedo });
+    }
+  }
+
+  isValidPath(elements = [], path = []) {
+    let list = elements;
+    return path.every((index) => {
+      const element = list && list[index];
+      list = element && element.elements;
+      return !!element;
+    });
+  }
+
+  applyHistorySnapshot(snapshot) {
+    // The next edit always starts a new step, even if it hits the same field.
+    this.history.last = null;
+    this.isApplyingHistory = true;
+    this.setState((prevState) => ({
+      ...snapshot,
+      // Keep the selection when it still points at an element, else clear it.
+      activePath: this.isValidPath(snapshot.elements, prevState.activePath) ? prevState.activePath : [],
+      canUndo: this.history.past.length > 0,
+      canRedo: this.history.future.length > 0
+    }));
+  }
+
+  handleUndo = () => {
+    if (!this.history.past.length) return;
+    const snapshot = this.history.past.pop();
+    this.history.future.push(this.getDocSnapshot(this.state));
+    this.applyHistorySnapshot(snapshot);
+  }
+
+  handleRedo = () => {
+    if (!this.history.future.length) return;
+    const snapshot = this.history.future.pop();
+    this.history.past.push(this.getDocSnapshot(this.state));
+    this.applyHistorySnapshot(snapshot);
+  }
+
+  /**
+   * App-wide Cmd/Ctrl shortcuts. Text fields and the code editors keep their own
+   * (so Cmd+Z there undoes typing, not the animation).
    */
   handleKeyDown = (e) => {
     if (e.defaultPrevented || !(e.metaKey || e.ctrlKey) || e.altKey) return;
     if (isEditableTarget(e.target)) return;
 
     const key = e.key.toLowerCase();
-    if (key === 'b' && !e.shiftKey) {
+    if (key === 'z') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        this.handleRedo();
+      } else {
+        this.handleUndo();
+      }
+    } else if (key === 'y' && e.ctrlKey && !e.shiftKey) {
+      // Windows/Linux redo. Not Cmd+Y: on a Mac that opens the browser history.
+      e.preventDefault();
+      this.handleRedo();
+    } else if (key === 'b' && !e.shiftKey) {
       e.preventDefault();
       this.handleToggleLayersPanel();
     }
@@ -460,6 +596,7 @@ export default class App extends React.Component {
 
   handleRemoveElement = (e, path) => {
     if (e?.stopPropagation) e.stopPropagation();
+    this.noteHistoryChange();
     this.setState((prevState) => ({
       elements: this.removeElementAtPath(prevState.elements, path),
       activePath: this.adjustActivePathAfterRemoval(prevState.activePath, path)
@@ -467,6 +604,7 @@ export default class App extends React.Component {
   }
 
   handleCloneElement() {
+    this.noteHistoryChange();
     this.setState((prevState) => {
       return {
         elements: this.cloneInsertion(prevState.elements, prevState.activePath)
@@ -477,6 +615,7 @@ export default class App extends React.Component {
   handleToggleHidden = (e, path) => {
     if (e?.stopPropagation) e.stopPropagation();
 
+    this.noteHistoryChange();
     this.setState((prevState) => {
       return {
         elements: this.updateElementAtPath(prevState.elements, path, (el) => ({
@@ -537,6 +676,8 @@ export default class App extends React.Component {
     // `path` is a Menu path array like [index]; it coerces to the preset index.
     const preset = path ? this.state.presets[path] : null;
 
+    // Undoable: a misclick in Presets would otherwise wipe the current work.
+    this.noteHistoryChange();
     this.setState({
       showPresets: false,
       // Reset all preset-driven fields first so nothing leaks between presets
@@ -553,6 +694,7 @@ export default class App extends React.Component {
   handleUpdateElements(element) {
     this.handleHideContainer();
 
+    this.noteHistoryChange();
     this.setState((prevState) => {
       return {
         elements: [
@@ -567,8 +709,10 @@ export default class App extends React.Component {
    * New/Update ....
    * @param {string} key - ...
    * @param {object|false} props - .... false = DELETE!!!
+   * @param {object} [options] - `record: false` keeps the change out of undo history
    */
-  handleUpdateClass(key, props) {
+  handleUpdateClass(key, props, { record = true } = {}) {
+    this.noteHistoryChange({ key: `class:${key}`, record });
     this.setState((prevState) => {
       const newClasses = {
         ...prevState.classes,
@@ -592,8 +736,10 @@ export default class App extends React.Component {
    * New/Update ....
    * @param {string} key - ...
    * @param {object|false} props - .... false = DELETE!!!
+   * @param {object} [options] - `record: false` keeps the change out of undo history
    */
-  handleUpdateKeyframes(key, props) {
+  handleUpdateKeyframes(key, props, { record = true } = {}) {
+    this.noteHistoryChange({ key: `keyframes:${key}`, record });
     this.setState((prevState) => {
       const newKeyframes = {
         ...prevState.keyframes,
@@ -616,6 +762,7 @@ export default class App extends React.Component {
   handleUpdateElementAtPath(elementPatch, path = []) {
     if (!path.length) return;
 
+    this.noteHistoryChange({ key: `element:${path.join('.')}` });
     this.setState((prevState) => {
       return {
         elements: this.updateElementAtPath(prevState.elements, path, (el) => ({
@@ -661,6 +808,10 @@ export default class App extends React.Component {
           navHeight={ navHeight }
           showLayersPanel={ this.state.showLayersPanel }
           showElementContainer={ this.state.showElementContainer }
+          canUndo={ this.state.canUndo }
+          canRedo={ this.state.canRedo }
+          onUndo={ this.handleUndo }
+          onRedo={ this.handleRedo }
           onShowExport={ this.handleShowExport }
           onToggleLayersPanel={ this.handleToggleLayersPanel }
           onToggleElementPanel={ this.handleToggleElementPanel }
