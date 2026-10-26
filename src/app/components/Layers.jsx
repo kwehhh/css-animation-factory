@@ -5,6 +5,7 @@ import { Tooltip } from '@material-ui/core';
 import AddNewElement from './AddNewElement.jsx';
 import Container from './Container/Container.jsx';
 import AddIcon from '@material-ui/icons/Add';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
@@ -12,6 +13,7 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import IconButton from '@material-ui/core/IconButton';
+import { shortcutLabel } from '../../util/keyboard.js';
 
 const NEW_EL_NAME = 'myNewElement';
 const NEW_CLASS_NAME = 'myNewClass';
@@ -159,7 +161,19 @@ export default class Layers extends React.Component {
       >
         <div style={{ marginBottom: 'var(--caf-space-8)' }}>
           <Layout>
-            <div className="caf-title">Layers</div>
+            <Layout display="flex" alignItems="center" justifyContent="space-between" itemSpacing={ 0 }>
+              <div className="caf-title">Layers</div>
+              <Tooltip title={ `Hide Layers panel (${shortcutLabel('B')})` }>
+                <IconButton
+                  className="caf-iconbtn-nav"
+                  size="small"
+                  onClick={ this.props.onHide }
+                  aria-label="Hide Layers panel"
+                >
+                  <ChevronLeftIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Layout>
             <Layout display="flex" alignItems="center" itemSpacing={ 0 }>
               <Tooltip title="JSON Data">
                 <span style={{ display: 'inline-flex' }}>

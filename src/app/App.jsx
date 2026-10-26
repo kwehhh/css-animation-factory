@@ -13,6 +13,7 @@ import Preview from './components/Preview.jsx';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
 import { cssToModel } from '../util/cssToModel.js';
+import { isEditableTarget } from '../util/keyboard.js';
 import "./App.scss";
 
 // Layers panel width (px): default, drag limits, and where the user's choice is remembered.
@@ -253,6 +254,8 @@ export default class App extends React.Component {
 
   // Fetch JSON Preset
   componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+
     const { files } = this.props.manifest;
     const file = `data/${files[0]}`;
     fetch(file).then(res => res.json()).then(data => {
@@ -270,6 +273,24 @@ export default class App extends React.Component {
         src: files[i]
       })) });
     });
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  /**
+   * App-wide Cmd/Ctrl shortcuts. Text fields and the code editors keep their own.
+   */
+  handleKeyDown = (e) => {
+    if (e.defaultPrevented || !(e.metaKey || e.ctrlKey) || e.altKey) return;
+    if (isEditableTarget(e.target)) return;
+
+    const key = e.key.toLowerCase();
+    if (key === 'b' && !e.shiftKey) {
+      e.preventDefault();
+      this.handleToggleLayersPanel();
+    }
   }
 
   createCSSBlock(blockName, cssBlock) {
@@ -674,6 +695,7 @@ export default class App extends React.Component {
               onClone={ this.handleCloneElement }
               onToggleHidden={ this.handleToggleHidden }
               onRemove={ this.handleRemoveElement }
+              onHide={ this.handleToggleLayersPanel }
               width={ this.state.layersWidth }
             />
             <PanelResizeHandle

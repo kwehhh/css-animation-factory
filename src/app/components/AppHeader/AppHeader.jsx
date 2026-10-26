@@ -4,6 +4,7 @@ import { Tooltip } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import TuneIcon from '@material-ui/icons/Tune';
+import { shortcutLabel } from '../../../util/keyboard.js';
 import './AppHeader.scss';
 
 export default function AppHeader({
@@ -39,7 +40,7 @@ export default function AppHeader({
           itemSpacing={0}
         >
           <Button type="secondary" size="mini" onClick={onShowExport}>Export</Button>
-          <Tooltip title={showLayersPanel ? 'Hide Layers panel' : 'Show Layers panel'}>
+          <Tooltip title={`${showLayersPanel ? 'Hide' : 'Show'} Layers panel (${shortcutLabel('B')})`}>
             <IconButton
               className="caf-iconbtn-nav"
               size="small"
