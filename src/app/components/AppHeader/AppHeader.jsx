@@ -75,7 +75,19 @@ export default function AppHeader({
               </IconButton>
             </span>
           </Tooltip>
-          {/* Panel toggles: aria-pressed drives the "on" look (App.scss) and tells screen readers. */}
+          {/* Panel toggles: aria-pressed drives the "on" look (App.scss) and tells screen readers.
+              History sits next to Undo/Redo, the controls it belongs with. */}
+          <Tooltip title={showHistoryPanel ? 'Hide History panel' : 'Show History panel'}>
+            <IconButton
+              className="caf-iconbtn-nav"
+              size="small"
+              onClick={onToggleHistoryPanel}
+              aria-label={showHistoryPanel ? 'Hide History panel' : 'Show History panel'}
+              aria-pressed={!!showHistoryPanel}
+            >
+              <HistoryIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Tooltip title={`${showLayersPanel ? 'Hide' : 'Show'} Layers panel (${shortcutLabel('B')})`}>
             <IconButton
               className="caf-iconbtn-nav"
@@ -96,17 +108,6 @@ export default function AppHeader({
               aria-pressed={!!showElementContainer}
             >
               <TuneIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={showHistoryPanel ? 'Hide History panel' : 'Show History panel'}>
-            <IconButton
-              className="caf-iconbtn-nav"
-              size="small"
-              onClick={onToggleHistoryPanel}
-              aria-label={showHistoryPanel ? 'Hide History panel' : 'Show History panel'}
-              aria-pressed={!!showHistoryPanel}
-            >
-              <HistoryIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Button type="secondary" size="mini" onClick={onShowPresets}>Presets</Button>
