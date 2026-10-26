@@ -8,6 +8,7 @@ import AppHeader from './components/AppHeader/AppHeader.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
 import ExportModal from './components/ExportModal/ExportModal.jsx';
 import Layers from './components/Layers.jsx';
+import HistoryPanel from './components/HistoryPanel/HistoryPanel.jsx';
 import PanelResizeHandle from './components/PanelResizeHandle/PanelResizeHandle.jsx';
 import Preview from './components/Preview.jsx';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
@@ -27,6 +28,15 @@ const HISTORY_LIMIT = 100;
 // Edits to the same field closer together than this become one undo step
 // (one slider drag, one typed value) instead of one step per keystroke.
 const HISTORY_MERGE_MS = 1000;
+const HISTORY_PANEL_WIDTH = 260;
+// History label for an Element Editor edit, by the one field it changed.
+const ELEMENT_EDIT_LABELS = {
+  displayName: 'Rename layer',
+  tag: 'Change tag',
+  attributes: 'Edit attributes',
+  classes: 'Change classes',
+  props: 'Edit styles'
+};
 
 function readStoredLayersWidth() {
   try {
@@ -72,13 +82,18 @@ export default class App extends React.Component {
       showExport: false,
       showPresets: false,
       presets: [],
-      canUndo: false,
-      canRedo: false
+      showHistoryPanel: false,
+      // Render copy of this.history (see syncHistoryView).
+      historyView: { steps: [], index: 0, trimmed: false }
     };
 
-    // Snapshots of HISTORY_DOC_KEYS. `last` describes the newest recorded change
-    // so the next one can merge into it (see recordHistory).
-    this.history = { past: [], future: [], last: null };
+    // The undo timeline, oldest first. Each step is
+    // { id, label, detail, time, before, after }, where before/after are
+    // snapshots of HISTORY_DOC_KEYS. `index` = how many steps are applied
+    // (0 = the start, steps.length = newest), so undo/redo/jump are all "show
+    // the snapshot at index N". `last` lets the next change merge into the
+    // newest step (see recordHistory). `trimmed` = old steps were dropped.
+    this.history = { steps: [], index: 0, last: null, nextId: 1, trimmed: false };
     // Filled by noteHistoryChange() just before a handler's setState.
     this.historyHint = null;
     this.isApplyingHistory = false;
@@ -306,7 +321,7 @@ export default class App extends React.Component {
     const docChanged = HISTORY_DOC_KEYS.some((key) => prevState[key] !== this.state[key]);
     if (!docChanged || isApplyingHistory || (hint && hint.record === false)) return;
 
-    this.recordHistory(prevState, hint && hint.key);
+    this.recordHistory(prevState, hint || {});
   }
 
   componentWillUnmount() {
@@ -315,18 +330,23 @@ export default class App extends React.Component {
 
   /**
    * Every handler that changes the animation calls this just before its
-   * setState. `key` lets repeated edits of the same field merge into one step;
-   * `record: false` marks a change that is not a user edit. React can batch
-   * several handlers into one update: it is recorded if ANY of them is a real
-   * edit, so a non-edit can never swallow one. (A change with no note at all
-   * is recorded too.)
+   * setState. `label` + `detail` name the step in the History panel; `key`
+   * lets repeated edits of the same field merge into one step; `record: false`
+   * marks a change that is not a user edit. React can batch several handlers
+   * into one update: it is recorded if ANY of them is a real edit (and named
+   * after it), so a non-edit can never swallow one. A change with no note at
+   * all is recorded too, as "Edit".
    */
-  noteHistoryChange({ key = null, record = true } = {}) {
+  noteHistoryChange({ key = null, record = true, label = 'Edit', detail = '' } = {}) {
     const prev = this.historyHint;
-    this.historyHint = {
-      key,
-      record: record || !!(prev && prev.record)
-    };
+    const keepPrev = !record && prev && prev.record;
+    this.historyHint = keepPrev ? prev : { key, record: record || !!(prev && prev.record), label, detail };
+  }
+
+  /** Layer name for history details ("" when the path no longer exists). */
+  getElementName(path) {
+    const element = this.getActiveElement(path, this.state.elements);
+    return element ? (element.displayName || element.tag || 'layer') : '';
   }
 
   getDocSnapshot(state) {
@@ -334,38 +354,56 @@ export default class App extends React.Component {
   }
 
   /**
-   * Save the animation as it was before a change, unless the change merges into
-   * the previous step: same synchronous run (e.g. the source editor applying
-   * several classes at once), or the same field edited again within
-   * HISTORY_MERGE_MS. State is never mutated in place, so snapshots share
-   * everything that did not change.
+   * Record a change as a new step, or fold it into the newest step when it is
+   * the same action continuing: same synchronous run (e.g. the source editor
+   * applying several classes at once), or the same field edited again within
+   * HISTORY_MERGE_MS. A new step after an undo drops the undone steps.
+   * State is never mutated in place, so snapshots share everything that did
+   * not change.
    */
-  recordHistory(prevState, key = null) {
+  recordHistory(prevState, { key = null, label = 'Edit', detail = '' }) {
     const now = Date.now();
-    const { last } = this.history;
-    const merge = !!last && (last.sameRun || (!!key && last.key === key && now - last.time < HISTORY_MERGE_MS));
+    const history = this.history;
+    const { last } = history;
+    const current = history.steps[history.index - 1];
+    const merge = !!last && !!current && last.id === current.id
+      && (last.sameRun || (!!key && last.key === key && now - last.time < HISTORY_MERGE_MS));
 
-    if (!merge) {
-      this.history.past.push(this.getDocSnapshot(prevState));
-      if (this.history.past.length > HISTORY_LIMIT) {
-        this.history.past.shift();
+    if (merge) {
+      // Same action continuing: only the result moves. The row's label and
+      // time stay, so the History panel does not need to re-render.
+      current.after = this.getDocSnapshot(this.state);
+    } else {
+      history.steps = history.steps.slice(0, history.index);
+      history.steps.push({
+        id: history.nextId++,
+        label,
+        detail,
+        time: now,
+        before: this.getDocSnapshot(prevState),
+        after: this.getDocSnapshot(this.state)
+      });
+      if (history.steps.length > HISTORY_LIMIT) {
+        history.steps.shift();
+        history.trimmed = true;
       }
+      history.index = history.steps.length;
     }
-    this.history.future = [];
 
-    const entry = { key, time: now, sameRun: true };
-    this.history.last = entry;
+    const entry = { id: history.steps[history.index - 1].id, key, time: now, sameRun: true };
+    history.last = entry;
     setTimeout(() => { entry.sameRun = false; }, 0);
 
-    this.syncHistoryButtons();
+    if (!merge) this.syncHistoryView();
   }
 
-  syncHistoryButtons() {
-    const canUndo = this.history.past.length > 0;
-    const canRedo = this.history.future.length > 0;
-    if (canUndo !== this.state.canUndo || canRedo !== this.state.canRedo) {
-      this.setState({ canUndo, canRedo });
-    }
+  getHistoryView() {
+    const { steps, index, trimmed } = this.history;
+    return { steps: steps.slice(), index, trimmed };
+  }
+
+  syncHistoryView() {
+    this.setState({ historyView: this.getHistoryView() });
   }
 
   isValidPath(elements = [], path = []) {
@@ -377,31 +415,37 @@ export default class App extends React.Component {
     });
   }
 
-  applyHistorySnapshot(snapshot) {
+  /**
+   * Show the animation as it was after `index` steps (0 = before the oldest
+   * kept step). Undo, redo and clicking a History row all come through here.
+   */
+  handleJumpToHistory = (index) => {
+    const history = this.history;
+    if (!history.steps.length || index < 0 || index > history.steps.length || index === history.index) return;
+
+    const snapshot = index === 0 ? history.steps[0].before : history.steps[index - 1].after;
+    history.index = index;
     // The next edit always starts a new step, even if it hits the same field.
-    this.history.last = null;
+    history.last = null;
     this.isApplyingHistory = true;
     this.setState((prevState) => ({
       ...snapshot,
       // Keep the selection when it still points at an element, else clear it.
       activePath: this.isValidPath(snapshot.elements, prevState.activePath) ? prevState.activePath : [],
-      canUndo: this.history.past.length > 0,
-      canRedo: this.history.future.length > 0
+      historyView: this.getHistoryView()
     }));
   }
 
   handleUndo = () => {
-    if (!this.history.past.length) return;
-    const snapshot = this.history.past.pop();
-    this.history.future.push(this.getDocSnapshot(this.state));
-    this.applyHistorySnapshot(snapshot);
+    this.handleJumpToHistory(this.history.index - 1);
   }
 
   handleRedo = () => {
-    if (!this.history.future.length) return;
-    const snapshot = this.history.future.pop();
-    this.history.past.push(this.getDocSnapshot(this.state));
-    this.applyHistorySnapshot(snapshot);
+    this.handleJumpToHistory(this.history.index + 1);
+  }
+
+  handleToggleHistoryPanel = () => {
+    this.setState((prevState) => ({ showHistoryPanel: !prevState.showHistoryPanel }));
   }
 
   /**
@@ -597,7 +641,7 @@ export default class App extends React.Component {
 
   handleRemoveElement = (e, path) => {
     if (e?.stopPropagation) e.stopPropagation();
-    this.noteHistoryChange();
+    this.noteHistoryChange({ label: 'Delete layer', detail: this.getElementName(path) });
     this.setState((prevState) => ({
       elements: this.removeElementAtPath(prevState.elements, path),
       activePath: this.adjustActivePathAfterRemoval(prevState.activePath, path)
@@ -605,7 +649,7 @@ export default class App extends React.Component {
   }
 
   handleCloneElement() {
-    this.noteHistoryChange();
+    this.noteHistoryChange({ label: 'Clone layer', detail: this.getElementName(this.state.activePath) });
     this.setState((prevState) => {
       return {
         elements: this.cloneInsertion(prevState.elements, prevState.activePath)
@@ -616,7 +660,11 @@ export default class App extends React.Component {
   handleToggleHidden = (e, path) => {
     if (e?.stopPropagation) e.stopPropagation();
 
-    this.noteHistoryChange();
+    const element = this.getActiveElement(path, this.state.elements);
+    this.noteHistoryChange({
+      label: element && element.hidden ? 'Show layer' : 'Hide layer',
+      detail: this.getElementName(path)
+    });
     this.setState((prevState) => {
       return {
         elements: this.updateElementAtPath(prevState.elements, path, (el) => ({
@@ -678,7 +726,7 @@ export default class App extends React.Component {
     const preset = path ? this.state.presets[path] : null;
 
     // Undoable: a misclick in Presets would otherwise wipe the current work.
-    this.noteHistoryChange();
+    this.noteHistoryChange({ label: 'Load preset', detail: preset ? preset.title : 'Empty' });
     this.setState({
       showPresets: false,
       // Reset all preset-driven fields first so nothing leaks between presets
@@ -695,7 +743,7 @@ export default class App extends React.Component {
   handleUpdateElements(element) {
     this.handleHideContainer();
 
-    this.noteHistoryChange();
+    this.noteHistoryChange({ label: 'Add layer', detail: element && element.displayName });
     this.setState((prevState) => {
       return {
         elements: [
@@ -713,7 +761,12 @@ export default class App extends React.Component {
    * @param {object} [options] - `record: false` keeps the change out of undo history
    */
   handleUpdateClass(key, props, { record = true } = {}) {
-    this.noteHistoryChange({ key: `class:${key}`, record });
+    this.noteHistoryChange({
+      key: `class:${key}`,
+      record,
+      label: props === false ? 'Delete class' : (this.state.classes[key] ? 'Edit class' : 'Add class'),
+      detail: `.${key}`
+    });
     this.setState((prevState) => {
       const newClasses = {
         ...prevState.classes,
@@ -740,7 +793,12 @@ export default class App extends React.Component {
    * @param {object} [options] - `record: false` keeps the change out of undo history
    */
   handleUpdateKeyframes(key, props, { record = true } = {}) {
-    this.noteHistoryChange({ key: `keyframes:${key}`, record });
+    this.noteHistoryChange({
+      key: `keyframes:${key}`,
+      record,
+      label: props === false ? 'Delete keyframes' : (this.state.keyframes[key] ? 'Edit keyframes' : 'Add keyframes'),
+      detail: `@keyframes ${key}`
+    });
     this.setState((prevState) => {
       const newKeyframes = {
         ...prevState.keyframes,
@@ -763,7 +821,13 @@ export default class App extends React.Component {
   handleUpdateElementAtPath(elementPatch, path = []) {
     if (!path.length) return;
 
-    this.noteHistoryChange({ key: `element:${path.join('.')}` });
+    const fields = Object.keys(elementPatch);
+    this.noteHistoryChange({
+      key: `element:${path.join('.')}`,
+      // One field (the form) gets a specific name; a whole element (JSON source) is an edit.
+      label: (fields.length === 1 && ELEMENT_EDIT_LABELS[fields[0]]) || 'Edit layer',
+      detail: this.getElementName(path)
+    });
     this.setState((prevState) => {
       return {
         elements: this.updateElementAtPath(prevState.elements, path, (el) => ({
@@ -775,7 +839,7 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { activeElement, activePath, classes, keyframes, elements } = this.state;
+    const { activeElement, activePath, classes, keyframes, elements, historyView } = this.state;
 
     const navHeight = 32;
     const containerSpacing = 20;
@@ -811,13 +875,15 @@ export default class App extends React.Component {
           navHeight={ navHeight }
           showLayersPanel={ this.state.showLayersPanel }
           showElementContainer={ this.state.showElementContainer }
-          canUndo={ this.state.canUndo }
-          canRedo={ this.state.canRedo }
+          showHistoryPanel={ this.state.showHistoryPanel }
+          canUndo={ historyView.index > 0 }
+          canRedo={ historyView.index < historyView.steps.length }
           onUndo={ this.handleUndo }
           onRedo={ this.handleRedo }
           onShowExport={ this.handleShowExport }
           onToggleLayersPanel={ this.handleToggleLayersPanel }
           onToggleElementPanel={ this.handleToggleElementPanel }
+          onToggleHistoryPanel={ this.handleToggleHistoryPanel }
           onShowPresets={ this.handleShowPresets }
         />
         <ExportModal
@@ -870,7 +936,8 @@ export default class App extends React.Component {
               position: 'absolute',
               top: navHeight,
               bottom: 0,
-              right: 0,
+              // Docks left of the History panel when that is open, Photoshop-style.
+              right: this.state.showHistoryPanel ? HISTORY_PANEL_WIDTH : 0,
               padding: 'var(--caf-space-0)',
             }}
           >
@@ -887,6 +954,28 @@ export default class App extends React.Component {
               visible={ true }
               onChange={ (props) => { this.handleUpdateElementAtPath(props, activePath) } }
               onSubmit={ this.handleUpdateElements }
+            />
+          </div>
+        ) }
+        { this.state.showHistoryPanel && (
+          <div
+            className="app-panel app-panel--history"
+            style={{
+              position: 'absolute',
+              top: navHeight,
+              bottom: 0,
+              right: 0,
+            }}
+          >
+            <HistoryPanel
+              steps={ historyView.steps }
+              index={ historyView.index }
+              trimmed={ historyView.trimmed }
+              width={ HISTORY_PANEL_WIDTH }
+              onJump={ this.handleJumpToHistory }
+              onUndo={ this.handleUndo }
+              onRedo={ this.handleRedo }
+              onClose={ this.handleToggleHistoryPanel }
             />
           </div>
         ) }

@@ -6,6 +6,7 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 import TuneIcon from '@material-ui/icons/Tune';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
+import HistoryIcon from '@material-ui/icons/History';
 import { IS_MAC, shortcutLabel } from '../../../util/keyboard.js';
 import './AppHeader.scss';
 
@@ -13,6 +14,7 @@ export default function AppHeader({
   navHeight,
   showLayersPanel,
   showElementContainer,
+  showHistoryPanel,
   canUndo,
   canRedo,
   onUndo,
@@ -20,6 +22,7 @@ export default function AppHeader({
   onShowExport,
   onToggleLayersPanel,
   onToggleElementPanel,
+  onToggleHistoryPanel,
   onShowPresets,
 }) {
   return (
@@ -93,6 +96,17 @@ export default function AppHeader({
               aria-pressed={!!showElementContainer}
             >
               <TuneIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={showHistoryPanel ? 'Hide History panel' : 'Show History panel'}>
+            <IconButton
+              className="caf-iconbtn-nav"
+              size="small"
+              onClick={onToggleHistoryPanel}
+              aria-label={showHistoryPanel ? 'Hide History panel' : 'Show History panel'}
+              aria-pressed={!!showHistoryPanel}
+            >
+              <HistoryIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Button type="secondary" size="mini" onClick={onShowPresets}>Presets</Button>

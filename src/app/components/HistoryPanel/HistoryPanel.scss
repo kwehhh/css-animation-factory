@@ -1,0 +1,139 @@
+// History panel: docked on the right, same frosted surface as the other
+// panels (`.container`). Row anatomy follows imageslicer's HistoryDrawer:
+// step number chip, label + detail, time.
+.caf-history-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border-left: 1px solid var(--caf-border);
+}
+
+.caf-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.caf-history-subtitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--caf-space-8);
+  padding: var(--caf-space-4) var(--caf-space-12) var(--caf-space-8);
+  border-bottom: 1px solid var(--caf-border);
+  color: var(--caf-muted);
+  font-size: var(--caf-nav-font-size);
+}
+
+.caf-history-actions {
+  display: flex;
+  gap: var(--caf-space-4);
+}
+
+.caf-history-btn {
+  font: inherit;
+  color: var(--caf-text);
+  background: transparent;
+  border: 1px solid var(--caf-border);
+  border-radius: var(--caf-space-4);
+  padding: var(--caf-space-2) var(--caf-space-8);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--caf-accent);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+}
+
+.caf-history-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--caf-space-8);
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.caf-history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--caf-space-8);
+  width: 100%;
+  margin: 0 0 var(--caf-space-4);
+  padding: var(--caf-space-4) var(--caf-space-8);
+  font: inherit;
+  font-size: var(--caf-nav-font-size);
+  text-align: left;
+  color: var(--caf-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--caf-space-4);
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(110, 109, 248, 0.08);
+    background: color-mix(in srgb, var(--caf-accent) 8%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--caf-accent);
+    outline-offset: 1px;
+  }
+
+  // Where you are now: same accent ring + tint as an "on" panel toggle.
+  &.is-current {
+    border-color: var(--caf-accent);
+    background: rgba(110, 109, 248, 0.18);
+    background: color-mix(in srgb, var(--caf-accent) 18%, transparent);
+    cursor: default;
+  }
+
+  // Undone steps: still listed (one click redoes to them), but faded.
+  &.is-future {
+    opacity: 0.45;
+
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+}
+
+.caf-history-index {
+  flex: 0 0 auto;
+  min-width: 22px;
+  padding: 1px var(--caf-space-4);
+  text-align: center;
+  font-size: 11px;
+  color: var(--caf-muted);
+  border: 1px solid var(--caf-border);
+  border-radius: var(--caf-space-4);
+}
+
+.caf-history-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.caf-history-primary,
+.caf-history-secondary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caf-history-secondary,
+.caf-history-time {
+  color: var(--caf-muted);
+  font-size: 11px;
+}
+
+.caf-history-time {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
