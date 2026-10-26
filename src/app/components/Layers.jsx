@@ -147,10 +147,15 @@ export default class Layers extends React.Component {
       const handleToggleHidden = (e) => this.props.onToggleHidden?.(e, path);
       const handleRemove = (e) => this.props.onRemove?.(e, path);
 
+      // Same MUI Tooltip as the toolbar and header icons (the row icons only
+      // had plain browser `title`s, and the eye had nothing at all).
+      const eyeLabel = hidden ? 'Show layer' : 'Hide layer';
       const eyeButton = (
-        <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleToggleHidden }>
-          { hidden ? <VisibilityOffIcon fontSize="small" /> : <RemoveRedEyeIcon fontSize="small" /> }
-        </IconButton>
+        <Tooltip title={ eyeLabel }>
+          <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleToggleHidden } aria-label={ eyeLabel }>
+            { hidden ? <VisibilityOffIcon fontSize="small" /> : <RemoveRedEyeIcon fontSize="small" /> }
+          </IconButton>
+        </Tooltip>
       );
 
       return (
@@ -163,12 +168,16 @@ export default class Layers extends React.Component {
             {/* `caf-layer-actions` only takes room while the row is hovered (see App.scss). */}
             <Layout className="caf-layer-actions" display="flex" alignItems="center" itemSpacing={ 0 }>
               { !hidden && eyeButton }
-              <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleRemove } title="Remove">
-                <DeleteOutlineIcon fontSize="small" />
-              </IconButton>
-              <IconButton className="caf-iconbtn-xs" size="small" onClick={ (e) => e.stopPropagation() } title="Lock (stub)">
-                <LockOpenIcon fontSize="small" />
-              </IconButton>
+              <Tooltip title="Delete layer">
+                <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleRemove } aria-label="Delete layer">
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Lock layer (coming soon)">
+                <IconButton className="caf-iconbtn-xs" size="small" onClick={ (e) => e.stopPropagation() } aria-label="Lock layer (coming soon)">
+                  <LockOpenIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             </Layout>
           </Layout>
         </Layout>
