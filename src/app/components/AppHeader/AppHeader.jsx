@@ -10,8 +10,17 @@ import HistoryIcon from '@material-ui/icons/History';
 import { IS_MAC, shortcutLabel } from '../../../util/keyboard.js';
 import './AppHeader.scss';
 
+/** Header line for the last autosave, or null before the first one. */
+const autosaveText = (autosave) => {
+  if (!autosave) return null;
+  if (autosave.status === 'failed') return 'Not saved: browser storage is blocked or full';
+  const time = new Date(autosave.time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  return autosave.status === 'restored' ? `Restored your work from ${time}` : `Saved ${time}`;
+};
+
 export default function AppHeader({
   navHeight,
+  autosave,
   showLayersPanel,
   showElementContainer,
   showHistoryPanel,
@@ -41,7 +50,18 @@ export default function AppHeader({
         itemSpacing={0}
         style={{ width: '100%', height: '100%' }}
       >
-        <div className="caf-title">CSS Animation Factory</div>
+        <div className="app-header-brand">
+          <div className="caf-title">CSS Animation Factory</div>
+          { autosave && (
+            <span
+              className={ `app-header-autosave${autosave.status === 'failed' ? ' is-failed' : ''}` }
+              role="status"
+              title="Your animation is saved in this browser automatically and restored next time"
+            >
+              { autosaveText(autosave) }
+            </span>
+          ) }
+        </div>
         <Layout
           className="app-header-actions"
           display="flex"

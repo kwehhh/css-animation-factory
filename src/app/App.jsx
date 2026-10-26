@@ -38,6 +38,24 @@ const ELEMENT_EDIT_LABELS = {
   props: 'Edit styles'
 };
 
+// Autosave: the animation (HISTORY_DOC_KEYS) is written to localStorage
+// shortly after every change and restored on the next visit, so a reload or a
+// closed tab does not lose work. Undo history itself is not saved.
+const AUTOSAVE_KEY = 'caf.autosave.v1';
+const AUTOSAVE_DELAY_MS = 400;
+
+function readAutosave() {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(AUTOSAVE_KEY));
+    if (saved && saved.version === 1 && saved.doc && Array.isArray(saved.doc.elements)) {
+      return saved;
+    }
+  } catch {
+    // Storage blocked or the saved JSON is corrupt: start from the default preset.
+  }
+  return null;
+}
+
 function readStoredLayersWidth() {
   try {
     const stored = Number(window.localStorage.getItem(LAYERS_WIDTH_STORAGE_KEY));
@@ -83,6 +101,8 @@ export default class App extends React.Component {
       showPresets: false,
       presets: [],
       showHistoryPanel: false,
+      // Header status of the last autosave: { status: 'saved' | 'restored' | 'failed', time }.
+      autosave: null,
       // Render copy of this.history (see syncHistoryView).
       historyView: { steps: [], index: 0, trimmed: false }
     };
@@ -285,21 +305,39 @@ export default class App extends React.Component {
     return next;
   }
 
-  // Fetch JSON Preset
+  // Restore the autosaved animation, or fetch the default JSON preset
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
+    // pagehide (not unload, which Chrome blocks) fires on reload, tab close and
+    // navigation: write a pending autosave before the page goes.
+    window.addEventListener('pagehide', this.flushAutosave);
 
     const { files } = this.props.manifest;
-    const file = `data/${files[0]}`;
-    fetch(file).then(res => res.json()).then(data => {
-      const expanded = this.expandPreset(data);
-      // The starting preset is where history begins, not an undoable step.
+    const saved = readAutosave();
+    if (saved) {
+      // Where history begins, like a freshly loaded preset.
       this.noteHistoryChange({ record: false });
-      this.setState(prevState => ({
-        ...prevState,
-        ...expanded
-      }));
-    });
+      this.setState({
+        ...saved.doc,
+        autosave: { status: 'restored', time: saved.savedAt }
+      }, () => {
+        // It is already saved: cancel the save this restore just scheduled, so
+        // the header keeps saying "Restored…" until the next real change.
+        clearTimeout(this.autosaveTimer);
+        this.autosaveTimer = null;
+      });
+    } else {
+      const file = `data/${files[0]}`;
+      fetch(file).then(res => res.json()).then(data => {
+        const expanded = this.expandPreset(data);
+        // The starting preset is where history begins, not an undoable step.
+        this.noteHistoryChange({ record: false });
+        this.setState(prevState => ({
+          ...prevState,
+          ...expanded
+        }));
+      });
+    }
     Promise.all(files.map(file => fetch(`data/${file}`))).then(responses => {
       return Promise.all(responses.map(res => res.json()));
     }).then(presets => {
@@ -319,6 +357,8 @@ export default class App extends React.Component {
     // Every change to the animation passes through here, whichever handler made
     // it, so nothing can bypass history. Undo/redo itself is not recorded.
     const docChanged = HISTORY_DOC_KEYS.some((key) => prevState[key] !== this.state[key]);
+    // Every change is autosaved, undo/redo and preset loads included.
+    if (docChanged) this.scheduleAutosave();
     if (!docChanged || isApplyingHistory || (hint && hint.record === false)) return;
 
     this.recordHistory(prevState, hint || {});
@@ -326,6 +366,35 @@ export default class App extends React.Component {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown);
+    window.removeEventListener('pagehide', this.flushAutosave);
+    this.flushAutosave();
+  }
+
+  scheduleAutosave() {
+    clearTimeout(this.autosaveTimer);
+    this.autosaveTimer = setTimeout(this.writeAutosave, AUTOSAVE_DELAY_MS);
+  }
+
+  flushAutosave = () => {
+    if (this.autosaveTimer) this.writeAutosave();
+  }
+
+  writeAutosave = () => {
+    clearTimeout(this.autosaveTimer);
+    this.autosaveTimer = null;
+    const savedAt = Date.now();
+    let status = 'saved';
+    try {
+      window.localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
+        version: 1,
+        savedAt,
+        doc: this.getDocSnapshot(this.state)
+      }));
+    } catch {
+      // Storage blocked or full: keep working, and say so in the header.
+      status = 'failed';
+    }
+    this.setState({ autosave: { status, time: savedAt } });
   }
 
   /**
@@ -876,6 +945,7 @@ export default class App extends React.Component {
           showLayersPanel={ this.state.showLayersPanel }
           showElementContainer={ this.state.showElementContainer }
           showHistoryPanel={ this.state.showHistoryPanel }
+          autosave={ this.state.autosave }
           canUndo={ historyView.index > 0 }
           canRedo={ historyView.index < historyView.steps.length }
           onUndo={ this.handleUndo }
