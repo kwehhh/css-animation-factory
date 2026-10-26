@@ -15,75 +15,101 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import IconButton from '@material-ui/core/IconButton';
 import { shortcutLabel } from '../../util/keyboard.js';
 
-const NEW_EL_NAME = 'myNewElement';
-const NEW_CLASS_NAME = 'myNewClass';
-const NEW_KEYFRAMES_NAME = 'myNewKeyframes';
+// A new element starts as the bouncing square from
+// https://css-tricks.com/making-css-animations-feel-natural/
+const NEW_ELEMENT_KEYFRAMES = {
+  '0%':   { transform: 'scale(1,1)      translateY(0)' },
+  '10%':  { transform: 'scale(1.1,.9)   translateY(0)' },
+  '30%':  { transform: 'scale(.9,1.1)   translateY(-100px)' },
+  '50%':  { transform: 'scale(1.05,.95) translateY(0)' },
+  '57%':  { transform: 'scale(1,1)      translateY(-7px)' },
+  '64%':  { transform: 'scale(1,1)      translateY(0)' },
+  '100%': { transform: 'scale(1,1)      translateY(0)' }
+};
+
+const newElementClassProps = (animationName) => ({
+  width: '50px',
+  height: '50px',
+  background: 'red',
+  borderRadius: '10px',
+  animationName,
+  animationDuration: '2s',
+  animationIterationCount: 'infinite',
+  animationDirection: 'normal',
+  animationTimingFunction: 'cubic-bezier(0.280, 0.840, 0.420, 1)'
+});
+
+/**
+ * First free "element-N": not used by any class, keyframes or layer name, so
+ * a new element never shares (and overwrites) another one's styles.
+ */
+function nextNewElementName(classes = {}, keyframes = {}, elements = []) {
+  const taken = new Set([...Object.keys(classes), ...Object.keys(keyframes)]);
+  const walk = (list) => list.forEach((el) => { taken.add(el.displayName); walk(el.elements || []); });
+  walk(elements);
+  let n = 1;
+  while (taken.has(`element-${n}`) || taken.has(`element-${n}-bounce`)) n += 1;
+  return `element-${n}`;
+}
 
 export default class Layers extends React.Component {
 
   constructor() {
     super();
     this.state = {
-      modalVisible: false,
-      // Initial State for New Element
-      initialElProps: {
-        displayName: NEW_EL_NAME,
-        classes: [NEW_CLASS_NAME]
-      }
+      // The element being created in the Add New Element dialog, or null when
+      // it is closed: { className, keyframesName, element }.
+      draft: null
     };
 
     this.handleOpenModal = this.handleOpenModal.bind(this);
-    this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.handleCancelModal = this.handleCancelModal.bind(this);
+    this.handleSaveModal = this.handleSaveModal.bind(this);
   }
 
   handleOpenModal() {
-    // borrowed from:
-    // https://css-tricks.com/making-css-animations-feel-natural/
-    const keyframes = {
-      '0%':   { transform: 'scale(1,1)      translateY(0)' },
-      '10%':  { transform: 'scale(1.1,.9)   translateY(0)' },
-      '30%':  { transform: 'scale(.9,1.1)   translateY(-100px)' },
-      '50%':  { transform: 'scale(1.05,.95) translateY(0)' },
-      '57%':  { transform: 'scale(1,1)      translateY(-7px)' },
-      '64%':  { transform: 'scale(1,1)      translateY(0)' },
-      '100%': { transform: 'scale(1,1)      translateY(0)' }
+    const { classes, keyframes, elements } = this.props;
+    const name = nextNewElementName(classes, keyframes, elements);
+    const draft = {
+      className: name,
+      keyframesName: `${name}-bounce`,
+      element: { displayName: name, classes: [name] }
     };
 
-    const props = {
-      width: '50px',
-      height: '50px',
-      background: 'red',
-      borderRadius: '10px',
-      animationName: NEW_KEYFRAMES_NAME,
-      animationDuration: '2s',
-      animationIterationCount: 'infinite',
-      animationDirection: 'normal',
-      animationTimingFunction: 'cubic-bezier(0.280, 0.840, 0.420, 1)'
-    };
-
-    // Assign temp vals to CSS builder. `record: false`: opening the dialog is
-    // not an edit, so it must not become an undo step.
-    // TODO: Batch both these to a single setState call
-    this.props.onClassChange(NEW_CLASS_NAME, props, { record: false });
-    this.props.onKeyframesChange(NEW_KEYFRAMES_NAME, keyframes, { record: false });
-    this.setState({modalVisible: true});
+    // App remembers the document as it is now: Cancel restores it exactly,
+    // Save records ONE "Add layer" step from it.
+    this.props.onBeginAddElement();
+    // The draft's class + animation go into the document so the dialog's
+    // preview can show them. `record: false`: they are not edits (yet).
+    this.props.onClassChange(draft.className, newElementClassProps(draft.keyframesName), { record: false });
+    this.props.onKeyframesChange(draft.keyframesName, NEW_ELEMENT_KEYFRAMES, { record: false });
+    this.setState({ draft });
   }
 
-  handleCloseModal() {
-    // Assign temp vals to CSS builder
-    this.props.onKeyframesChange(NEW_CLASS_NAME, false, { record: false });
-    this.props.onClassChange(NEW_KEYFRAMES_NAME, false, { record: false });
-    this.setState({modalVisible: false});
+  handleCancelModal() {
+    this.props.onCancelAddElement();
+    this.setState({ draft: null });
+  }
+
+  handleSaveModal(element) {
+    this.props.onAddElement(element);
+    this.setState({ draft: null });
   }
 
   renderAddNewElementContainer() {
+    const { draft } = this.state;
+    // Mounted only while open, so every Add starts from a fresh dialog.
+    if (!draft) return null;
+
     return (
       <AddNewElement
         { ...this.props }
-        element={ this.state.initialElProps }
+        draft={ draft }
+        element={ draft.element }
         classes={ this.props.classes }
-        open={ this.state.modalVisible }
-        onClose={ this.handleCloseModal }
+        open
+        onSave={ this.handleSaveModal }
+        onCancel={ this.handleCancelModal }
       />
     );
   }

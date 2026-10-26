@@ -6,14 +6,12 @@ import CloseIcon from '@material-ui/icons/Close';
 import ElementEditor from './ElementEditor.jsx';
 import Preview from './Preview.jsx';
 
-const newClass = 'myNewClass';
-
 export default class AddNewElement extends React.Component {
 
   constructor(props) {
     super();
 
-    const { element } = props;
+    const { element, draft } = props;
 
     const localProps = {
       width: '50px',
@@ -26,20 +24,8 @@ export default class AddNewElement extends React.Component {
       // Initial State for New Element
       element,
       config: {
-        name: props.name,
-
-        classes: [newClass]
-      },
-      // borrowed from:
-      // https://css-tricks.com/making-css-animations-feel-natural/
-      keyframes: {
-        '0%':   { transform: 'scale(1,1)      translateY(0)' },
-        '10%':  { transform: 'scale(1.1,.9)   translateY(0)' },
-        '30%':  { transform: 'scale(.9,1.1)   translateY(-100px)' },
-        '50%':  { transform: 'scale(1.05,.95) translateY(0)' },
-        '57%':  { transform: 'scale(1,1)      translateY(-7px)' },
-        '64%':  { transform: 'scale(1,1)      translateY(0)' },
-        '100%': { transform: 'scale(1,1)      translateY(0)' }
+        displayName: element.displayName,
+        classes: [draft.className]
       },
       // Initial State for New ...
       // Set these props as default...
@@ -81,8 +67,9 @@ export default class AddNewElement extends React.Component {
       ...classProps
     };
 
-    // set to globall....
-    this.props.onClassChange(className, localProps);
+    // Into the document so the preview shows it, but as a draft: Save turns
+    // the whole dialog into one "Add layer" step, Cancel rolls it back.
+    this.props.onClassChange(className, localProps, { record: false });
   };
 
   render() {
@@ -98,13 +85,13 @@ export default class AddNewElement extends React.Component {
         title="Add New Element"
         headerActions={ (
           <Layout itemSpacing={ 0 } display="flex">
-            <Button autoFocus color="inherit" onClick={ this.props.onClose }>
+            <Button autoFocus color="inherit" onClick={ () => this.props.onSave(this.state.element) }>
               Save
             </Button>
             <IconButton
               edge="start"
               color="inherit"
-              onClick={ this.props.onClose }
+              onClick={ this.props.onCancel }
               aria-label="close"
             >
               <CloseIcon />
@@ -133,12 +120,7 @@ export default class AddNewElement extends React.Component {
               classes={ {
                 ...this.props.classes
               } }
-              keyframes={
-                {
-                  ...keyframes,
-                 [newClass]: this.state.keyframes
-                }
-              }
+              keyframes={ keyframes }
               onChange={ this.handleChange }
               onClassChange={ this.handleClassChange }
               elementProps={ config }

@@ -388,7 +388,9 @@ export default class App extends React.Component {
       window.localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
         version: 1,
         savedAt,
-        doc: this.getDocSnapshot(this.state)
+        // While the Add New Element dialog is open its draft class lives in
+        // the document; save the document as it was before the dialog instead.
+        doc: this.addElementBefore || this.getDocSnapshot(this.state)
       }));
     } catch {
       // Storage blocked or full: keep working, and say so in the header.
@@ -406,10 +408,41 @@ export default class App extends React.Component {
    * after it), so a non-edit can never swallow one. A change with no note at
    * all is recorded too, as "Edit".
    */
-  noteHistoryChange({ key = null, record = true, label = 'Edit', detail = '' } = {}) {
+  noteHistoryChange({ key = null, record = true, label = 'Edit', detail = '', before = null } = {}) {
     const prev = this.historyHint;
     const keepPrev = !record && prev && prev.record;
-    this.historyHint = keepPrev ? prev : { key, record: record || !!(prev && prev.record), label, detail };
+    this.historyHint = keepPrev ? prev : { key, record: record || !!(prev && prev.record), label, detail, before };
+  }
+
+  // --- Add New Element dialog -------------------------------------------
+  // While it is open the draft's class + keyframes live in the document (so
+  // its preview works) without being recorded. Cancel restores the document
+  // as it was when the dialog opened; Save records ONE "Add layer" step whose
+  // "before" is that same snapshot, so undoing it removes the element AND its
+  // class and keyframes.
+
+  handleBeginAddElement = () => {
+    this.addElementBefore = this.getDocSnapshot(this.state);
+  }
+
+  handleCancelAddElement = () => {
+    const before = this.addElementBefore;
+    this.addElementBefore = null;
+    if (!before) return;
+    this.noteHistoryChange({ record: false });
+    this.setState({ classes: before.classes, keyframes: before.keyframes });
+  }
+
+  handleAddElement = (element) => {
+    const before = this.addElementBefore;
+    this.addElementBefore = null;
+    this.noteHistoryChange({ label: 'Add layer', detail: element.displayName, before });
+    // Select the new layer and open the Element Editor on it.
+    this.setState((prevState) => ({
+      elements: [...prevState.elements, element],
+      activePath: [prevState.elements.length],
+      showElementContainer: true
+    }));
   }
 
   /** Layer name for history details ("" when the path no longer exists). */
@@ -430,12 +463,13 @@ export default class App extends React.Component {
    * State is never mutated in place, so snapshots share everything that did
    * not change.
    */
-  recordHistory(prevState, { key = null, label = 'Edit', detail = '' }) {
+  recordHistory(prevState, { key = null, label = 'Edit', detail = '', before = null }) {
     const now = Date.now();
     const history = this.history;
     const { last } = history;
     const current = history.steps[history.index - 1];
-    const merge = !!last && !!current && last.id === current.id
+    // A step with its own `before` (Add layer) is always a step of its own.
+    const merge = !before && !!last && !!current && last.id === current.id
       && (last.sameRun || (!!key && last.key === key && now - last.time < HISTORY_MERGE_MS));
 
     if (merge) {
@@ -449,7 +483,7 @@ export default class App extends React.Component {
         label,
         detail,
         time: now,
-        before: this.getDocSnapshot(prevState),
+        before: before || this.getDocSnapshot(prevState),
         after: this.getDocSnapshot(this.state)
       });
       if (history.steps.length > HISTORY_LIMIT) {
@@ -526,6 +560,9 @@ export default class App extends React.Component {
     if (isEditableTarget(e.target)) return;
 
     const key = e.key.toLowerCase();
+    // Undo/redo would swap the document under the open Add New Element dialog
+    // (dropping its draft class), so they wait until it closes.
+    if ((key === 'z' || key === 'y') && this.addElementBefore) return;
     if (key === 'z') {
       e.preventDefault();
       if (e.shiftKey) {
@@ -986,6 +1023,9 @@ export default class App extends React.Component {
               onToggleHidden={ this.handleToggleHidden }
               onRemove={ this.handleRemoveElement }
               onHide={ this.handleToggleLayersPanel }
+              onBeginAddElement={ this.handleBeginAddElement }
+              onCancelAddElement={ this.handleCancelAddElement }
+              onAddElement={ this.handleAddElement }
               width={ this.state.layersWidth }
             />
             <PanelResizeHandle
