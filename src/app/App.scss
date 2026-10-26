@@ -282,6 +282,10 @@ body {
 
 // Nurvus menu can ship more-specific active styles; override them here.
 .nurvus.menu {
+  // @nurvus/ui 0.1.0-alpha.1 paints the whole menu #403960 (a purple in no
+  // NURVUS scale). Let the panel's own surface show through instead.
+  background: transparent;
+
   .menu-item.active,
   .menu-item[data-active=true],
   .nurvus.menu-item.active,
