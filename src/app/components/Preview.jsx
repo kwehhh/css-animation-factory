@@ -80,7 +80,8 @@ export default class Preview extends React.Component {
     });
   }
 
-  handleElementClick = (e, path) => {
+  handleElementPointerDown = (e, path) => {
+    // Stop here so only the innermost element under the pointer is selected.
     if (e?.stopPropagation) e.stopPropagation();
     if (this.props.onSelectElement) {
       this.props.onSelectElement(path);
@@ -105,9 +106,10 @@ export default class Preview extends React.Component {
         key: `path-${nextPath.join('-')}`,
         className: this.getClassNames(classes),
         ...attributes,
-        onClick: (e) => this.handleElementClick(e, nextPath),
-        onMouseDown: (e) => this.handleElementClick(e, nextPath),
-        onTouchStart: (e) => this.handleElementClick(e, nextPath)
+        // ONE event per press (mouse, touch and pen). Binding mousedown + click
+        // (+ touchstart) selected on press and then again on release, and the
+        // second select toggled it straight back off.
+        onPointerDown: (e) => this.handleElementPointerDown(e, nextPath)
       },
       this.renderElements(elements, nextPath)
     );
