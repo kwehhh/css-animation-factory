@@ -20,6 +20,8 @@ import "./App.scss";
 // Layers panel width (px): default, drag limits, and where the user's choice is remembered.
 const LAYERS_WIDTH = { default: 180, min: 180, max: 480 };
 const LAYERS_WIDTH_STORAGE_KEY = 'caf.layersWidth';
+// 'dark' | 'light'. index.html applies the saved value before first paint.
+const THEME_STORAGE_KEY = 'caf.theme';
 
 // Undo/redo history. Only the animation itself is undoable; selection and
 // panel layout are UI state and stay where they are.
@@ -101,6 +103,8 @@ export default class App extends React.Component {
       showPresets: false,
       presets: [],
       showHistoryPanel: false,
+      // data-theme on <html> drives both the factory's --caf-* tokens and @nurvus/ui.
+      theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
       // Header status of the last autosave: { status: 'saved' | 'restored' | 'failed', time }.
       autosave: null,
       // Render copy of this.history (see syncHistoryView).
@@ -547,6 +551,17 @@ export default class App extends React.Component {
     this.handleJumpToHistory(this.history.index + 1);
   }
 
+  handleToggleTheme = () => {
+    const theme = this.state.theme === 'light' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = theme;
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // Storage blocked: the theme still applies for this visit.
+    }
+    this.setState({ theme });
+  }
+
   handleToggleHistoryPanel = () => {
     this.setState((prevState) => ({ showHistoryPanel: !prevState.showHistoryPanel }));
   }
@@ -991,6 +1006,8 @@ export default class App extends React.Component {
           onToggleLayersPanel={ this.handleToggleLayersPanel }
           onToggleElementPanel={ this.handleToggleElementPanel }
           onToggleHistoryPanel={ this.handleToggleHistoryPanel }
+          theme={ this.state.theme }
+          onToggleTheme={ this.handleToggleTheme }
           onShowPresets={ this.handleShowPresets }
         />
         <ExportModal

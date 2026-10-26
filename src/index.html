@@ -6,6 +6,12 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
     <!-- No favicon yet: an empty one stops the browser's /favicon.ico 404. -->
     <link rel="icon" href="data:,">
+    <!-- Apply the saved theme before anything paints (App keeps it in sync). -->
+    <script>
+      try {
+        if (localStorage.getItem('caf.theme') === 'light') document.documentElement.dataset.theme = 'light';
+      } catch (e) { /* storage blocked: stay dark */ }
+    </script>
 </head>
 <body>
 </body>

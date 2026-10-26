@@ -44,6 +44,28 @@
   --caf-nav-font-size: 12px;
   --caf-nav-line-height: 16px;
   --caf-nav-font-weight: 500;
+
+  // Native scrollbars / form controls match the theme.
+  color-scheme: dark;
+}
+
+// Light theme: same token names, light values. Toggled from the header (☀/☾)
+// via data-theme on <html>, the same attribute @nurvus/ui themes from (its
+// light palette is the default, so "light" needs nothing extra there).
+// Accent is the deeper primary-500 so it keeps contrast on white.
+:root[data-theme="light"] {
+  --caf-bg: #ffffff;
+  --caf-surface: #ffffff;
+  --caf-surface-2: #eef0f6;
+  --caf-text: #1a1c2d;
+  --caf-muted: rgba(26, 28, 45, 0.6);
+  --caf-border: rgba(80, 79, 246, 0.2);
+  --caf-accent: #504ff6;
+  --caf-accent-strong: #3d3cd9;
+  --caf-glow: rgba(80, 79, 246, 0.25);
+  --caf-input-bg: rgba(26, 28, 45, 0.06);
+
+  color-scheme: light;
 }
 
 // Typography (local Inter assets)

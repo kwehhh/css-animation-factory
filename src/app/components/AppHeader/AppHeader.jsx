@@ -7,6 +7,8 @@ import TuneIcon from '@material-ui/icons/Tune';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
 import HistoryIcon from '@material-ui/icons/History';
+import WbSunnyIcon from '@material-ui/icons/WbSunny';
+import NightsStayIcon from '@material-ui/icons/NightsStay';
 import { IS_MAC, shortcutLabel } from '../../../util/keyboard.js';
 import './AppHeader.scss';
 
@@ -32,6 +34,8 @@ export default function AppHeader({
   onToggleLayersPanel,
   onToggleElementPanel,
   onToggleHistoryPanel,
+  theme,
+  onToggleTheme,
   onShowPresets,
 }) {
   return (
@@ -128,6 +132,17 @@ export default function AppHeader({
               aria-pressed={!!showElementContainer}
             >
               <TuneIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          {/* Shows where a click takes you: the sun in dark mode, the moon in light. */}
+          <Tooltip title={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}>
+            <IconButton
+              className="caf-iconbtn-nav"
+              size="small"
+              onClick={onToggleTheme}
+              aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+            >
+              {theme === 'light' ? <NightsStayIcon fontSize="small" /> : <WbSunnyIcon fontSize="small" />}
             </IconButton>
           </Tooltip>
           <Button type="secondary" size="mini" onClick={onShowPresets}>Presets</Button>
