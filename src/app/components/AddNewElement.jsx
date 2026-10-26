@@ -129,6 +129,7 @@ export default class AddNewElement extends React.Component {
             }}>
             <ElementEditor
               { ...props }
+              idScope="new-element"
               classes={ {
                 ...this.props.classes
               } }

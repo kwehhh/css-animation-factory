@@ -1,6 +1,7 @@
 import Divider from '@material-ui/core/Divider';
 import React from 'react';
 import EditFields from './EditFields.jsx';
+import { fieldId } from '../../../util/StringUtil.js';
 
 export default class KeyframesEditor extends React.Component {
 
@@ -46,6 +47,7 @@ export default class KeyframesEditor extends React.Component {
               <EditFields
                 key={ keyframe }
                 name={ keyframe }
+                idPrefix={ fieldId(this.props.idScope || 'editor', 'keyframes', this.props.name, keyframe) }
                 onBlur={ () => { this.props.onSelectKeyframes(null); } }
                 onFocus={ () => { this.props.onSelectKeyframes(name); } }
                 onChange={ (attr, value) => { this.handleKeyframeUpdate(keyframe, attr, value) } }

@@ -3,6 +3,7 @@ import {
   Slider,
   TextField,
 } from '@material-ui/core';
+import { fieldId } from '../../../util/StringUtil.js';
 
 export default class EditFields extends React.Component {
 
@@ -71,7 +72,7 @@ export default class EditFields extends React.Component {
           onFocus={ this.handleFocus }
           onChange={ (e) => { this.handleChange(key, e.target.value) } }
           value={ safeValue }
-          id={ key }
+          id={ fieldId(this.props.idPrefix || 'fields', key) }
           label={ label } />
         <Slider
           onChange={ (e, next) => {
@@ -131,7 +132,7 @@ export default class EditFields extends React.Component {
                 onBlur={ this.handleBlur }
                 onFocus={ this.handleFocus }
                 value={ name }
-                id="name"
+                id={ fieldId(this.props.idPrefix || 'fields', 'name') }
                 label="Name" />
           </div>
         ) }
@@ -156,7 +157,7 @@ export default class EditFields extends React.Component {
               onFocus={ this.handleFocus }
               onChange={ (e) => { this.handleChange('background', e.target.value) } }
               value={ background }
-              id="standard-basic"
+              id={ fieldId(this.props.idPrefix || 'fields', 'background') }
               label="Background" />
           ) }
           { transform != null && (
@@ -165,7 +166,7 @@ export default class EditFields extends React.Component {
               onFocus={ this.handleFocus }
               onChange={ (e) => { this.handleChange('transform', e.target.value) } }
               value={ transform }
-              id="transform"
+              id={ fieldId(this.props.idPrefix || 'fields', 'transform') }
               label="Transform" />
           ) }
         </div>

@@ -24,6 +24,7 @@ import {Controlled as CodeMirror} from 'react-codemirror2';
 import { getCSSfromStyleObj } from '../../util/CSSUtil.js';
 import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
+import { fieldId } from '../../util/StringUtil.js';
 require('codemirror/mode/css/css');
 require('codemirror/mode/javascript/javascript');
 import 'codemirror/lib/codemirror.css';
@@ -402,6 +403,7 @@ export default class ElementEditor extends React.Component {
         <div>
           Name
           <input
+            id={ this.fid('element', 'name') }
             style={{
               display: 'block',
               background: 'var(--caf-input-bg)',
@@ -453,6 +455,7 @@ export default class ElementEditor extends React.Component {
       <div style={{ marginTop: 12 }}>
         <div style={{ marginBottom: 4 }}>TAG</div>
         <input
+          id={ this.fid('element', 'tag') }
           style={{ ...inputStyle, display: 'block', marginBottom: 10 }}
           value={ tag }
           onChange={ (e) => this.handleChange(e.target.value || 'div', 'tag') }
@@ -465,6 +468,8 @@ export default class ElementEditor extends React.Component {
           <div key={ key } style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
             <span style={{ minWidth: 64, fontSize: 12, opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis' }} title={ key }>{ key }</span>
             <input
+              id={ this.fid('element', 'attr', key) }
+              aria-label={ `${key} attribute` }
               style={{ ...inputStyle, flex: 1, minWidth: 0 }}
               value={ attributes[key] }
               onChange={ (e) => updateAttr(key, e.target.value) }
@@ -529,6 +534,15 @@ export default class ElementEditor extends React.Component {
 
 
 
+
+  /**
+   * Unique DOM id for one of this editor's fields. Scoped per editor: the
+   * "Add New Element" dialog keeps a second ElementEditor mounted (hidden),
+   * so unscoped ids would exist twice.
+   */
+  fid(...parts) {
+    return fieldId(this.props.idScope || 'editor', ...parts);
+  }
 
   getElementClassProps(classes, elClasses) {
     const filtered = {};
@@ -695,6 +709,7 @@ export default class ElementEditor extends React.Component {
     return keyframes.map((keyframe, i) => {
       return (
         <CodeMirror
+          key={ i }
           value={ keyframe }
           options={{
             mode: 'css',
@@ -739,6 +754,7 @@ export default class ElementEditor extends React.Component {
         <div>
           <EditFields
             { ...props }
+            idPrefix={ this.fid('class', name, 'fields') }
             onChange={
               (key, value) => { this.props.onClassChange(name, { ...props, [key]: value }) }
             }
@@ -748,8 +764,9 @@ export default class ElementEditor extends React.Component {
           <div>
             <Select
               labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={ position }
+              id={ this.fid('class', name, 'position') }
+              name={ this.fid('class', name, 'position') }
+              value={ position ?? '' }
               onChange={handleChange}
             >
               <MenuItem value="none">None</MenuItem>
@@ -762,54 +779,54 @@ export default class ElementEditor extends React.Component {
           </div>
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, borderRadius: e.target.value }) } }
-            value={ borderRadius }
-            id="standard-basic"
+            value={ borderRadius ?? '' }
+            id={ this.fid('class', name, 'borderRadius') }
             label="Border Radius" />
           <Slider value={ parseInt(borderRadius, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, borderRadius: `${value}px` }) } }  aria-labelledby="continuous-slider" />
           { /* TODO: PROVIDE COLOR PICKER */ }
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, background: e.target.value }) } }
-            value={ background }
-            id="standard-basic"
+            value={ background ?? '' }
+            id={ this.fid('class', name, 'background') }
             label="Background" />
             { /* TODO: OPTION TO LOCK ASPECT RATIO for W/H */ }
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, width: e.target.value }) } }
-            value={ width }
-            id="standard-basic"
+            value={ width ?? '' }
+            id={ this.fid('class', name, 'width') }
             label="Width" />
           <Slider value={ parseInt(width, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, width: `${value}px` }) } }  aria-labelledby="continuous-slider" />
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, height: e.target.value }) } }
-            value={ height }
-            id="standard-basic"
+            value={ height ?? '' }
+            id={ this.fid('class', name, 'height') }
             label="Height" />
           <Slider value={ parseInt(height, 10) } onChange={ (e, value) => { this.props.onClassChange(name, { ...props, height: `${value}px` }) } }  aria-labelledby="continuous-slider" />
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, animationName: e.target.value }) } }
-            value={ animationName }
-            id="standard-basic"
+            value={ animationName ?? '' }
+            id={ this.fid('class', name, 'animationName') }
             label="Animation Name" />
           <Divider />
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, animationDelay: e.target.value }) } }
-            value={ animationDelay }
-            id="standard-basic"
+            value={ animationDelay ?? '' }
+            id={ this.fid('class', name, 'animationDelay') }
             label="Animation Delay" />
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, animationDirection: e.target.value }) } }
-            value={ animationDirection }
-            id="standard-basic"
+            value={ animationDirection ?? '' }
+            id={ this.fid('class', name, 'animationDirection') }
             label="Animation Direction" />
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, animationIterationCount: e.target.value }) } }
-            value={ animationIterationCount }
-            id="standard-basic"
+            value={ animationIterationCount ?? '' }
+            id={ this.fid('class', name, 'animationIterationCount') }
             label="Animation Iteration Count" />
           <TextField
             onChange={ (e) => { this.props.onClassChange(name, { ...props, animationTimingFunction: e.target.value }) } }
-            value={ animationTimingFunction }
-            id="standard-basic"
+            value={ animationTimingFunction ?? '' }
+            id={ this.fid('class', name, 'animationTimingFunction') }
             label="Animation Timing Function" />
         </div>
       </div>
@@ -861,8 +878,9 @@ export default class ElementEditor extends React.Component {
           <div>
             <Select
               labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={ position }
+              id={ this.fid('element-style', 'position') }
+              name={ this.fid('element-style', 'position') }
+              value={ position ?? '' }
               onChange={handleChange}
             >
               <MenuItem value="none">None</MenuItem>
@@ -875,53 +893,53 @@ export default class ElementEditor extends React.Component {
           </div>
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, borderRadius: e.target.value }, 'props') } }
-            value={ borderRadius }
-            id="standard-basic"
+            value={ borderRadius ?? '' }
+            id={ this.fid('element-style', 'borderRadius') }
             label="Border Radius" />
           <Slider value={ parseInt(borderRadius, 10) } onChange={ (e, value) => { this.handleChange({ ...css, borderRadius: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, background: e.target.value }, 'props') } }
-            value={ background }
-            id="standard-basic"
+            value={ background ?? '' }
+            id={ this.fid('element-style', 'background') }
             label="Background" />
             { /* TODO: OPTION TO LOCK ASPECT RATIO for W/H */ }
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, width: e.target.value }, 'props') } }
-            value={ width }
-            id="standard-basic"
+            value={ width ?? '' }
+            id={ this.fid('element-style', 'width') }
             label="Width" />
           <Slider value={ parseInt(width, 10) } onChange={ (e, value) => { this.handleChange({ ...css, width: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, height: e.target.value }, 'props') } }
-            value={ height }
-            id="standard-basic"
+            value={ height ?? '' }
+            id={ this.fid('element-style', 'height') }
             label="Height" />
           <Slider value={ parseInt(height, 10) } onChange={ (e, value) => { this.handleChange({ ...css, height: `${value}px` }, 'props') } }  aria-labelledby="continuous-slider" />
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, animationName: e.target.value }, 'props') } }
-            value={ animationName }
-            id="standard-basic"
+            value={ animationName ?? '' }
+            id={ this.fid('element-style', 'animationName') }
             label="Animation Name" />
           <Divider />
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, animationDelay: e.target.value }, 'props') } }
-            value={ animationDelay }
-            id="standard-basic"
+            value={ animationDelay ?? '' }
+            id={ this.fid('element-style', 'animationDelay') }
             label="Animation Delay" />
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, animationDirection: e.target.value }, 'props') } }
-            value={ animationDirection }
-            id="standard-basic"
+            value={ animationDirection ?? '' }
+            id={ this.fid('element-style', 'animationDirection') }
             label="Animation Direction" />
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, animationIterationCount: e.target.value }, 'props') } }
-            value={ animationIterationCount }
-            id="standard-basic"
+            value={ animationIterationCount ?? '' }
+            id={ this.fid('element-style', 'animationIterationCount') }
             label="Animation Iteration Count" />
           <TextField
             onChange={ (e) => { this.handleChange({ ...css, animationTimingFunction: e.target.value }, 'props') } }
-            value={ animationTimingFunction }
-            id="standard-basic"
+            value={ animationTimingFunction ?? '' }
+            id={ this.fid('element-style', 'animationTimingFunction') }
             label="Animation Timing Function" />
         </React.Fragment>
       );
@@ -1118,7 +1136,9 @@ export default class ElementEditor extends React.Component {
       return (
         <div>
           {
-            Object.keys(classes).map((item) => this.renderProperties(item, classes[item]))
+            Object.keys(classes).map((item) => (
+              <React.Fragment key={ item }>{ this.renderProperties(item, classes[item]) }</React.Fragment>
+            ))
           }
         </div>
       );
