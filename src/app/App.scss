@@ -68,6 +68,23 @@ body {
   font-size: 18px;
 }
 
+// Layer row actions (eye / remove / lock) take no room until the row is hovered
+// or one of them has keyboard focus, so the name gets the whole row (Figma-style).
+// Collapsed with max-width (not display: none) so the buttons stay reachable by Tab.
+// Touch screens can't hover, so they keep showing the actions.
+@media (hover: hover) {
+  .caf-layer-actions {
+    max-width: 0;
+    overflow: hidden;
+  }
+
+  .menu-item:hover .caf-layer-actions,
+  .caf-layer-actions:focus-within {
+    max-width: none;
+    overflow: visible;
+  }
+}
+
 // Small body text (matches navbar spec)
 .caf-text-xs {
   font-size: var(--caf-nav-font-size);

@@ -118,20 +118,29 @@ export default class Layers extends React.Component {
       const handleToggleHidden = (e) => this.props.onToggleHidden?.(e, path);
       const handleRemove = (e) => this.props.onRemove?.(e, path);
 
+      const eyeButton = (
+        <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleToggleHidden }>
+          { hidden ? <VisibilityOffIcon fontSize="small" /> : <RemoveRedEyeIcon fontSize="small" /> }
+        </IconButton>
+      );
+
       return (
         <Layout display="flex" alignItems="center" justifyContent="space-between" itemSpacing={ 0 }>
           <Text className="caf-text-xs" style={ overflowStyle }>{ label }</Text>
           {/* itemSpacing 0 here and on the row: the 20px default gaps made the icons take 126px, more than the label room on every nested row */}
-          <Layout display="flex" alignItems="center" justifyContent="space-between" itemSpacing={ 0 }>
-            <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleToggleHidden }>
-              { hidden ? <VisibilityOffIcon fontSize="small" /> : <RemoveRedEyeIcon fontSize="small" /> }
-            </IconButton>
-            <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleRemove } title="Remove">
-              <DeleteOutlineIcon fontSize="small" />
-            </IconButton>
-            <IconButton className="caf-iconbtn-xs" size="small" onClick={ (e) => e.stopPropagation() } title="Lock (stub)">
-              <LockOpenIcon fontSize="small" />
-            </IconButton>
+          <Layout display="flex" alignItems="center" itemSpacing={ 0 }>
+            {/* A hidden layer keeps its eye-off icon showing, so you can see it is hidden without hovering. */}
+            { hidden && eyeButton }
+            {/* `caf-layer-actions` only takes room while the row is hovered (see App.scss). */}
+            <Layout className="caf-layer-actions" display="flex" alignItems="center" itemSpacing={ 0 }>
+              { !hidden && eyeButton }
+              <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleRemove } title="Remove">
+                <DeleteOutlineIcon fontSize="small" />
+              </IconButton>
+              <IconButton className="caf-iconbtn-xs" size="small" onClick={ (e) => e.stopPropagation() } title="Lock (stub)">
+                <LockOpenIcon fontSize="small" />
+              </IconButton>
+            </Layout>
           </Layout>
         </Layout>
       );
