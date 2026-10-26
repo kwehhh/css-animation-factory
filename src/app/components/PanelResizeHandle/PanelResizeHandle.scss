@@ -1,0 +1,45 @@
+// VS Code-style sash: an 8px grab area straddling the panel's right edge that
+// shows a 2px accent line on hover (after a short delay), while dragging, and
+// on keyboard focus.
+.caf-panel-sash {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(-1 * var(--caf-space-4));
+  width: var(--caf-space-8);
+  cursor: col-resize;
+  z-index: 1;
+  // Let pointer events drive the drag on touch screens instead of scrolling.
+  touch-action: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 3px;
+    width: 2px;
+    background: transparent;
+    transition: background-color 0.1s ease 0.15s;
+  }
+
+  &:hover::after,
+  &:focus-visible::after,
+  &.is-dragging::after {
+    background: var(--caf-accent);
+  }
+
+  &.is-dragging::after {
+    transition: none;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+body.caf-is-resizing,
+body.caf-is-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}

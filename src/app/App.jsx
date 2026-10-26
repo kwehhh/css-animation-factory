@@ -8,11 +8,28 @@ import AppHeader from './components/AppHeader/AppHeader.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
 import ExportModal from './components/ExportModal/ExportModal.jsx';
 import Layers from './components/Layers.jsx';
+import PanelResizeHandle from './components/PanelResizeHandle/PanelResizeHandle.jsx';
 import Preview from './components/Preview.jsx';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
 import { cssToModel } from '../util/cssToModel.js';
 import "./App.scss";
+
+// Layers panel width (px): default, drag limits, and where the user's choice is remembered.
+const LAYERS_WIDTH = { default: 180, min: 180, max: 480 };
+const LAYERS_WIDTH_STORAGE_KEY = 'caf.layersWidth';
+
+function readStoredLayersWidth() {
+  try {
+    const stored = Number(window.localStorage.getItem(LAYERS_WIDTH_STORAGE_KEY));
+    if (stored >= LAYERS_WIDTH.min && stored <= LAYERS_WIDTH.max) {
+      return stored;
+    }
+  } catch {
+    // Storage blocked (private window, site data off): fall back to the default.
+  }
+  return LAYERS_WIDTH.default;
+}
 
 export default class App extends React.Component {
 
@@ -39,6 +56,7 @@ export default class App extends React.Component {
       activeKeyframesId: null,
       // activeKeyframesId: 'orbit',
       showLayersPanel: true,
+      layersWidth: readStoredLayersWidth(),
       showElementContainer: true,
       isElementEditorExpanded: true,
       showExport: false,
@@ -74,6 +92,18 @@ export default class App extends React.Component {
   handleToggleLayersPanel = (e) => {
     if (e?.stopPropagation) e.stopPropagation();
     this.setState((prevState) => ({ showLayersPanel: !prevState.showLayersPanel }));
+  }
+
+  handleLayersResize = (layersWidth) => {
+    this.setState({ layersWidth });
+  }
+
+  handleLayersResizeEnd = (layersWidth) => {
+    try {
+      window.localStorage.setItem(LAYERS_WIDTH_STORAGE_KEY, String(layersWidth));
+    } catch {
+      // Storage blocked: the width still applies for this visit.
+    }
   }
 
   handleToggleElementPanel = (e) => {
@@ -581,7 +611,6 @@ export default class App extends React.Component {
     const navHeight = 32;
     const containerSpacing = 20;
     const elContainerWidth = 350;
-    const elElementsContainerWidth = 180;
     const bottomBoundaryHeight = 200;
     const elementEditorWidth = this.state.isElementEditorExpanded ? elContainerWidth * 2 : elContainerWidth;
     const commonProps = {
@@ -645,7 +674,16 @@ export default class App extends React.Component {
               onClone={ this.handleCloneElement }
               onToggleHidden={ this.handleToggleHidden }
               onRemove={ this.handleRemoveElement }
-              width={ elElementsContainerWidth }
+              width={ this.state.layersWidth }
+            />
+            <PanelResizeHandle
+              label="Resize Layers panel"
+              width={ this.state.layersWidth }
+              minWidth={ LAYERS_WIDTH.min }
+              maxWidth={ LAYERS_WIDTH.max }
+              defaultWidth={ LAYERS_WIDTH.default }
+              onResize={ this.handleLayersResize }
+              onResizeEnd={ this.handleLayersResizeEnd }
             />
           </div>
         ) }
