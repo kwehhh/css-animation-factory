@@ -119,9 +119,10 @@ export default class Layers extends React.Component {
       const handleRemove = (e) => this.props.onRemove?.(e, path);
 
       return (
-        <Layout display="flex" alignItems="center" justifyContent="space-between">
+        <Layout display="flex" alignItems="center" justifyContent="space-between" itemSpacing={ 0 }>
           <Text className="caf-text-xs" style={ overflowStyle }>{ label }</Text>
-          <Layout display="flex" alignItems="center" justifyContent="space-between">
+          {/* itemSpacing 0 here and on the row: the 20px default gaps made the icons take 126px, more than the label room on every nested row */}
+          <Layout display="flex" alignItems="center" justifyContent="space-between" itemSpacing={ 0 }>
             <IconButton className="caf-iconbtn-xs" size="small" onClick={ handleToggleHidden }>
               { hidden ? <VisibilityOffIcon fontSize="small" /> : <RemoveRedEyeIcon fontSize="small" /> }
             </IconButton>
