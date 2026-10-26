@@ -6,6 +6,10 @@ const path = require('path');
 module.exports = {
   devServer: {
     contentBase: './dist',
+    // Live reload over plain WebSockets. The default SockJS client registers an
+    // `unload` listener, which Chrome now blocks and reports as a console error
+    // ("Permissions policy violation: unload is not allowed"). Dev server only.
+    transportMode: 'ws',
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
