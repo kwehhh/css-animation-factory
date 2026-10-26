@@ -128,6 +128,15 @@ body {
   padding: var(--caf-space-8) var(--caf-space-12);
 }
 
+// Short explanatory text in an otherwise empty panel.
+.caf-empty-note {
+  margin: 0;
+  padding: var(--caf-space-4) var(--caf-space-12);
+  color: var(--caf-muted);
+  font-size: var(--caf-nav-font-size);
+  line-height: 1.5;
+}
+
 // Back-compat (older uses)
 .logo {
   @extend .caf-title;

@@ -1222,6 +1222,24 @@ export default class ElementEditor extends React.Component {
       );
     }
 
+    // Opened with nothing selected (header toggle): say so, instead of a 0px
+    // panel that makes the toggle look broken.
+    if (visible) {
+      return (
+        <div
+          className="stacking-10 container element-editor-panel"
+          style={ { width: this.props.width, height: '100%', ...this.props.style } }
+        >
+          <div className="caf-panel-title">
+            Elemental Editor
+          </div>
+          <p className="caf-empty-note">
+            Nothing selected. Click a layer, or something in the preview, to edit it.
+          </p>
+        </div>
+      );
+    }
+
     return null;
   }
 }

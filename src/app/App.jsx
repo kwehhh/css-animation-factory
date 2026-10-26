@@ -66,7 +66,8 @@ export default class App extends React.Component {
       // activeKeyframesId: 'orbit',
       showLayersPanel: true,
       layersWidth: readStoredLayersWidth(),
-      showElementContainer: true,
+      // Nothing is selected on load, so the editor starts closed (it opens on select).
+      showElementContainer: false,
       isElementEditorExpanded: true,
       showExport: false,
       showPresets: false,
@@ -637,11 +638,11 @@ export default class App extends React.Component {
       activePath = [];
     }
 
-    // If the user selects a layer, ensure the Element Editor panel is visible.
-    // (If they clicked the already-selected layer to deselect, don't force it open.)
+    // Selecting opens the Element Editor; clicking the selected thing again
+    // deselects it and closes the editor, so the header toggle stays truthful.
     this.setState({
       activePath,
-      showElementContainer: activePath.length ? true : this.state.showElementContainer
+      showElementContainer: activePath.length > 0
     });
   }
 
@@ -780,7 +781,9 @@ export default class App extends React.Component {
     const containerSpacing = 20;
     const elContainerWidth = 350;
     const bottomBoundaryHeight = 200;
-    const elementEditorWidth = this.state.isElementEditorExpanded ? elContainerWidth * 2 : elContainerWidth;
+    const selectedElement = this.getActiveElement(activePath, elements);
+    // Opened with nothing selected, the editor only shows a short note: keep it narrow.
+    const elementEditorWidth = selectedElement && this.state.isElementEditorExpanded ? elContainerWidth * 2 : elContainerWidth;
     const commonProps = {
       activePath,
       classes,
@@ -877,8 +880,8 @@ export default class App extends React.Component {
               style={{
                 padding: 'var(--caf-space-4) var(--caf-nav-pad-x)',
               }}
-              element={ this.getActiveElement(activePath, elements) }
-              elementProps={ this.getActiveElement(activePath, elements) }
+              element={ selectedElement }
+              elementProps={ selectedElement }
               defaultExpanded={ true }
               onExpandedChange={ this.handleElementEditorExpandedChange }
               visible={ true }
