@@ -63,6 +63,24 @@ body {
     color: var(--caf-text);
     opacity: 0.35;
   }
+
+  // Panel toggles (Layers / Element editor / History) while their panel is
+  // open: accent tint + accent ring, so "on" reads at a glance.
+  &[aria-pressed="true"] {
+    background: rgba(110, 109, 248, 0.22);
+    background: color-mix(in srgb, var(--caf-accent) 22%, transparent);
+    box-shadow: inset 0 0 0 1px var(--caf-accent);
+
+    &:hover {
+      background: color-mix(in srgb, var(--caf-accent) 32%, transparent);
+    }
+  }
+}
+
+// Header icon buttons: rounded squares rather than circles, so the "on" ring
+// of a panel toggle reads as a toggle (VS Code / Figma style).
+.app-header .caf-iconbtn-nav.MuiIconButton-root {
+  border-radius: var(--caf-space-4);
 }
 
 // Compact icon buttons in side panels (Layers etc)

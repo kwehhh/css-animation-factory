@@ -72,13 +72,14 @@ export default function AppHeader({
               </IconButton>
             </span>
           </Tooltip>
-          <Button type="secondary" size="mini" onClick={onShowExport}>Export</Button>
+          {/* Panel toggles: aria-pressed drives the "on" look (App.scss) and tells screen readers. */}
           <Tooltip title={`${showLayersPanel ? 'Hide' : 'Show'} Layers panel (${shortcutLabel('B')})`}>
             <IconButton
               className="caf-iconbtn-nav"
               size="small"
               onClick={onToggleLayersPanel}
               aria-label={showLayersPanel ? 'Hide Layers panel' : 'Show Layers panel'}
+              aria-pressed={!!showLayersPanel}
             >
               <ViewListIcon fontSize="small" />
             </IconButton>
@@ -89,11 +90,13 @@ export default function AppHeader({
               size="small"
               onClick={onToggleElementPanel}
               aria-label={showElementContainer ? 'Hide Element editor' : 'Show Element editor'}
+              aria-pressed={!!showElementContainer}
             >
               <TuneIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Button type="secondary" size="mini" onClick={onShowPresets}>Presets</Button>
+          <Button type="secondary" size="mini" onClick={onShowExport}>Export</Button>
         </Layout>
       </Layout>
     </div>
