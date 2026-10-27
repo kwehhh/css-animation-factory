@@ -78,20 +78,37 @@ export default class ElementEditor extends React.Component {
     this.handleSourceBeforeChange = this.handleSourceBeforeChange.bind(this);
 
     this._sourceApplyTimer = null;
+    this.sourcePaneRef = React.createRef();
   }
 
   componentDidUpdate(prevProps) {
-    // Reset editor buffers only when selection changes (not when element props update).
-    // This prevents cursor jumping while doing live updates.
-    if (!_.isEqual(prevProps.activePath, this.props.activePath)) {
-      this.setState({
-        sourceText: {
-          json: this.getGeneratedSourceValue('json', this.props.elementProps),
-          css: this.getGeneratedSourceValue('css', this.props.elementProps)
-        },
-        sourceError: { json: null, css: null }
-      });
+    // The JSON / Compiled CSS panes follow the document: a new selection, an
+    // edit in the form next to them, undo, a preset. Not while you are typing
+    // in a pane (or your edit is about to apply): regenerating would reformat
+    // the code under your cursor. It catches up on the next change after.
+    const selectionChanged = !_.isEqual(prevProps.activePath, this.props.activePath);
+    const docChanged = ['elementProps', 'classes', 'keyframes', 'css'].some((key) => prevProps[key] !== this.props[key]);
+    if (selectionChanged || (docChanged && !this.isEditingSource())) {
+      this.syncSourceText();
     }
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this._sourceApplyTimer);
+  }
+
+  isEditingSource() {
+    const pane = this.sourcePaneRef.current;
+    return !!this._sourceApplyTimer || !!(pane && pane.contains(document.activeElement));
+  }
+
+  /** Both panes from the document (a no-op when they already match it). */
+  syncSourceText() {
+    const json = this.getGeneratedSourceValue('json', this.props.elementProps);
+    const css = this.getGeneratedSourceValue('css', this.props.elementProps);
+    const { sourceText = {}, sourceError = {} } = this.state;
+    if (json === sourceText.json && css === sourceText.css && !sourceError.json && !sourceError.css) return;
+    this.setState({ sourceText: { json, css }, sourceError: { json: null, css: null } });
   }
 
   handleTabChange(e, value) {
@@ -198,6 +215,7 @@ export default class ElementEditor extends React.Component {
     // Live-update: debounce applying until the user pauses typing briefly.
     if (this._sourceApplyTimer) clearTimeout(this._sourceApplyTimer);
     this._sourceApplyTimer = setTimeout(() => {
+      this._sourceApplyTimer = null;
       this.applySourceText(mode, value);
     }, 200);
   }
@@ -359,7 +377,7 @@ export default class ElementEditor extends React.Component {
     const mode = this.state.sourceMode;
     const err = this.state.sourceError?.[mode];
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div ref={ this.sourcePaneRef } style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Tabs
           value={ this.state.sourceMode }
           onChange={ this.handleSourceModeChange }
