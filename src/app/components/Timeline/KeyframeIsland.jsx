@@ -22,11 +22,12 @@ const KEY_STEP_MS = 100;
 /**
  * The selected layer's keyframes, floating over the preview: its animations as
  * tracks with a diamond per keyframe, a playhead, a scrubber and the animated
- * properties' current values. The axis is this layer's own span, so a short
+ * properties' current values. App only shows it for a layer that animates
+ * (the Layers panel's badges say which do); otherwise it renders nothing. The axis is this layer's own span, so a short
  * animation is not squeezed by a long scene. Play, scrub and keyframe clicks
  * drive the shared scene clock, so the whole preview follows.
  */
-export default function KeyframeIsland({ controller, path, layer, hidden, timelineOpen, onOpenTimeline, style }) {
+export default function KeyframeIsland({ controller, path, layer, timelineOpen, onOpenTimeline, style }) {
   const { model, playing } = useTimeline(controller);
   const key = pathKey(path);
   const entries = model.byPath.get(key) || [];
@@ -82,33 +83,20 @@ export default function KeyframeIsland({ controller, path, layer, hidden, timeli
     seek(localTime(controller.time, span) + step * KEY_STEP_MS * (e.shiftKey ? 10 : 1));
   };
 
-  const descendants = model.entries.filter((e) => e.path.startsWith(`${key}-`));
-  const animatedInside = new Set(descendants.map((e) => e.path)).size;
-  let empty = null;
-  if (hidden) {
-    empty = layer && layer.hidden
-      ? 'This layer is hidden, so nothing on it plays.'
-      : 'This layer is inside a hidden layer, so nothing on it plays.';
-  } else if (!model.entries.length) {
-    empty = 'Nothing in this scene animates yet. Give a class an animation (name + duration) and it shows up here.';
-  } else if (!entries.length) {
-    empty = animatedInside
-      ? `No animation on this layer itself. ${animatedInside} layer${animatedInside === 1 ? '' : 's'} inside it animate${animatedInside === 1 ? 's' : ''}.`
-      : 'No animation on this layer.';
-  }
+  // Its animations can go away while it is selected (a class removed, the
+  // layer hidden): then there is nothing to show.
+  if (!span) return null;
 
   return (
     <div className="caf-island-wrap" style={ style }>
       <section className="caf-island" aria-label={ `Keyframes of ${name}` } onMouseDown={ keepFocusOnMouseDown }>
         <header className="caf-island-head">
           <span className="caf-island-title" title={ name }>{ name }</span>
-          { entries.length > 0 && (
-            <span className="caf-island-anims" title={ entries.map((e) => e.name).join(', ') }>
-              { entries.map((e) => e.name).join(', ') }
-            </span>
-          ) }
+          <span className="caf-island-anims" title={ entries.map((e) => e.name).join(', ') }>
+            { entries.map((e) => e.name).join(', ') }
+          </span>
           <span className="caf-island-spacer" />
-          { span && <span className="caf-island-time caf-mono" ref={ timeRef } /> }
+          <span className="caf-island-time caf-mono" ref={ timeRef } />
           { !timelineOpen && (
             <Tooltip title="Show Timeline panel (all layers)">
               <IconButton className="caf-iconbtn-nav" size="small" onClick={ onOpenTimeline } aria-label="Show all layers in the Timeline panel">
@@ -118,74 +106,68 @@ export default function KeyframeIsland({ controller, path, layer, hidden, timeli
           ) }
         </header>
 
-        { empty ? (
-          <p className="caf-island-empty">{ empty }</p>
-        ) : (
-          <React.Fragment>
-            <div className="caf-island-computed caf-mono">
-              <span className="caf-island-computed-label">computed</span>
-              <code ref={ computedRef } />
+        <div className="caf-island-computed caf-mono">
+          <span className="caf-island-computed-label">computed</span>
+          <code ref={ computedRef } />
+        </div>
+        <div className="caf-island-body">
+          <div className="caf-island-transport">
+            <Tooltip title="Previous keyframe">
+              <IconButton className="caf-iconbtn-nav" size="small" onClick={ () => controller.stepKeyframe(-1, entries) } aria-label="Previous keyframe">
+                <SkipPreviousIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={ `${playing ? 'Pause' : 'Play'} (Space)` }>
+              <IconButton
+                className="caf-iconbtn-nav caf-island-play"
+                size="small"
+                onClick={ () => controller.toggle() }
+                aria-label={ playing ? 'Pause' : 'Play' }
+              >
+                { playing ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" /> }
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Next keyframe">
+              <IconButton className="caf-iconbtn-nav" size="small" onClick={ () => controller.stepKeyframe(1, entries) } aria-label="Next keyframe">
+                <SkipNextIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </div>
+          <div className="caf-island-tracks">
+            <div className="caf-island-names">
+              { entries.slice(0, MAX_LANES).map((entry) => (
+                <span key={ entry.id } className="caf-island-lane-name caf-mono" title={ entry.name }>{ entry.name }</span>
+              )) }
             </div>
-            <div className="caf-island-body">
-              <div className="caf-island-transport">
-                <Tooltip title="Previous keyframe">
-                  <IconButton className="caf-iconbtn-nav" size="small" onClick={ () => controller.stepKeyframe(-1, entries) } aria-label="Previous keyframe">
-                    <SkipPreviousIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={ `${playing ? 'Pause' : 'Play'} (Space)` }>
-                  <IconButton
-                    className="caf-iconbtn-nav caf-island-play"
-                    size="small"
-                    onClick={ () => controller.toggle() }
-                    aria-label={ playing ? 'Pause' : 'Play' }
-                  >
-                    { playing ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" /> }
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Next keyframe">
-                  <IconButton className="caf-iconbtn-nav" size="small" onClick={ () => controller.stepKeyframe(1, entries) } aria-label="Next keyframe">
-                    <SkipNextIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
+            <div className="caf-island-lanes">
+              {/* Inset by half the scrubber thumb, so a time sits at the same x
+                  on the lanes, the playhead and the thumb. */}
+              <div className="caf-island-lanes-inner">
+                { entries.slice(0, MAX_LANES).map((entry) => (
+                  <TimelineLane key={ entry.id } entry={ entry } from={ span.start } to={ span.end } onKeyframe={ seek } />
+                )) }
+                <div className="caf-tl-playhead caf-island-playhead" ref={ playheadRef } aria-hidden="true" />
               </div>
-              <div className="caf-island-tracks">
-                <div className="caf-island-names">
-                  { entries.slice(0, MAX_LANES).map((entry) => (
-                    <span key={ entry.id } className="caf-island-lane-name caf-mono" title={ entry.name }>{ entry.name }</span>
-                  )) }
-                </div>
-                <div className="caf-island-lanes">
-                  {/* Inset by half the scrubber thumb, so a time sits at the same x
-                      on the lanes, the playhead and the thumb. */}
-                  <div className="caf-island-lanes-inner">
-                    { entries.slice(0, MAX_LANES).map((entry) => (
-                      <TimelineLane key={ entry.id } entry={ entry } from={ span.start } to={ span.end } onKeyframe={ seek } />
-                    )) }
-                    <div className="caf-tl-playhead caf-island-playhead" ref={ playheadRef } aria-hidden="true" />
-                  </div>
-                  <input
-                    ref={ scrubRef }
-                    className="caf-island-scrub"
-                    type="range"
-                    min={ Math.round(span.start) }
-                    max={ Math.round(span.end) }
-                    step={ 1 }
-                    defaultValue={ Math.round(localTime(controller.time, span)) }
-                    aria-label={ `Scrub ${name}'s animation` }
-                    onPointerDown={ () => controller.pause() }
-                    onChange={ (e) => seek(Number(e.target.value)) }
-                    onKeyDown={ handleScrubKeyDown }
-                  />
-                </div>
-              </div>
+              <input
+                ref={ scrubRef }
+                className="caf-island-scrub"
+                type="range"
+                min={ Math.round(span.start) }
+                max={ Math.round(span.end) }
+                step={ 1 }
+                defaultValue={ Math.round(localTime(controller.time, span)) }
+                aria-label={ `Scrub ${name}'s animation` }
+                onPointerDown={ () => controller.pause() }
+                onChange={ (e) => seek(Number(e.target.value)) }
+                onKeyDown={ handleScrubKeyDown }
+              />
             </div>
-            { entries.length > MAX_LANES && (
-              <p className="caf-island-more">
-                { `+${entries.length - MAX_LANES} more animation${entries.length - MAX_LANES === 1 ? '' : 's'} on this layer in the Timeline panel.` }
-              </p>
-            ) }
-          </React.Fragment>
+          </div>
+        </div>
+        { entries.length > MAX_LANES && (
+          <p className="caf-island-more">
+            { `+${entries.length - MAX_LANES} more animation${entries.length - MAX_LANES === 1 ? '' : 's'} on this layer in the Timeline panel.` }
+          </p>
         ) }
       </section>
     </div>

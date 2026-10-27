@@ -169,6 +169,9 @@ export default class App extends React.Component {
       loop: timeline.loop,
       speed: timeline.speed
     });
+    // Which layers animate (for the island and the Layers panel's badges).
+    // Only replaced when the animations change, not on every frame.
+    this.state.timelineModel = this.timeline.model;
 
     // console.log('constructor', props, this.state);
     this.handleCloneElement = this.handleCloneElement.bind(this);
@@ -366,8 +369,7 @@ export default class App extends React.Component {
     // The island's position and the Timeline panel's max height follow the window.
     window.addEventListener('resize', this.handleWindowResize);
     this.timeline.start();
-    // Loop and speed are changed inside the panels: remember them.
-    this.stopTimelineSync = this.timeline.onChange(this.saveTimelineSettings);
+    this.stopTimelineSync = this.timeline.onChange(this.handleTimelineChange);
 
     const { files } = this.props.manifest;
     const saved = readAutosave();
@@ -439,6 +441,14 @@ export default class App extends React.Component {
   handleWindowResize = () => {
     window.cancelAnimationFrame(this.resizeFrame);
     this.resizeFrame = window.requestAnimationFrame(() => this.forceUpdate());
+  }
+
+  handleTimelineChange = () => {
+    // Loop and speed are changed inside the panels: remember them.
+    this.saveTimelineSettings();
+    if (this.timeline.model !== this.state.timelineModel) {
+      this.setState({ timelineModel: this.timeline.model });
+    }
   }
 
   saveTimelineSettings = () => {
@@ -1090,9 +1100,11 @@ export default class App extends React.Component {
     const timelineHeight = Math.min(this.state.timelineHeight, timelineMax);
     const dockBottom = this.state.showTimeline ? timelineHeight : 0;
     const activeKeyframes = this.state.keyframes[this.state.activeKeyframeId];
-    // The keyframe-snapshot strip (shown while a keyframe field has focus)
-    // takes the island's spot, so the island steps aside meanwhile.
-    const showIsland = !!selectedElement && !activeKeyframes;
+    // Only for a selected layer that animates. The keyframe-snapshot strip
+    // (shown while a keyframe field has focus) takes its spot, so it steps
+    // aside meanwhile.
+    const showIsland = !!selectedElement && !activeKeyframes
+      && this.state.timelineModel.byPath.has(activePath.join('-'));
     const commonProps = {
       activePath,
       classes,
@@ -1239,8 +1251,6 @@ export default class App extends React.Component {
             controller={ this.timeline }
             path={ activePath }
             layer={ selectedElement }
-            // Hidden itself or inside a hidden layer: either way it isn't rendered.
-            hidden={ activePath.some((_, i) => this.getActiveElement(activePath.slice(0, i + 1), elements)?.hidden) }
             timelineOpen={ this.state.showTimeline }
             onOpenTimeline={ this.handleToggleTimeline }
             style={ this.getIslandPosition(elementEditorWidth, dockBottom) }

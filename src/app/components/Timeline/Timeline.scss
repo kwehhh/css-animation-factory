@@ -291,17 +291,12 @@
   }
 }
 
-.caf-island-empty,
 .caf-island-more {
   margin: 0;
-  padding: var(--caf-space-8) 14px var(--caf-space-12);
+  padding: 0 14px var(--caf-space-12);
+  font-size: 11px;
   line-height: 1.5;
   color: var(--caf-muted);
-}
-
-.caf-island-more {
-  padding-top: 0;
-  font-size: 11px;
 }
 
 // --- Timeline panel -------------------------------------------------------
