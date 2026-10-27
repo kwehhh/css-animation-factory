@@ -92,8 +92,10 @@ export function cssToModel(cssText) {
     } else if (/^\.[-_a-zA-Z0-9]+$/.test(selector)) {
       classes[selector.slice(1)] = parseDeclarations(body);
     } else {
-      // id selectors, grouped selectors, other at-rules — keep verbatim
-      rest += `${rawRule}\n`;
+      // id selectors, grouped selectors, other at-rules — keep verbatim, one
+      // blank line apart. (Not the gap before it as well: that grew by a line
+      // each time `rest` went through here again, e.g. an imported animation.)
+      rest += `${rawRule.trim()}\n\n`;
     }
 
     i = closeIdx + 1;
