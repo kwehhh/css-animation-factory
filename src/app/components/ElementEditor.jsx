@@ -123,24 +123,30 @@ export default class ElementEditor extends React.Component {
     });
   }
 
+  /**
+   * The @keyframes an element's classes use: each once, and only ones that
+   * exist. animation-name can be a list ("orbit, pulse") and can name
+   * keyframes that don't exist (yet: a name half-typed in the field).
+   */
+  getKeyframeNames(classNames = []) {
+    const names = [];
+    classNames.forEach((className) => {
+      const animationName = this.props.classes?.[className]?.animationName;
+      if (!animationName) return;
+      String(animationName).split(',').forEach((name) => {
+        const trimmed = name.trim();
+        if (this.props.keyframes?.[trimmed] && !names.includes(trimmed)) names.push(trimmed);
+      });
+    });
+    return names;
+  }
+
   getSourcePayload(elementProps) {
     const resolvedClasses = this.getElementClassProps(this.props.classes, elementProps?.classes);
 
-    const keyframeNames = [];
-    if (elementProps?.classes) {
-      elementProps.classes.forEach((className) => {
-        const classProps = this.props.classes?.[className];
-        if (classProps?.animationName) {
-          keyframeNames.push(classProps.animationName);
-        }
-      });
-    }
-
     const keyframes = {};
-    keyframeNames.forEach((name) => {
-      if (this.props.keyframes?.[name]) {
-        keyframes[name] = this.props.keyframes[name];
-      }
+    this.getKeyframeNames(elementProps?.classes).forEach((name) => {
+      keyframes[name] = this.props.keyframes[name];
     });
 
     return {
@@ -160,19 +166,8 @@ export default class ElementEditor extends React.Component {
       });
     }
 
-    const keyframeNames = [];
-    if (elementProps?.classes) {
-      elementProps.classes.forEach((className) => {
-        const classProps = this.props.classes?.[className];
-        if (classProps?.animationName) {
-          keyframeNames.push(classProps.animationName);
-        }
-      });
-    }
-
-    keyframeNames.forEach((name) => {
-      const kf = this.props.keyframes?.[name];
-      if (!kf) return;
+    this.getKeyframeNames(elementProps?.classes).forEach((name) => {
+      const kf = this.props.keyframes[name];
 
       let framesCss = '';
       Object.keys(kf).forEach((pct, i) => {
@@ -1000,18 +995,9 @@ export default class ElementEditor extends React.Component {
       const { classes } = element;
 
 
-      const keyframeNames = [];
-
-      // Get Keyframes from class
-      // Use this... push it up, to get it up and store the animation details....
-      // Guard: SVG group/svg nodes can have no `classes`.
-      (classes || []).forEach((key) => {
-        // console.log('map', this.props.classes[key]);
-
-        if (this.props.classes[key] && this.props.classes[key].animationName) {
-          keyframeNames.push(this.props.classes[key].animationName);
-        }
-      });
+      // Guard: SVG group/svg nodes can have no `classes`. Only keyframes that
+      // exist: a missing name (half-typed in the field) used to crash the app.
+      const keyframeNames = this.getKeyframeNames(classes || []);
 
 
       // console.log('renderKeyframesEditors', keyframeNames, this.props);
