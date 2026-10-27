@@ -47,10 +47,9 @@ export default class AnimationContainer extends React.Component {
     if (element && keyframes) {
       return Object.keys(keyframes).map((key) => {
         return (
-          <div>
+          <div key={ key }>
             <div>{ key }</div>
             <div
-              key={ key }
               className={ this.getClassNames(element.classes) }
               style={{
                 ...keyframes[key],
@@ -83,7 +82,8 @@ export default class AnimationContainer extends React.Component {
           justifyContent: 'center',
           height: '200px',
           left: 0,
-          bottom: 0,
+          // Sits on top of the Timeline panel when that is open.
+          bottom: this.props.bottom || 0,
           right: 0,
           boxShadow: '-1px -5px 4px 0px rgba(0,0,0,0.15)'
         }}

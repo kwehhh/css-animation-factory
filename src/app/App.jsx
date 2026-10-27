@@ -11,15 +11,27 @@ import Layers from './components/Layers.jsx';
 import HistoryPanel from './components/HistoryPanel/HistoryPanel.jsx';
 import PanelResizeHandle from './components/PanelResizeHandle/PanelResizeHandle.jsx';
 import Preview from './components/Preview.jsx';
+import KeyframeIsland from './components/Timeline/KeyframeIsland.jsx';
+import TimelinePanel, { SPEEDS } from './components/Timeline/TimelinePanel.jsx';
+import TimelineController from './timeline/TimelineController.js';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
 import { cssToModel } from '../util/cssToModel.js';
-import { isEditableTarget } from '../util/keyboard.js';
+import { isActivatableTarget, isEditableTarget } from '../util/keyboard.js';
 import "./App.scss";
 
 // Layers panel width (px): default, drag limits, and where the user's choice is remembered.
 const LAYERS_WIDTH = { default: 180, min: 180, max: 480 };
 const LAYERS_WIDTH_STORAGE_KEY = 'caf.layersWidth';
+// Timeline panel height (px). The max also stops at 70% of the window.
+const TIMELINE_HEIGHT = { default: 240, min: 140, max: 600 };
+// { open, height, loop, speed, animatedOnly }: the Timeline panel as you left it.
+const TIMELINE_STORAGE_KEY = 'caf.timeline';
+// The keyframe island floats this far above the bottom (or the Timeline panel).
+const ISLAND_GAP = 16;
+// Narrowest gap between the side panels the island fits in; below it, it
+// spans everything right of the Layers panel and floats over the editor.
+const ISLAND_MIN_WIDTH = 360;
 // 'dark' | 'light'. index.html applies the saved value before first paint.
 const THEME_STORAGE_KEY = 'caf.theme';
 
@@ -70,12 +82,33 @@ function readStoredLayersWidth() {
   return LAYERS_WIDTH.default;
 }
 
+function readStoredTimeline() {
+  const settings = { open: false, height: TIMELINE_HEIGHT.default, loop: true, speed: 1, animatedOnly: false };
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(TIMELINE_STORAGE_KEY)) || {};
+    if (typeof stored.open === 'boolean') settings.open = stored.open;
+    if (stored.height >= TIMELINE_HEIGHT.min && stored.height <= TIMELINE_HEIGHT.max) settings.height = stored.height;
+    if (typeof stored.loop === 'boolean') settings.loop = stored.loop;
+    if (SPEEDS.includes(stored.speed)) settings.speed = stored.speed;
+    if (typeof stored.animatedOnly === 'boolean') settings.animatedOnly = stored.animatedOnly;
+  } catch {
+    // Storage blocked or corrupt: use the defaults.
+  }
+  return settings;
+}
+
+/** Tallest the Timeline panel may be in this window. */
+function timelineMaxHeight() {
+  return Math.max(TIMELINE_HEIGHT.min, Math.min(TIMELINE_HEIGHT.max, Math.round(window.innerHeight * 0.7)));
+}
+
 export default class App extends React.Component {
 
   constructor(props) {
     super();
 
     const { data } = props;
+    const timeline = readStoredTimeline();
     this.state = {
       // Current Selected Layer/Element
       activePath: [],
@@ -103,6 +136,9 @@ export default class App extends React.Component {
       showPresets: false,
       presets: [],
       showHistoryPanel: false,
+      showTimeline: timeline.open,
+      timelineHeight: timeline.height,
+      timelineAnimatedOnly: timeline.animatedOnly,
       // data-theme on <html> drives both the factory's --caf-* tokens and @nurvus/ui.
       theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
       // Header status of the last autosave: { status: 'saved' | 'restored' | 'failed', time }.
@@ -121,6 +157,15 @@ export default class App extends React.Component {
     // Filled by noteHistoryChange() just before a handler's setState.
     this.historyHint = null;
     this.isApplyingHistory = false;
+
+    // One clock for every animation in the preview: the keyframe island and
+    // the Timeline panel play, pause and scrub through it.
+    this.previewRef = React.createRef();
+    this.timeline = new TimelineController({
+      getRoot: () => this.previewRef.current,
+      loop: timeline.loop,
+      speed: timeline.speed
+    });
 
     // console.log('constructor', props, this.state);
     this.handleCloneElement = this.handleCloneElement.bind(this);
@@ -315,6 +360,11 @@ export default class App extends React.Component {
     // pagehide (not unload, which Chrome blocks) fires on reload, tab close and
     // navigation: write a pending autosave before the page goes.
     window.addEventListener('pagehide', this.flushAutosave);
+    // The island's position and the Timeline panel's max height follow the window.
+    window.addEventListener('resize', this.handleWindowResize);
+    this.timeline.start();
+    // Loop and speed are changed inside the panels: remember them.
+    this.stopTimelineSync = this.timeline.onChange(this.saveTimelineSettings);
 
     const { files } = this.props.manifest;
     const saved = readAutosave();
@@ -363,6 +413,11 @@ export default class App extends React.Component {
     const docChanged = HISTORY_DOC_KEYS.some((key) => prevState[key] !== this.state[key]);
     // Every change is autosaved, undo/redo and preset loads included.
     if (docChanged) this.scheduleAutosave();
+    // An edit can change an animation's timing: the timelines re-read it now.
+    if (docChanged) this.timeline.invalidate();
+    if (['showTimeline', 'timelineAnimatedOnly'].some((key) => prevState[key] !== this.state[key])) {
+      this.saveTimelineSettings();
+    }
     if (!docChanged || isApplyingHistory || (hint && hint.record === false)) return;
 
     this.recordHistory(prevState, hint || {});
@@ -371,7 +426,60 @@ export default class App extends React.Component {
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('pagehide', this.flushAutosave);
+    window.removeEventListener('resize', this.handleWindowResize);
+    window.cancelAnimationFrame(this.resizeFrame);
     this.flushAutosave();
+    this.timeline.stop();
+    if (this.stopTimelineSync) this.stopTimelineSync();
+  }
+
+  handleWindowResize = () => {
+    window.cancelAnimationFrame(this.resizeFrame);
+    this.resizeFrame = window.requestAnimationFrame(() => this.forceUpdate());
+  }
+
+  saveTimelineSettings = () => {
+    try {
+      window.localStorage.setItem(TIMELINE_STORAGE_KEY, JSON.stringify({
+        open: this.state.showTimeline,
+        height: this.state.timelineHeight,
+        loop: this.timeline.loop,
+        speed: this.timeline.speed,
+        animatedOnly: this.state.timelineAnimatedOnly
+      }));
+    } catch {
+      // Storage blocked: the settings still apply for this visit.
+    }
+  }
+
+  handleToggleTimeline = () => {
+    this.setState((prevState) => ({ showTimeline: !prevState.showTimeline }));
+  }
+
+  handleTimelineResize = (timelineHeight) => {
+    this.setState({ timelineHeight });
+  }
+
+  handleTimelineResizeEnd = (timelineHeight) => {
+    this.setState({ timelineHeight }, this.saveTimelineSettings);
+  }
+
+  handleTimelineAnimatedOnly = (timelineAnimatedOnly) => {
+    this.setState({ timelineAnimatedOnly });
+  }
+
+  /** Where the keyframe island floats: centered in the preview area between the open panels. */
+  getIslandPosition(elementEditorWidth, dockBottom) {
+    const left = this.state.showLayersPanel ? this.state.layersWidth : 0;
+    const history = this.state.showHistoryPanel ? HISTORY_PANEL_WIDTH : 0;
+    const editor = this.state.showElementContainer ? elementEditorWidth : 0;
+    const roomy = window.innerWidth - left - editor - history >= ISLAND_MIN_WIDTH;
+    return { left, right: history + (roomy ? editor : 0), bottom: dockBottom + ISLAND_GAP };
+  }
+
+  /** Select a layer (never deselect, unlike a click on the selected layer). */
+  handleRevealElement = (path) => {
+    this.setState({ activePath: path, showElementContainer: true });
   }
 
   scheduleAutosave() {
@@ -567,10 +675,17 @@ export default class App extends React.Component {
   }
 
   /**
-   * App-wide Cmd/Ctrl shortcuts. Text fields and the code editors keep their own
-   * (so Cmd+Z there undoes typing, not the animation).
+   * App-wide shortcuts: Space plays/pauses the preview, plus Cmd/Ctrl ones.
+   * Text fields and the code editors keep their own (so Cmd+Z there undoes
+   * typing, not the animation), and Space still presses a focused button.
    */
   handleKeyDown = (e) => {
+    if (e.key === ' ' && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+      if (e.defaultPrevented || isActivatableTarget(e.target) || this.addElementBefore) return;
+      e.preventDefault();
+      this.timeline.toggle();
+      return;
+    }
     if (e.defaultPrevented || !(e.metaKey || e.ctrlKey) || e.altKey) return;
     if (isEditableTarget(e.target)) return;
 
@@ -969,6 +1084,15 @@ export default class App extends React.Component {
     const selectedElement = this.getActiveElement(activePath, elements);
     // Opened with nothing selected, the editor only shows a short note: keep it narrow.
     const elementEditorWidth = selectedElement && this.state.isElementEditorExpanded ? elContainerWidth * 2 : elContainerWidth;
+    // The Timeline panel docks along the bottom; the side panels and the
+    // preview end above it.
+    const timelineMax = timelineMaxHeight();
+    const timelineHeight = Math.min(this.state.timelineHeight, timelineMax);
+    const dockBottom = this.state.showTimeline ? timelineHeight : 0;
+    const activeKeyframes = this.state.keyframes[this.state.activeKeyframeId];
+    // The keyframe-snapshot strip (shown while a keyframe field has focus)
+    // takes the island's spot, so the island steps aside meanwhile.
+    const showIsland = !!selectedElement && !activeKeyframes;
     const commonProps = {
       activePath,
       classes,
@@ -1006,6 +1130,8 @@ export default class App extends React.Component {
           onToggleLayersPanel={ this.handleToggleLayersPanel }
           onToggleElementPanel={ this.handleToggleElementPanel }
           onToggleHistoryPanel={ this.handleToggleHistoryPanel }
+          showTimeline={ this.state.showTimeline }
+          onToggleTimeline={ this.handleToggleTimeline }
           theme={ this.state.theme }
           onToggleTheme={ this.handleToggleTheme }
           onShowPresets={ this.handleShowPresets }
@@ -1023,12 +1149,14 @@ export default class App extends React.Component {
           topBoundaryHeight={ navHeight }
           bottomBoundaryHeight={ bottomBoundaryHeight }
           onSelectElement={ this.handleSelectElement }
+          rootRef={ this.previewRef }
+          style={ this.state.showTimeline ? { height: 'auto', bottom: dockBottom } : undefined }
         />
         { this.state.showLayersPanel && (
           <div className="app-panel app-panel--left" style={{
             position: 'absolute',
             top: navHeight,
-            bottom: 0,
+            bottom: dockBottom,
             left: 0,
             padding: 'var(--caf-space-0)',
           }}>
@@ -1062,7 +1190,7 @@ export default class App extends React.Component {
             style={{
               position: 'absolute',
               top: navHeight,
-              bottom: 0,
+              bottom: dockBottom,
               // Docks left of the History panel when that is open, Photoshop-style.
               right: this.state.showHistoryPanel ? HISTORY_PANEL_WIDTH : 0,
               padding: 'var(--caf-space-0)',
@@ -1090,7 +1218,7 @@ export default class App extends React.Component {
             style={{
               position: 'absolute',
               top: navHeight,
-              bottom: 0,
+              bottom: dockBottom,
               right: 0,
             }}
           >
@@ -1106,8 +1234,50 @@ export default class App extends React.Component {
             />
           </div>
         ) }
+        { showIsland && (
+          <KeyframeIsland
+            controller={ this.timeline }
+            path={ activePath }
+            layer={ selectedElement }
+            // Hidden itself or inside a hidden layer: either way it isn't rendered.
+            hidden={ activePath.some((_, i) => this.getActiveElement(activePath.slice(0, i + 1), elements)?.hidden) }
+            timelineOpen={ this.state.showTimeline }
+            onOpenTimeline={ this.handleToggleTimeline }
+            style={ this.getIslandPosition(elementEditorWidth, dockBottom) }
+          />
+        ) }
+        { this.state.showTimeline && (
+          <div
+            className="app-panel app-panel--timeline"
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: timelineHeight,
+            }}
+          >
+            <TimelinePanel
+              controller={ this.timeline }
+              elements={ elements }
+              activePath={ activePath }
+              height={ timelineHeight }
+              minHeight={ TIMELINE_HEIGHT.min }
+              maxHeight={ timelineMax }
+              defaultHeight={ TIMELINE_HEIGHT.default }
+              animatedOnly={ this.state.timelineAnimatedOnly }
+              onAnimatedOnlyChange={ this.handleTimelineAnimatedOnly }
+              onResize={ this.handleTimelineResize }
+              onResizeEnd={ this.handleTimelineResizeEnd }
+              onSelect={ this.handleSelectElement }
+              onReveal={ this.handleRevealElement }
+              onClose={ this.handleToggleTimeline }
+            />
+          </div>
+        ) }
         <AnimationContainer
           { ...commonProps }
+          bottom={ dockBottom }
           keyframes={ this.state.keyframes[this.state.activeKeyframeId] }
           keyframesId={ this.state.activeKeyframeId }
           element={ this.getActiveElement(activePath, elements) }

@@ -43,7 +43,7 @@
 ## Elements Panel
 ### Option to Clone Element
 ### Option to Add New Element
-## Show Timeline Marker
+## ~~Show Timeline Marker~~ (done 2026-10-27: keyframe island for the selected layer + Timeline panel for all layers)
 ## EDITOR
 ### Space out Tags
 ### Lock Size (height/width)

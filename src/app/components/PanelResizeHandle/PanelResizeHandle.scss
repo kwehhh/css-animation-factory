@@ -43,3 +43,29 @@ body.caf-is-resizing * {
   cursor: col-resize !important;
   user-select: none !important;
 }
+
+// edge="top": the same sash lying along a bottom-docked panel's top edge.
+.caf-panel-sash--top {
+  top: calc(-1 * var(--caf-space-4));
+  bottom: auto;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: var(--caf-space-8);
+  cursor: row-resize;
+
+  &::after {
+    top: 3px;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 2px;
+  }
+}
+
+body.caf-is-resizing-rows,
+body.caf-is-resizing-rows * {
+  cursor: row-resize !important;
+  user-select: none !important;
+}

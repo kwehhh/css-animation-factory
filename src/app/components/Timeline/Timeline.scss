@@ -1,0 +1,523 @@
+// Keyframe island (selected layer, floating) + Timeline panel (all layers,
+// bottom dock). Shared pieces first: a lane = one animation's bar + diamonds.
+
+.caf-mono {
+  font-family: var(--caf-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+// --- Lane ---------------------------------------------------------------
+
+.caf-tl-lane {
+  position: relative;
+  height: 18px;
+
+  & + & {
+    margin-top: var(--caf-space-4);
+  }
+}
+
+.caf-tl-bar {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  min-width: 2px;
+  border-radius: 999px;
+  background: rgba(110, 109, 248, 0.28);
+  background: color-mix(in srgb, var(--caf-accent) 28%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--caf-accent) 55%, transparent);
+  overflow: hidden;
+
+  // Repeats forever: the bar fades out at the end of the axis instead of
+  // stopping, so it doesn't read as "ends here".
+  &.is-infinite {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--caf-accent) 28%, transparent) 80%,
+      color-mix(in srgb, var(--caf-accent) 6%, transparent) 100%
+    );
+  }
+}
+
+.caf-tl-bar-label {
+  display: block;
+  padding: 0 var(--caf-space-8);
+  font-size: 10px;
+  line-height: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--caf-text);
+}
+
+.caf-tl-key {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  border-radius: 2px;
+  background: var(--caf-key);
+  transform: rotate(45deg);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+
+  &:hover {
+    transform: rotate(45deg) scale(1.3);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--caf-accent);
+    outline-offset: 2px;
+  }
+}
+
+.caf-tl-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--caf-accent);
+  pointer-events: none;
+}
+
+// --- Island -------------------------------------------------------------
+
+.caf-island-wrap {
+  position: absolute;
+  z-index: var(--caf-z-panel);
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--caf-space-16);
+  // Only the island itself takes clicks; the strip around it is preview.
+  pointer-events: none;
+}
+
+.caf-island {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 560px;
+  overflow: hidden;
+  color: var(--caf-text);
+  font-size: var(--caf-nav-font-size);
+  background: var(--caf-surface);
+  background: color-mix(in srgb, var(--caf-surface) 92%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid var(--caf-border);
+  border-radius: var(--caf-space-16);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.caf-island-head {
+  display: flex;
+  align-items: center;
+  gap: var(--caf-space-8);
+  min-height: 36px;
+  padding: var(--caf-space-4) var(--caf-space-8) var(--caf-space-4) 14px;
+  border-bottom: 1px solid var(--caf-border);
+  white-space: nowrap;
+}
+
+.caf-island-title {
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.caf-island-anims {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--caf-muted);
+}
+
+.caf-island-spacer {
+  flex: 1;
+}
+
+.caf-island-time {
+  color: var(--caf-muted);
+}
+
+.caf-island-computed {
+  display: flex;
+  gap: var(--caf-space-12);
+  padding: 6px 14px;
+  font-size: 11px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--caf-border);
+
+  code {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: inherit;
+  }
+}
+
+.caf-island-computed-label {
+  color: var(--caf-muted);
+}
+
+.caf-island-body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--caf-space-8);
+  padding: var(--caf-space-12) 14px var(--caf-space-8) var(--caf-space-8);
+}
+
+.caf-island-transport {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: var(--caf-space-2);
+}
+
+// The one button you reach for: a filled circle.
+.caf-island-play.MuiIconButton-root,
+.caf-tl-play.MuiIconButton-root {
+  border-radius: 50%;
+  background: rgba(110, 109, 248, 0.22);
+  background: color-mix(in srgb, var(--caf-accent) 22%, transparent);
+
+  &:hover {
+    background: color-mix(in srgb, var(--caf-accent) 34%, transparent);
+  }
+}
+
+.caf-island-tracks {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 88px) minmax(0, 1fr);
+  column-gap: var(--caf-space-8);
+  min-width: 0;
+}
+
+.caf-island-names {
+  display: flex;
+  flex-direction: column;
+  gap: var(--caf-space-4);
+}
+
+.caf-island-lane-name {
+  height: 18px;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 18px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--caf-muted);
+}
+
+.caf-island-lanes {
+  min-width: 0;
+}
+
+// Half the scrubber thumb (14px) in from each side: see KeyframeIsland.
+.caf-island-lanes-inner {
+  position: relative;
+  margin: 0 7px;
+}
+
+// Scrubber: thin track, filled up to the thumb (--p is set per frame).
+.caf-island-scrub {
+  --p: 0%;
+  display: block;
+  width: 100%;
+  height: 14px;
+  margin: var(--caf-space-8) 0 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--caf-accent) var(--p),
+      color-mix(in srgb, var(--caf-text) 16%, transparent) var(--p)
+    );
+  }
+
+  &::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--caf-text) 16%, transparent);
+  }
+
+  &::-moz-range-progress {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--caf-accent);
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border: 2px solid var(--caf-surface);
+    border-radius: 50%;
+    background: var(--caf-accent);
+  }
+
+  &::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--caf-surface);
+    border-radius: 50%;
+    background: var(--caf-accent);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--caf-accent) 45%, transparent);
+  }
+}
+
+.caf-island-empty,
+.caf-island-more {
+  margin: 0;
+  padding: var(--caf-space-8) 14px var(--caf-space-12);
+  line-height: 1.5;
+  color: var(--caf-muted);
+}
+
+.caf-island-more {
+  padding-top: 0;
+  font-size: 11px;
+}
+
+// --- Timeline panel -------------------------------------------------------
+
+.caf-timeline {
+  --caf-tl-label-w: 200px;
+  // Room either side of the tracks so a diamond at 0% or 100% isn't clipped.
+  --caf-tl-pad: var(--caf-space-12);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  font-size: var(--caf-nav-font-size);
+  border-top: 1px solid var(--caf-border);
+}
+
+.caf-tl-toolbar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--caf-space-12);
+  min-height: 36px;
+  padding: var(--caf-space-2) var(--caf-space-8) var(--caf-space-2) 0;
+  border-bottom: 1px solid var(--caf-border);
+}
+
+.caf-tl-title {
+  flex: none;
+}
+
+.caf-tl-transport {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--caf-space-2);
+  min-width: 0;
+}
+
+.caf-tl-btn-wrap {
+  display: inline-flex;
+}
+
+.caf-tl-time {
+  margin-left: var(--caf-space-8);
+  white-space: nowrap;
+  color: var(--caf-muted);
+}
+
+.caf-tl-options {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--caf-space-12);
+}
+
+.caf-tl-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: var(--caf-muted);
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    margin: 0;
+    accent-color: var(--caf-accent);
+  }
+}
+
+.caf-tl-select {
+  padding: 1px var(--caf-space-4);
+  font: inherit;
+  color: var(--caf-text);
+  background: var(--caf-input-bg);
+  border: 1px solid var(--caf-border);
+  border-radius: var(--caf-space-4);
+}
+
+.caf-tl-empty {
+  padding-top: var(--caf-space-12);
+}
+
+.caf-tl-scroll {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.caf-tl-ruler-row {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  height: 24px;
+  background: var(--caf-surface);
+  border-bottom: 1px solid var(--caf-border);
+}
+
+.caf-tl-label-head {
+  flex: none;
+  width: var(--caf-tl-label-w);
+  padding: 0 var(--caf-space-8);
+  font-size: 11px;
+  line-height: 24px;
+  color: var(--caf-muted);
+  border-right: 1px solid var(--caf-border);
+}
+
+.caf-tl-ruler-pad,
+.caf-tl-track-pad {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--caf-tl-pad);
+}
+
+.caf-tl-ruler {
+  position: relative;
+  height: 100%;
+  cursor: ew-resize;
+  touch-action: none;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    box-shadow: inset 0 -2px 0 var(--caf-accent);
+  }
+
+  // The playhead starts in the (sticky) ruler and runs down over the visible
+  // rows; its height is the scroll area's, measured in TimelinePanel.
+  .caf-tl-playhead {
+    bottom: auto;
+    height: var(--caf-tl-view-h, 100%);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -5px;
+      border: 6px solid transparent;
+      border-top-color: var(--caf-accent);
+      border-bottom: 0;
+    }
+  }
+}
+
+.caf-tl-tick {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  padding-left: var(--caf-space-4);
+  font-size: 10px;
+  line-height: 24px;
+  white-space: nowrap;
+  color: var(--caf-muted);
+  border-left: 1px solid var(--caf-border);
+  pointer-events: none;
+}
+
+.caf-tl-row {
+  display: flex;
+  min-height: 26px;
+  border-bottom: 1px solid color-mix(in srgb, var(--caf-border) 50%, transparent);
+
+  &.is-selected {
+    background: rgba(110, 109, 248, 0.1);
+    background: color-mix(in srgb, var(--caf-accent) 10%, transparent);
+  }
+
+  &.is-hidden .caf-tl-label {
+    opacity: 0.55;
+  }
+}
+
+.caf-tl-label {
+  flex: none;
+  width: var(--caf-tl-label-w);
+  padding: var(--caf-space-4) var(--caf-space-8);
+  overflow: hidden;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--caf-muted);
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--caf-border);
+  cursor: pointer;
+
+  &:hover,
+  &[aria-pressed="true"] {
+    color: var(--caf-text);
+  }
+
+  &[aria-pressed="true"] {
+    box-shadow: inset 3px 0 0 var(--caf-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--caf-accent);
+    outline-offset: -2px;
+  }
+}
+
+.caf-tl-label-note {
+  font-style: italic;
+}
+
+.caf-tl-track {
+  position: relative;
+  height: 100%;
+  padding: var(--caf-space-4) 0;
+  cursor: pointer;
+}

@@ -11,6 +11,12 @@ CSS Animation Factory - Sprinkle that CSS into the factory yo!
 ### Build
 1. `npm run build` to generate a build to `/dist` directorry.
 
+### Timeline
+- Select a layer: a keyframe island floats over the preview with its animations, a diamond per keyframe, a scrubber and the animated properties' current values.
+- Header ⋯ button (LinearScale icon): the Timeline panel, every layer on one time axis. Click or drag the ruler to scrub; click a diamond to jump to that keyframe; drag the panel's top edge to resize.
+- **Space** plays/pauses. Play, pause, scrub, loop and speed apply to the whole preview at once.
+- Works with any CSS animation (class properties, the `animation` shorthand, raw preset CSS): it reads what the browser is running.
+
 ### Branches
 1. All commits go to brain `main`
 

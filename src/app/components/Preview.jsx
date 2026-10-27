@@ -106,6 +106,8 @@ export default class Preview extends React.Component {
         key: `path-${nextPath.join('-')}`,
         className: this.getClassNames(classes),
         ...attributes,
+        // Lets the timelines map a running animation back to its layer.
+        'data-caf-path': nextPath.join('-'),
         // ONE event per press (mouse, touch and pen). Binding mousedown + click
         // (+ touchstart) selected on press and then again on release, and the
         // second select toggled it straight back off.
@@ -137,6 +139,7 @@ export default class Preview extends React.Component {
 
     return (
       <div
+        ref={ this.props.rootRef }
         style={{
           display: 'flex',
           justifyContent: 'center',

@@ -18,6 +18,11 @@
   --caf-accent-strong: #504ff6;            // primary-500 for solid fills
   --caf-glow: rgba(80, 79, 246, 0.45);
   --caf-input-bg: rgba(9, 10, 22, 0.45);
+  // Keyframe diamonds on the timelines: amber, apart from the violet accent so
+  // "a keyframe is here" never reads as "this is selected".
+  --caf-key: #f5b83d;
+  // Times, durations and computed values: fixed-width digits that don't jitter.
+  --caf-font-mono: 'SF Mono', ui-monospace, Menlo, Consolas, 'Liberation Mono', monospace;
 
   // Spacing scale (px) — use for padding/margin/gaps
   --caf-space-0: 0px;
@@ -64,6 +69,8 @@
   --caf-accent-strong: #3d3cd9;
   --caf-glow: rgba(80, 79, 246, 0.25);
   --caf-input-bg: rgba(26, 28, 45, 0.06);
+  // Darker amber: #f5b83d is under 2:1 on white, this is over 3:1.
+  --caf-key: #b7791f;
 
   color-scheme: light;
 }

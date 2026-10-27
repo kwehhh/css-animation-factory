@@ -4,6 +4,7 @@ import { Tooltip } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import TuneIcon from '@material-ui/icons/Tune';
+import LinearScaleIcon from '@material-ui/icons/LinearScale';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
 import HistoryIcon from '@material-ui/icons/History';
@@ -26,6 +27,7 @@ export default function AppHeader({
   showLayersPanel,
   showElementContainer,
   showHistoryPanel,
+  showTimeline,
   canUndo,
   canRedo,
   onUndo,
@@ -34,6 +36,7 @@ export default function AppHeader({
   onToggleLayersPanel,
   onToggleElementPanel,
   onToggleHistoryPanel,
+  onToggleTimeline,
   theme,
   onToggleTheme,
   onShowPresets,
@@ -132,6 +135,17 @@ export default function AppHeader({
               aria-pressed={!!showElementContainer}
             >
               <TuneIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={showTimeline ? 'Hide Timeline panel' : 'Show Timeline panel'}>
+            <IconButton
+              className="caf-iconbtn-nav"
+              size="small"
+              onClick={onToggleTimeline}
+              aria-label={showTimeline ? 'Hide Timeline panel' : 'Show Timeline panel'}
+              aria-pressed={!!showTimeline}
+            >
+              <LinearScaleIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           {/* Shows where a click takes you: the sun in dark mode, the moon in light. */}
