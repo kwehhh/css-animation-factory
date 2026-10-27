@@ -22,6 +22,9 @@ CSS Animation Factory - Sprinkle that CSS into the factory yo!
 - **Compiled HTML**: the layer's markup, exactly what Export writes for it. Read-only.
 - **Isolation mode** (Layers toolbar target button, or double-click a layer): only that layer shows, fitted to the view. Esc leaves.
 
+### Themes
+- Header ☀/☾: light or dark. Header palette button: **Neutral** (near-black and grey, after MotionCraft) or the NURVUS navy (default). The violet accent stays in both. Both choices are remembered.
+
 ### Branches
 1. All commits go to brain `main`
 

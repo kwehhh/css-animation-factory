@@ -33,10 +33,31 @@ const TOKENS = {
   },
 };
 
+// The neutral palette (variables.scss, data-caf-palette): grey surfaces and
+// hairlines, same accent.
+const NEUTRAL = {
+  dark: {
+    paper: '#17181f',
+    ground: '#0b0c10',
+    text: '#e7e9ee',
+    muted: 'rgba(231, 233, 238, 0.6)',
+    disabled: 'rgba(231, 233, 238, 0.38)',
+    border: 'rgba(255, 255, 255, 0.09)',
+  },
+  light: {
+    paper: '#ffffff',
+    ground: '#f6f7fa',
+    text: '#161820',
+    muted: 'rgba(22, 24, 32, 0.7)',
+    disabled: 'rgba(22, 24, 32, 0.38)',
+    border: 'rgba(20, 24, 40, 0.12)',
+  },
+};
+
 const FONT = "'InterVariable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
-function buildTheme(type) {
-  const t = TOKENS[type];
+function buildTheme(type, palette) {
+  const t = palette === 'neutral' ? { ...TOKENS[type], ...NEUTRAL[type] } : TOKENS[type];
   return createTheme({
     palette: {
       type,
@@ -67,6 +88,14 @@ function buildTheme(type) {
   });
 }
 
-const muiThemes = { dark: buildTheme('dark'), light: buildTheme('light') };
+const muiThemes = {
+  dark: buildTheme('dark'),
+  light: buildTheme('light'),
+  darkNeutral: buildTheme('dark', 'neutral'),
+  lightNeutral: buildTheme('light', 'neutral'),
+};
+
+/** The MUI theme for a theme ('dark' | 'light') + palette ('nurvus' | 'neutral'). */
+export const getMuiTheme = (theme, palette) => muiThemes[palette === 'neutral' ? `${theme}Neutral` : theme];
 
 export default muiThemes;

@@ -75,6 +75,55 @@
   color-scheme: light;
 }
 
+// "Neutral" palette (header palette button), after MotionCraft: near-black
+// ground, grey neutrals and white hairlines instead of the NURVUS navy, with
+// the NURVUS violet still the one accent. On top of either theme; the same
+// token names. @nurvus/ui's base scale is remapped too, so its menus and
+// lists match (that scale is upside down in dark: 50 is the darkest).
+// [data-theme] adds weight: @nurvus/ui sets its scale with
+// :root[data-theme=dark], injected at runtime (after this file).
+:root[data-theme][data-caf-palette="neutral"] {
+  --caf-bg: #12131a;
+  --caf-surface: #17181f;
+  --caf-surface-2: #0b0c10;
+  --caf-text: #e7e9ee;
+  --caf-muted: rgba(231, 233, 238, 0.6);
+  --caf-border: rgba(255, 255, 255, 0.09);
+  --caf-input-bg: rgba(0, 0, 0, 0.32);
+
+  --base--50: rgba(15, 16, 21, 1);
+  --base--100: rgba(18, 19, 26, 1);
+  --base--200: rgba(23, 24, 31, 1);
+  --base--300: rgba(28, 30, 40, 1);
+  --base--600: rgba(139, 144, 160, 1);
+  --base--700: rgba(180, 184, 196, 1);
+  --base--1100: rgba(231, 233, 238, 1);
+  --base--1200: rgba(245, 246, 248, 1);
+  --base-opacity--8: rgba(139, 144, 160, 0.08);
+  --base-opacity--40: rgba(139, 144, 160, 0.4);
+}
+
+:root[data-theme="light"][data-caf-palette="neutral"] {
+  --caf-bg: #ffffff;
+  --caf-surface: #ffffff;
+  --caf-surface-2: #f6f7fa;
+  --caf-text: #161820;
+  --caf-muted: rgba(22, 24, 32, 0.62);
+  --caf-border: rgba(20, 24, 40, 0.12);
+  --caf-input-bg: rgba(20, 24, 40, 0.05);
+
+  --base--50: rgba(249, 250, 251, 1);
+  --base--100: rgba(244, 245, 247, 1);
+  --base--200: rgba(236, 237, 241, 1);
+  --base--300: rgba(227, 229, 234, 1);
+  --base--600: rgba(139, 144, 160, 1);
+  --base--700: rgba(90, 96, 112, 1);
+  --base--1100: rgba(22, 24, 32, 1);
+  --base--1200: rgba(15, 16, 21, 1);
+  --base-opacity--8: rgba(110, 116, 134, 0.08);
+  --base-opacity--40: rgba(110, 116, 134, 0.4);
+}
+
 // Typography (local Inter assets)
 @font-face {
   font-family: 'InterVariable';

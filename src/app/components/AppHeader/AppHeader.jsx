@@ -10,6 +10,7 @@ import RedoIcon from '@material-ui/icons/Redo';
 import HistoryIcon from '@material-ui/icons/History';
 import WbSunnyIcon from '@material-ui/icons/WbSunny';
 import NightsStayIcon from '@material-ui/icons/NightsStay';
+import PaletteOutlinedIcon from '@material-ui/icons/PaletteOutlined';
 import { IS_MAC, shortcutLabel } from '../../../util/keyboard.js';
 import './AppHeader.scss';
 
@@ -39,6 +40,8 @@ export default function AppHeader({
   onToggleTimeline,
   theme,
   onToggleTheme,
+  palette,
+  onTogglePalette,
   onShowPresets,
 }) {
   return (
@@ -157,6 +160,18 @@ export default function AppHeader({
               aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
             >
               {theme === 'light' ? <NightsStayIcon fontSize="small" /> : <WbSunnyIcon fontSize="small" />}
+            </IconButton>
+          </Tooltip>
+          {/* Pressed = the neutral palette (grey, after MotionCraft); off = the NURVUS navy. */}
+          <Tooltip title={palette === 'neutral' ? 'Neutral palette is on: click for the NURVUS navy' : 'Neutral palette: grey instead of navy'}>
+            <IconButton
+              className="caf-iconbtn-nav"
+              size="small"
+              onClick={onTogglePalette}
+              aria-label="Neutral palette"
+              aria-pressed={palette === 'neutral'}
+            >
+              <PaletteOutlinedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Button type="secondary" size="mini" onClick={onShowPresets}>Presets</Button>

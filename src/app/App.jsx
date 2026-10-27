@@ -21,7 +21,7 @@ import { indentFormatter } from '../util/CSSUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
 import { cssToModel } from '../util/cssToModel.js';
 import { isActivatableTarget, isEditableTarget } from '../util/keyboard.js';
-import muiThemes from './muiTheme.js';
+import { getMuiTheme } from './muiTheme.js';
 import "./App.scss";
 
 const NAV_HEIGHT = 32;
@@ -47,6 +47,7 @@ const ISOLATION_FIT_SHARE = 0.85;
 const ISOLATION_SCALE = { min: 0.25, max: 8 };
 // 'dark' | 'light'. index.html applies the saved value before first paint.
 const THEME_STORAGE_KEY = 'caf.theme';
+const PALETTE_STORAGE_KEY = 'caf.palette';
 
 // Undo/redo history. Only the animation itself is undoable; selection and
 // panel layout are UI state and stay where they are.
@@ -159,6 +160,8 @@ export default class App extends React.Component {
       timelineAnimatedOnly: timeline.animatedOnly,
       // data-theme on <html> drives both the factory's --caf-* tokens and @nurvus/ui.
       theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
+      // 'nurvus' (the navy) or 'neutral' (grey, after MotionCraft); index.html applies it before paint.
+      palette: document.documentElement.dataset.cafPalette === 'neutral' ? 'neutral' : 'nurvus',
       // Header status of the last autosave: { status: 'saved' | 'restored' | 'failed', time }.
       autosave: null,
       // Render copy of this.history (see syncHistoryView).
@@ -808,6 +811,18 @@ export default class App extends React.Component {
     this.setState({ theme });
   }
 
+  handleTogglePalette = () => {
+    const palette = this.state.palette === 'neutral' ? 'nurvus' : 'neutral';
+    if (palette === 'neutral') document.documentElement.dataset.cafPalette = palette;
+    else delete document.documentElement.dataset.cafPalette;
+    try {
+      window.localStorage.setItem(PALETTE_STORAGE_KEY, palette);
+    } catch {
+      // Storage blocked: the palette still applies for this visit.
+    }
+    this.setState({ palette });
+  }
+
   handleToggleHistoryPanel = () => {
     this.setState((prevState) => ({ showHistoryPanel: !prevState.showHistoryPanel }));
   }
@@ -1298,6 +1313,8 @@ export default class App extends React.Component {
           onToggleTimeline={ this.handleToggleTimeline }
           theme={ this.state.theme }
           onToggleTheme={ this.handleToggleTheme }
+          palette={ this.state.palette }
+          onTogglePalette={ this.handleTogglePalette }
           onShowPresets={ this.handleShowPresets }
         />
         <ExportModal
@@ -1492,7 +1509,7 @@ export default class App extends React.Component {
   render() {
     // MUI components (fields, buttons, sliders, dialogs) follow the theme too.
     return (
-      <ThemeProvider theme={ muiThemes[this.state.theme] }>
+      <ThemeProvider theme={ getMuiTheme(this.state.theme, this.state.palette) }>
         { this.renderApp() }
       </ThemeProvider>
     );
