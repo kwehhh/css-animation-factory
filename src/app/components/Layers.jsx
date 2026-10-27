@@ -113,15 +113,32 @@ export default class Layers extends React.Component {
     );
   }
 
-  getMenuItems(elements, path = []) {
+  /**
+   * From the timeline model: each animated layer's animation names (by path
+   * key, "0-2-1"), and the layers with an animated layer somewhere inside.
+   */
+  getAnimationIndex() {
+    const { byPath } = this.props.timelineModel || { byPath: new Map() };
+    const inside = new Set();
+    byPath.forEach((entries, key) => {
+      const parts = key.split('-');
+      for (let i = 1; i < parts.length; i++) inside.add(parts.slice(0, i).join('-'));
+    });
+    return { byPath, inside };
+  }
+
+  getMenuItems(elements, path = [], animation = this.getAnimationIndex()) {
     if (elements) {
       return elements.map((item, i) => {
         const nextPath = [...path, i];
+        const key = nextPath.join('-');
         return {
           ...item,
           label: item.displayName,
           path: nextPath,
-          items: this.getMenuItems(item.elements, nextPath)
+          animationNames: [...new Set((animation.byPath.get(key) || []).map((entry) => entry.name))],
+          animatedInside: animation.inside.has(key),
+          items: this.getMenuItems(item.elements, nextPath, animation)
         }
       });
     }
@@ -142,7 +159,7 @@ export default class Layers extends React.Component {
     };
 
     const itemRenderer = (item) => {
-      const { label, hidden, path } = item;
+      const { label, hidden, path, animationNames = [], animatedInside } = item;
       const handleToggleHidden = (e) => this.props.onToggleHidden?.(e, path);
       const handleRemove = (e) => this.props.onRemove?.(e, path);
 
@@ -157,9 +174,31 @@ export default class Layers extends React.Component {
         </Tooltip>
       );
 
+      // Which layers animate, at a glance: a filled diamond (the timeline's
+      // keyframe color) when this layer does, a hollow one when only layers
+      // inside it do.
+      let badge = null;
+      if (animationNames.length || animatedInside) {
+        const badgeLabel = animationNames.length
+          ? `Animates: ${animationNames.join(', ')}`
+          : 'Layers inside it animate';
+        badge = (
+          <Tooltip title={ badgeLabel }>
+            <span
+              className={ `caf-layer-badge${animationNames.length ? '' : ' is-inside'}` }
+              role="img"
+              aria-label={ badgeLabel }
+            />
+          </Tooltip>
+        );
+      }
+
       return (
         <Layout display="flex" alignItems="center" justifyContent="space-between" itemSpacing={ 0 }>
-          <Text className="caf-text-xs" style={ overflowStyle }>{ label }</Text>
+          <span className="caf-layer-name">
+            <Text className="caf-text-xs" style={ overflowStyle }>{ label }</Text>
+            { badge }
+          </span>
           {/* itemSpacing 0 here and on the row: the 20px default gaps made the icons take 126px, more than the label room on every nested row */}
           <Layout display="flex" alignItems="center" itemSpacing={ 0 }>
             {/* A hidden layer keeps its eye-off icon showing, so you can see it is hidden without hovering. */}

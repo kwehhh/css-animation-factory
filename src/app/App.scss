@@ -109,6 +109,37 @@ body {
   }
 }
 
+// Layer row name + its animation badge. The name shrinks (ellipsis) first,
+// so the badge stays visible right after it.
+.caf-layer-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+
+  > .caf-text-xs {
+    min-width: 0;
+  }
+}
+
+// Animated layer: the timeline's keyframe diamond. Hollow = only layers
+// inside it animate.
+.caf-layer-badge {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-right: var(--caf-space-2);
+  border-radius: 1px;
+  background: var(--caf-key);
+  transform: rotate(45deg);
+
+  &.is-inside {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--caf-key);
+    opacity: 0.75;
+  }
+}
+
 // Small body text (matches navbar spec)
 .caf-text-xs {
   font-size: var(--caf-nav-font-size);

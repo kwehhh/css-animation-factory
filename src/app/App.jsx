@@ -1183,6 +1183,7 @@ export default class App extends React.Component {
               onBeginAddElement={ this.handleBeginAddElement }
               onCancelAddElement={ this.handleCancelAddElement }
               onAddElement={ this.handleAddElement }
+              timelineModel={ this.state.timelineModel }
               width={ this.state.layersWidth }
             />
             <PanelResizeHandle
