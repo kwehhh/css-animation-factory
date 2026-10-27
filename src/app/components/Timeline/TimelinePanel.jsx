@@ -246,6 +246,7 @@ export default function TimelinePanel({
           <label className="caf-tl-option">
             <input
               type="checkbox"
+              name="timeline-animated-only"
               checked={ animatedOnly }
               onChange={ (e) => onAnimatedOnlyChange(e.target.checked) }
             />

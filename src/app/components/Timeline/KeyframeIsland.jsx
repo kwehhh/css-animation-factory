@@ -101,7 +101,7 @@ export default function KeyframeIsland({ controller, path, layer, timelineOpen, 
           </span>
           <span className="caf-island-spacer" />
           <span className="caf-island-time caf-mono" ref={ timeRef } />
-          <SpeedControl controller={ controller } speed={ speed } className="caf-tl-select caf-island-speed" />
+          <SpeedControl controller={ controller } speed={ speed } className="caf-tl-select caf-island-speed" name="island-playback-speed" />
           <Tooltip title={ isolated ? 'Exit isolation (Esc)' : 'Isolate: show only this layer' }>
             <IconButton
               className="caf-iconbtn-nav"
@@ -178,6 +178,7 @@ export default function KeyframeIsland({ controller, path, layer, timelineOpen, 
               <input
                 ref={ scrubRef }
                 className="caf-island-scrub"
+                name="island-scrub"
                 type="range"
                 min={ Math.round(span.start) }
                 max={ Math.round(span.end) }

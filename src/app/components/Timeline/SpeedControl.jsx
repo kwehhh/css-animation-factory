@@ -34,7 +34,7 @@ export function parseSpeed(text) {
  * that takes a decimal or a fraction (Enter or leaving it applies, Escape
  * cancels). A custom rate stays listed as the current choice.
  */
-export default function SpeedControl({ controller, speed, className = 'caf-tl-select' }) {
+export default function SpeedControl({ controller, speed, className = 'caf-tl-select', name = 'playback-speed' }) {
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState('');
   const preset = SPEED_PRESETS.find((s) => same(s, speed));
@@ -51,6 +51,7 @@ export default function SpeedControl({ controller, speed, className = 'caf-tl-se
       <span className="caf-tl-speed-custom">
         <input
           className={ className }
+          name={ `${name}-custom` }
           type="text"
           inputMode="decimal"
           autoFocus
@@ -83,6 +84,7 @@ export default function SpeedControl({ controller, speed, className = 'caf-tl-se
   return (
     <select
       className={ className }
+      name={ name }
       value={ preset !== undefined ? String(preset) : CURRENT }
       aria-label="Playback speed"
       title="Playback speed"
