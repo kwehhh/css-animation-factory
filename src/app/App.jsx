@@ -16,6 +16,7 @@ import KeyframeIsland from './components/Timeline/KeyframeIsland.jsx';
 import TimelinePanel, { SPEEDS } from './components/Timeline/TimelinePanel.jsx';
 import TimelineController from './timeline/TimelineController.js';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
+import { indentFormatter } from '../util/CSSUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
 import { cssToModel } from '../util/cssToModel.js';
 import { isActivatableTarget, isEditableTarget } from '../util/keyboard.js';
@@ -292,7 +293,7 @@ export default class App extends React.Component {
     // Generate CSS from Classes
     if (classes) {
       Object.keys(classes).forEach((className) => {
-        const block = this.getCSSfromStyleObj(classes[className]);
+        const block = this.getCSSfromStyleObj(classes[className], indentFormatter(1));
         displayCSS += this.createCSSBlock(`.${className}`, block);
       });
     }
@@ -720,14 +721,11 @@ export default class App extends React.Component {
     let css = '';
 
     Object.keys(keyframes).forEach((keyframe, i) => {
-      const formatter = (attr, value) => {
-        return `  ${attr}: ${value};\n`;
-      };
-
       if (i > 0) {
         css += '\n';
       }
-      css += this.createCSSBlock(keyframe, this.getCSSfromStyleObj(keyframes[keyframe], formatter));
+      // Frames one level in, their declarations two: nested like the JSON tab.
+      css += `  ${keyframe} {\n${this.getCSSfromStyleObj(keyframes[keyframe], indentFormatter(2))}  }\n`;
 
       // console.log('keyframeCSS', keyframeCSS, keyframe, keyframes, name);
     });

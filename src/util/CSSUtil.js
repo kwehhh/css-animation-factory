@@ -13,4 +13,10 @@ const getCSSfromStyleObj = (style, formatter) => {
   return css;
 };
 
-export { getCSSfromStyleObj };
+/**
+ * getCSSfromStyleObj formatter: one declaration per line, `depth` levels in
+ * (2 spaces each), the way the JSON tab and code formatters lay things out.
+ */
+const indentFormatter = (depth = 1) => (attr, value) => `${'  '.repeat(depth)}${attr}: ${value};\n`;
+
+export { getCSSfromStyleObj, indentFormatter };

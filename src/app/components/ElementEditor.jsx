@@ -21,7 +21,7 @@ import TransferList from './TransferList.jsx';
 import EditFields from './Editor/EditFields.jsx';
 import KeyframesEditor from './Editor/KeyframesEditor.jsx';
 import {Controlled as CodeMirror} from 'react-codemirror2';
-import { getCSSfromStyleObj } from '../../util/CSSUtil.js';
+import { getCSSfromStyleObj, indentFormatter } from '../../util/CSSUtil.js';
 import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
 import { fieldId } from '../../util/StringUtil.js';
@@ -156,7 +156,7 @@ export default class ElementEditor extends React.Component {
     const blocks = [];
     if (resolvedClasses) {
       Object.keys(resolvedClasses).forEach((className) => {
-        blocks.push(`.${className} {\n${getCSSfromStyleObj(resolvedClasses[className])}}`);
+        blocks.push(`.${className} {\n${getCSSfromStyleObj(resolvedClasses[className], indentFormatter(1))}}`);
       });
     }
 
@@ -176,9 +176,8 @@ export default class ElementEditor extends React.Component {
 
       let framesCss = '';
       Object.keys(kf).forEach((pct, i) => {
-        const formatter = (attr, value) => `  ${attr}: ${value};\n`;
-        const propsCss = getCSSfromStyleObj(kf[pct], formatter);
-        framesCss += `${pct} {\n${propsCss}}\n`;
+        const propsCss = getCSSfromStyleObj(kf[pct], indentFormatter(2));
+        framesCss += `  ${pct} {\n${propsCss}  }\n`;
         if (i < Object.keys(kf).length - 1) framesCss += '\n';
       });
 
@@ -385,6 +384,10 @@ export default class ElementEditor extends React.Component {
             value={ this.state.sourceText?.[mode] || this.getGeneratedSourceValue(mode, elementProps) }
             options={{
               mode: this.state.sourceMode === 'css' ? 'css' : 'javascript',
+              // Long CSS values (gradients, transforms) wrap instead of running
+              // off the panel. JSON stays unwrapped: an SVG path's `d` is one
+              // huge line that would fill the whole pane.
+              lineWrapping: this.state.sourceMode === 'css',
               theme: 'material',
               lineNumbers: true,
               readOnly: false
