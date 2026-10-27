@@ -1,14 +1,15 @@
 # Build the factory in GitHub Actions, then rsync the static dist/ to the
-# nurvus box as jcage. Served at https://johnyagiz.dev/css-animation-factory/
-# by the johnyagiz.dev nginx block (location /css-animation-factory/ →
-# /var/www/css-animation-factory/, a jcage-owned dir). Same pattern as
-# nurvus-design-system → design.nurvus.ai: build in CI, never on the box, no sudo.
+# nurvus box as jcage. Served at https://animated.nurvus.ai/ by its own nginx
+# site (/etc/nginx/sites-available/animated.nurvus.ai → /var/www/animated.nurvus.ai/,
+# a jcage-owned dir). Same pattern as nurvus-design-system → design.nurvus.ai:
+# build in CI, never on the box, no sudo.
 #
-# Replaces the old memoryleak.ai workflow, which SSHed to a dead host and
-# tried to build there (it failed on every push since 2026-02).
+# Replaces the old memoryleak.ai workflow (animated.memoryleak.ai), which SSHed
+# to a dead host and tried to build there (it failed on every push since 2026-02).
 #
-# Repo secrets (Settings → Secrets and variables → Actions), the same values
-# as in kwehhh/nurvus-design-system: SSH_HOST, SSH_USERNAME, SSH_KEY.
+# Repo secrets (Settings → Secrets and variables → Actions): SSH_HOST, SSH_USERNAME
+# (jcage) and SSH_KEY, a factory-only deploy key (comment
+# github-actions-css-animation-factory in jcage's authorized_keys).
 name: Build & Deploy
 
 on:
@@ -40,14 +41,14 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to johnyagiz.dev/css-animation-factory (rsync as jcage)
+      - name: Deploy to animated.nurvus.ai (rsync as jcage)
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           if [ -z "$SSH_HOST" ] || [ -z "$SSH_USERNAME" ] || [ -z "$SSH_KEY" ]; then
-            echo "::error::Set the SSH_HOST, SSH_USERNAME and SSH_KEY repo secrets (same values as kwehhh/nurvus-design-system)."
+            echo "::error::Set the SSH_HOST, SSH_USERNAME and SSH_KEY repo secrets (SSH_HOST=138.68.41.106, SSH_USERNAME=jcage, SSH_KEY=the factory deploy key)."
             exit 1
           fi
           mkdir -p ~/.ssh
@@ -57,5 +58,5 @@ jobs:
           rsync -az --delete \
             -e "ssh -i ~/.ssh/id_deploy -o ConnectTimeout=20 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             dist/ \
-            "$SSH_USERNAME@$SSH_HOST:/var/www/css-animation-factory/"
-          echo "Deployed to https://johnyagiz.dev/css-animation-factory/"
+            "$SSH_USERNAME@$SSH_HOST:/var/www/animated.nurvus.ai/"
+          echo "Deployed to https://animated.nurvus.ai/"
