@@ -195,7 +195,7 @@ export default function TransferList(props) {
   );
 
   return (
-    <Grid container spacing={2} justify="center" alignItems="center" className={classes.root}>
+    <Grid container spacing={2} justifyContent="center" alignItems="center" className={classes.root}>
       <Grid item>{customList('Unassigned Classes', left)}</Grid>
       <Grid item>
         <Grid container direction="column" alignItems="center">

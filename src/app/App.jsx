@@ -2,6 +2,7 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import { Menu, Link } from '@nurvus/ui';
 import { Drawer } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/core/styles';
 import _ from "lodash";
 import AnimationContainer from './components/AnimationContainer/AnimationContainer.jsx';
 import AppHeader from './components/AppHeader/AppHeader.jsx';
@@ -18,6 +19,7 @@ import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
 import { cssToModel } from '../util/cssToModel.js';
 import { isActivatableTarget, isEditableTarget } from '../util/keyboard.js';
+import muiThemes from './muiTheme.js';
 import "./App.scss";
 
 // Layers panel width (px): default, drag limits, and where the user's choice is remembered.
@@ -1074,7 +1076,7 @@ export default class App extends React.Component {
     });
   }
 
-  render() {
+  renderApp() {
     const { activeElement, activePath, classes, keyframes, elements, historyView } = this.state;
 
     const navHeight = 32;
@@ -1295,6 +1297,15 @@ export default class App extends React.Component {
 
         </Drawer>
       </div>
+    );
+  }
+
+  render() {
+    // MUI components (fields, buttons, sliders, dialogs) follow the theme too.
+    return (
+      <ThemeProvider theme={ muiThemes[this.state.theme] }>
+        { this.renderApp() }
+      </ThemeProvider>
     );
   }
 }
