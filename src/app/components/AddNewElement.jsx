@@ -72,6 +72,25 @@ export default class AddNewElement extends React.Component {
     this.props.onClassChange(className, localProps, { record: false });
   };
 
+  // Escape cancels, like the close button. (The dialog is mounted only while
+  // open, so the listener lives exactly as long as it does.)
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown = (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
+    // A dialog or menu opened from inside this one (Assign Classes, a select)
+    // closes on the same Escape: let it, and keep this one open. MUI stops
+    // the event only among React handlers, so check for it here.
+    if (document.querySelector('.MuiDialog-root, .MuiPopover-root')) return;
+    this.props.onCancel();
+  }
+
   render() {
     const leftBoundary = 300;
     const { config, newClassProps } = this.state;
