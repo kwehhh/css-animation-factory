@@ -1217,6 +1217,10 @@ export default class App extends React.Component {
               }}
               element={ selectedElement }
               elementProps={ selectedElement }
+              // Only this editor shows the preset CSS that styles the selected
+              // layer in the preview (not the Add New Element dialog's).
+              livePath={ activePath }
+              presetCss={ this.state.css }
               defaultExpanded={ true }
               onExpandedChange={ this.handleElementEditorExpandedChange }
               visible={ true }

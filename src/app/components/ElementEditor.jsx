@@ -87,7 +87,7 @@ export default class ElementEditor extends React.Component {
     // in a pane (or your edit is about to apply): regenerating would reformat
     // the code under your cursor. It catches up on the next change after.
     const selectionChanged = !_.isEqual(prevProps.activePath, this.props.activePath);
-    const docChanged = ['elementProps', 'classes', 'keyframes', 'css'].some((key) => prevProps[key] !== this.props[key]);
+    const docChanged = ['elementProps', 'classes', 'keyframes', 'presetCss'].some((key) => prevProps[key] !== this.props[key]);
     if (selectionChanged || (docChanged && !this.isEditingSource())) {
       this.syncSourceText();
     }
@@ -173,6 +173,52 @@ export default class ElementEditor extends React.Component {
     };
   }
 
+  /** The selected layer's node in the main preview (only the main editor gets `livePath`). */
+  getLiveElement() {
+    const { livePath } = this.props;
+    if (!livePath || !livePath.length) return null;
+    return document.querySelector(`.app-root > .preview [data-caf-path="${livePath.join('-')}"]`);
+  }
+
+  /**
+   * The preset's own CSS rules (id rules, `#monkey .arm`, …) that match `el`,
+   * found by the browser's selector matching. A rule for el::before/::after
+   * counts too.
+   */
+  getPresetRules(el) {
+    const css = this.props.presetCss;
+    if (!css || !el || typeof CSSStyleSheet === 'undefined') return [];
+    if (!this._presetSheet || this._presetSheet.css !== css) {
+      let sheet = null;
+      try {
+        sheet = new CSSStyleSheet();
+        sheet.replaceSync(css);
+      } catch {
+        sheet = null;
+      }
+      this._presetSheet = { css, sheet };
+    }
+    const { sheet } = this._presetSheet;
+    if (!sheet) return [];
+    const matches = (selector) => selector.split(',').some((part) => {
+      try {
+        return el.matches(part.replace(/::?(before|after)\b.*$/, '').trim() || '*');
+      } catch {
+        return false;
+      }
+    });
+    const found = [];
+    const visit = (rules) => Array.from(rules).forEach((rule) => {
+      if (rule.selectorText) {
+        if (matches(rule.selectorText)) found.push(rule);
+      } else if (rule.cssRules && !rule.name) {
+        visit(rule.cssRules); // @media / @supports, not @keyframes (those have a name)
+      }
+    });
+    visit(sheet.cssRules);
+    return found;
+  }
+
   getCompiledCss(elementProps) {
     const resolvedClasses = this.getElementClassProps(this.props.classes, elementProps?.classes);
 
@@ -183,7 +229,29 @@ export default class ElementEditor extends React.Component {
       });
     }
 
-    this.getKeyframeNames(elementProps?.classes).forEach((name) => {
+    // A layer can also be styled by the preset's own CSS (an svg preset's id
+    // rules): show those too, so the pane is never blank for a layer that
+    // visibly animates. As a comment: this pane only edits classes and
+    // @keyframes, and the parser must not read `#monkey .arm` as a class.
+    const live = this.getLiveElement();
+    const presetRules = this.getPresetRules(live);
+    if (presetRules.length) {
+      const rules = presetRules.map((rule) => {
+        const decls = rule.style.cssText.split(/;\s*/).map((d) => d.trim()).filter(Boolean);
+        return `${rule.selectorText} {\n${decls.map((d) => `  ${d};`).join('\n')}\n}`;
+      });
+      blocks.push(`/* Also styling this layer: the preset's own CSS (read-only here)\n\n${rules.join('\n\n').replace(/\*\//g, '* /')}\n*/`);
+    }
+
+    // The @keyframes it runs: named by its classes, or by those preset rules.
+    const keyframeNames = this.getKeyframeNames(elementProps?.classes);
+    if (live) {
+      window.getComputedStyle(live).animationName.split(',').map((name) => name.trim()).forEach((name) => {
+        if (this.props.keyframes?.[name] && !keyframeNames.includes(name)) keyframeNames.push(name);
+      });
+    }
+
+    keyframeNames.forEach((name) => {
       const kf = this.props.keyframes[name];
 
       let framesCss = '';
