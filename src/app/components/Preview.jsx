@@ -108,6 +108,8 @@ export default class Preview extends React.Component {
         ...attributes,
         // Lets the timelines map a running animation back to its layer.
         'data-caf-path': nextPath.join('-'),
+        // Isolation mode shows only this layer (see IsolationBar.scss).
+        'data-caf-isolated': this.isIsolated(nextPath) ? '' : undefined,
         // ONE event per press (mouse, touch and pen). Binding mousedown + click
         // (+ touchstart) selected on press and then again on release, and the
         // second select toggled it straight back off.
@@ -115,6 +117,11 @@ export default class Preview extends React.Component {
       },
       this.renderElements(elements, nextPath)
     );
+  }
+
+  isIsolated(path) {
+    const { isolatedPath } = this.props;
+    return !!(isolatedPath && isolatedPath.length) && path.join('-') === isolatedPath.join('-');
   }
 
   renderElements(elements, path = []) {
@@ -133,8 +140,11 @@ export default class Preview extends React.Component {
       bottomBoundaryHeight,
       elements,
       topBoundaryHeight,
+      isolatedPath,
+      fitting,
       style
     } = this.props;
+    const isolating = !!(isolatedPath && isolatedPath.length);
 
 
     return (
@@ -153,7 +163,7 @@ export default class Preview extends React.Component {
           height: '100%',
           ...style
         }}
-        className="preview">
+        className={ `preview${isolating ? ' is-isolating' : ''}${fitting ? ' is-fitting' : ''}` }>
         { this.renderElements(elements) }
       </div>
     );

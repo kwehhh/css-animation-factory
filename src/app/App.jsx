@@ -13,6 +13,7 @@ import HistoryPanel from './components/HistoryPanel/HistoryPanel.jsx';
 import PanelResizeHandle from './components/PanelResizeHandle/PanelResizeHandle.jsx';
 import Preview from './components/Preview.jsx';
 import KeyframeIsland from './components/Timeline/KeyframeIsland.jsx';
+import IsolationBar from './components/IsolationBar/IsolationBar.jsx';
 import TimelinePanel from './components/Timeline/TimelinePanel.jsx';
 import TimelineController, { clampSpeed } from './timeline/TimelineController.js';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
@@ -23,6 +24,9 @@ import { isActivatableTarget, isEditableTarget } from '../util/keyboard.js';
 import muiThemes from './muiTheme.js';
 import "./App.scss";
 
+const NAV_HEIGHT = 32;
+// Element Editor width (px); twice that while expanded with a layer selected.
+const EDITOR_WIDTH = 350;
 // Layers panel width (px): default, drag limits, and where the user's choice is remembered.
 const LAYERS_WIDTH = { default: 180, min: 180, max: 480 };
 const LAYERS_WIDTH_STORAGE_KEY = 'caf.layersWidth';
@@ -35,6 +39,12 @@ const ISLAND_GAP = 16;
 // Narrowest gap between the side panels the island fits in; below it, it
 // spans everything right of the Layers panel and floats over the editor.
 const ISLAND_MIN_WIDTH = 360;
+// Isolation mode: the bar sits this far below the header, and Fit to view
+// zooms the layer to this share of the space left between the panels.
+const ISOLATION_BAR_GAP = 8;
+const ISOLATION_BAR_HEIGHT = 36;
+const ISOLATION_FIT_SHARE = 0.85;
+const ISOLATION_SCALE = { min: 0.25, max: 8 };
 // 'dark' | 'light'. index.html applies the saved value before first paint.
 const THEME_STORAGE_KEY = 'caf.theme';
 
@@ -140,6 +150,11 @@ export default class App extends React.Component {
       presets: [],
       showHistoryPanel: false,
       showTimeline: timeline.open,
+      // Isolation mode: the path of the one layer shown ([] = off), whether
+      // it is zoomed to fit, and that zoom ({ scale, originX/Y, x, y } or null).
+      isolatedPath: [],
+      isolationFit: true,
+      isolationTransform: null,
       timelineHeight: timeline.height,
       timelineAnimatedOnly: timeline.animatedOnly,
       // data-theme on <html> drives both the factory's --caf-* tokens and @nurvus/ui.
@@ -423,6 +438,12 @@ export default class App extends React.Component {
     if (['showTimeline', 'timelineAnimatedOnly'].some((key) => prevState[key] !== this.state[key])) {
       this.saveTimelineSettings();
     }
+    // The isolated layer was deleted (or undone away): leave isolation.
+    if (this.state.isolatedPath.length && !this.isValidPath(this.state.elements, this.state.isolatedPath)) {
+      this.setState({ isolatedPath: [], isolationTransform: null });
+    } else {
+      this.updateIsolationFit();
+    }
     if (!docChanged || isApplyingHistory || (hint && hint.record === false)) return;
 
     this.recordHistory(prevState, hint || {});
@@ -441,6 +462,92 @@ export default class App extends React.Component {
   handleWindowResize = () => {
     window.cancelAnimationFrame(this.resizeFrame);
     this.resizeFrame = window.requestAnimationFrame(() => this.forceUpdate());
+  }
+
+  // --- Isolation mode ------------------------------------------------------
+  // Like Illustrator's: one layer (and what is inside it) is all you see in
+  // the preview, optionally zoomed to fit. Esc, Exit, "All layers" or
+  // selecting a layer outside it leaves.
+
+  isInsideIsolation(path = []) {
+    const { isolatedPath } = this.state;
+    return isolatedPath.every((index, i) => path[i] === index);
+  }
+
+  handleIsolate = (path) => {
+    if (!path || !path.length) return;
+    // Also select it: a double-click on a layer row first toggles it off.
+    this.setState({ isolatedPath: path, activePath: path, showElementContainer: true });
+  }
+
+  handleExitIsolation = () => {
+    if (this.state.isolatedPath.length) this.setState({ isolatedPath: [], isolationTransform: null });
+  }
+
+  handleToggleIsolationFit = () => {
+    this.setState((prevState) => ({ isolationFit: !prevState.isolationFit }));
+  }
+
+  /**
+   * Fit to view: zoom the preview so the isolated layer fills the space left
+   * between the panels (and above the island), centered. Recomputed only when
+   * that space or the layer changes, not on every render (the layer may be
+   * moving: it's animated).
+   */
+  updateIsolationFit() {
+    const { isolatedPath, isolationFit } = this.state;
+    const preview = this.previewRef.current;
+    const layer = preview && isolatedPath.length && isolationFit && preview.querySelector('[data-caf-isolated]');
+    const island = document.querySelector('.caf-island');
+    const pos = this.getIslandPosition(this.getElementEditorWidth(), this.getDockBottom());
+    const key = layer ? JSON.stringify([isolatedPath, pos, window.innerWidth, window.innerHeight, island ? island.offsetHeight : 0]) : '';
+    if (key === this.isolationFitKey) return;
+    this.isolationFitKey = key;
+    if (!layer) {
+      if (this.state.isolationTransform) this.setState({ isolationTransform: null });
+      return;
+    }
+
+    // Where the layer is without any zoom: undo the preview's current scale
+    // (read from the live transform, so this is right mid-transition too).
+    const matrix = window.getComputedStyle(preview).transform;
+    const scale = matrix && matrix !== 'none' ? Number(matrix.match(/matrix\(([^,]+)/)[1]) || 1 : 1;
+    const p = preview.getBoundingClientRect();
+    const e = layer.getBoundingClientRect();
+    const w = e.width / scale;
+    const h = e.height / scale;
+    const x = preview.offsetLeft + (e.left - p.left) / scale;
+    const y = preview.offsetTop + (e.top - p.top) / scale;
+
+    const top = NAV_HEIGHT + ISOLATION_BAR_GAP * 2 + ISOLATION_BAR_HEIGHT;
+    const bottom = window.innerHeight - this.getDockBottom() - (island ? island.offsetHeight + ISLAND_GAP * 2 : 0);
+    const left = pos.left;
+    const right = window.innerWidth - pos.right;
+    if (!w || !h || right - left < 80 || bottom - top < 80) {
+      if (this.state.isolationTransform) this.setState({ isolationTransform: null });
+      return;
+    }
+    const fit = Math.min(((right - left) * ISOLATION_FIT_SHARE) / w, ((bottom - top) * ISOLATION_FIT_SHARE) / h);
+    this.setState({
+      isolationTransform: {
+        scale: Math.min(ISOLATION_SCALE.max, Math.max(ISOLATION_SCALE.min, fit)),
+        originX: x - preview.offsetLeft + w / 2,
+        originY: y - preview.offsetTop + h / 2,
+        x: (left + right) / 2 - (x + w / 2),
+        y: (top + bottom) / 2 - (y + h / 2)
+      }
+    });
+  }
+
+  getElementEditorWidth() {
+    // Opened with nothing selected, the editor only shows a short note: keep it narrow.
+    const selected = this.getActiveElement(this.state.activePath, this.state.elements);
+    return selected && this.state.isElementEditorExpanded ? EDITOR_WIDTH * 2 : EDITOR_WIDTH;
+  }
+
+  /** Height the Timeline panel takes at the bottom (0 when closed). */
+  getDockBottom() {
+    return this.state.showTimeline ? Math.min(this.state.timelineHeight, timelineMaxHeight()) : 0;
   }
 
   handleTimelineChange = () => {
@@ -481,6 +588,20 @@ export default class App extends React.Component {
     this.setState({ timelineAnimatedOnly });
   }
 
+  /** The preview's style: ends above the Timeline panel; zoomed in isolation (Fit to view). */
+  getPreviewStyle(dockBottom) {
+    const style = {};
+    if (this.state.showTimeline) Object.assign(style, { height: 'auto', bottom: dockBottom });
+    const zoom = this.state.isolationTransform;
+    if (zoom) {
+      Object.assign(style, {
+        transform: `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.scale})`,
+        transformOrigin: `${zoom.originX}px ${zoom.originY}px`
+      });
+    }
+    return Object.keys(style).length ? style : undefined;
+  }
+
   /** Where the keyframe island floats: centered in the preview area between the open panels. */
   getIslandPosition(elementEditorWidth, dockBottom) {
     const left = this.state.showLayersPanel ? this.state.layersWidth : 0;
@@ -492,7 +613,11 @@ export default class App extends React.Component {
 
   /** Select a layer (never deselect, unlike a click on the selected layer). */
   handleRevealElement = (path) => {
-    this.setState({ activePath: path, showElementContainer: true });
+    this.setState({
+      activePath: path,
+      showElementContainer: true,
+      ...(!this.isInsideIsolation(path) ? { isolatedPath: [], isolationTransform: null } : {})
+    });
   }
 
   scheduleAutosave() {
@@ -700,6 +825,15 @@ export default class App extends React.Component {
       this.timeline.toggle();
       return;
     }
+    // Esc leaves isolation mode, unless something on top of it (a dialog,
+    // a menu, the Add New Element dialog) takes this Escape.
+    if (e.key === 'Escape' && this.state.isolatedPath.length) {
+      if (e.defaultPrevented || isEditableTarget(e.target) || this.addElementBefore) return;
+      if (document.querySelector('.MuiDialog-root, .MuiPopover-root, .MuiDrawer-modal')) return;
+      e.preventDefault();
+      this.handleExitIsolation();
+      return;
+    }
     // J / K / L: play backwards / pause / play forwards, as in video editors.
     const transport = { j: () => this.timeline.play(-1), k: () => this.timeline.pause(), l: () => this.timeline.play(1) }[e.key.toLowerCase()];
     if (transport && plain) {
@@ -897,10 +1031,17 @@ export default class App extends React.Component {
   handleRemoveElement = (e, path) => {
     if (e?.stopPropagation) e.stopPropagation();
     this.noteHistoryChange({ label: 'Delete layer', detail: this.getElementName(path) });
-    this.setState((prevState) => ({
-      elements: this.removeElementAtPath(prevState.elements, path),
-      activePath: this.adjustActivePathAfterRemoval(prevState.activePath, path)
-    }));
+    this.setState((prevState) => {
+      // Isolation follows the delete like the selection does: gone with the
+      // isolated layer (or a parent), shifted when an earlier sibling goes.
+      const isolatedPath = this.adjustActivePathAfterRemoval(prevState.isolatedPath, path);
+      return {
+        elements: this.removeElementAtPath(prevState.elements, path),
+        activePath: this.adjustActivePathAfterRemoval(prevState.activePath, path),
+        isolatedPath,
+        ...(isolatedPath.length ? {} : { isolationTransform: null })
+      };
+    });
   }
 
   handleCloneElement() {
@@ -943,9 +1084,11 @@ export default class App extends React.Component {
 
     // Selecting opens the Element Editor; clicking the selected thing again
     // deselects it and closes the editor, so the header toggle stays truthful.
+    // Selecting a layer outside the isolated one leaves isolation.
     this.setState({
       activePath,
-      showElementContainer: activePath.length > 0
+      showElementContainer: activePath.length > 0,
+      ...(activePath.length && !this.isInsideIsolation(activePath) ? { isolatedPath: [], isolationTransform: null } : {})
     });
   }
 
@@ -991,6 +1134,8 @@ export default class App extends React.Component {
       keyframes: {},
       css: '',
       activePath: [],
+      isolatedPath: [],
+      isolationTransform: null,
       ...(preset || {})
     });
   }
@@ -1096,18 +1241,16 @@ export default class App extends React.Component {
   renderApp() {
     const { activeElement, activePath, classes, keyframes, elements, historyView } = this.state;
 
-    const navHeight = 32;
+    const navHeight = NAV_HEIGHT;
     const containerSpacing = 20;
-    const elContainerWidth = 350;
     const bottomBoundaryHeight = 200;
     const selectedElement = this.getActiveElement(activePath, elements);
-    // Opened with nothing selected, the editor only shows a short note: keep it narrow.
-    const elementEditorWidth = selectedElement && this.state.isElementEditorExpanded ? elContainerWidth * 2 : elContainerWidth;
+    const elementEditorWidth = this.getElementEditorWidth();
     // The Timeline panel docks along the bottom; the side panels and the
     // preview end above it.
     const timelineMax = timelineMaxHeight();
     const timelineHeight = Math.min(this.state.timelineHeight, timelineMax);
-    const dockBottom = this.state.showTimeline ? timelineHeight : 0;
+    const dockBottom = this.getDockBottom();
     const activeKeyframes = this.state.keyframes[this.state.activeKeyframeId];
     // Only for a selected layer that animates. The keyframe-snapshot strip
     // (shown while a keyframe field has focus) takes its spot, so it steps
@@ -1171,7 +1314,9 @@ export default class App extends React.Component {
           bottomBoundaryHeight={ bottomBoundaryHeight }
           onSelectElement={ this.handleSelectElement }
           rootRef={ this.previewRef }
-          style={ this.state.showTimeline ? { height: 'auto', bottom: dockBottom } : undefined }
+          isolatedPath={ this.state.isolatedPath }
+          fitting={ !!this.state.isolationTransform }
+          style={ this.getPreviewStyle(dockBottom) }
         />
         { this.state.showLayersPanel && (
           <div className="app-panel app-panel--left" style={{
@@ -1193,6 +1338,9 @@ export default class App extends React.Component {
               onCancelAddElement={ this.handleCancelAddElement }
               onAddElement={ this.handleAddElement }
               timelineModel={ this.state.timelineModel }
+              isolatedPath={ this.state.isolatedPath }
+              onIsolate={ this.handleIsolate }
+              onExitIsolation={ this.handleExitIsolation }
               width={ this.state.layersWidth }
             />
             <PanelResizeHandle
@@ -1267,7 +1415,25 @@ export default class App extends React.Component {
             layer={ selectedElement }
             timelineOpen={ this.state.showTimeline }
             onOpenTimeline={ this.handleToggleTimeline }
+            isolated={ this.state.isolatedPath.join('-') === activePath.join('-') }
+            onIsolate={ this.handleIsolate }
+            onExitIsolation={ this.handleExitIsolation }
             style={ this.getIslandPosition(elementEditorWidth, dockBottom) }
+          />
+        ) }
+        { this.state.isolatedPath.length > 0 && (
+          <IsolationBar
+            path={ this.state.isolatedPath }
+            elements={ elements }
+            fit={ this.state.isolationFit }
+            onIsolate={ this.handleIsolate }
+            onToggleFit={ this.handleToggleIsolationFit }
+            onExit={ this.handleExitIsolation }
+            style={{
+              ...this.getIslandPosition(elementEditorWidth, dockBottom),
+              top: navHeight + ISOLATION_BAR_GAP,
+              bottom: 'auto'
+            }}
           />
         ) }
         { this.state.showTimeline && (
@@ -1290,6 +1456,7 @@ export default class App extends React.Component {
               maxHeight={ timelineMax }
               defaultHeight={ TIMELINE_HEIGHT.default }
               animatedOnly={ this.state.timelineAnimatedOnly }
+              isolatedPath={ this.state.isolatedPath }
               onAnimatedOnlyChange={ this.handleTimelineAnimatedOnly }
               onResize={ this.handleTimelineResize }
               onResizeEnd={ this.handleTimelineResizeEnd }

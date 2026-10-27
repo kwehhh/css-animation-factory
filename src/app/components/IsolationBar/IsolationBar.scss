@@ -1,0 +1,131 @@
+// Isolation mode bar: floats at the top of the preview, between the panels.
+.caf-isolation-wrap {
+  position: absolute;
+  z-index: var(--caf-z-panel);
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--caf-space-16);
+  pointer-events: none;
+}
+
+.caf-isolation {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--caf-space-8);
+  max-width: 100%;
+  min-height: 36px;
+  padding: var(--caf-space-2) var(--caf-space-4) var(--caf-space-2) var(--caf-space-12);
+  font-size: var(--caf-nav-font-size);
+  color: var(--caf-text);
+  background: var(--caf-surface);
+  background: color-mix(in srgb, var(--caf-surface) 92%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid var(--caf-accent);
+  border-radius: 999px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3), 0 0 0 3px color-mix(in srgb, var(--caf-accent) 18%, transparent);
+}
+
+.caf-isolation-icon {
+  flex: none;
+  color: var(--caf-accent);
+}
+
+.caf-isolation-label {
+  flex: none;
+  font-weight: 600;
+}
+
+.caf-isolation-crumbs {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+}
+
+.caf-isolation-sep.MuiSvgIcon-root {
+  flex: none;
+  font-size: 16px;
+  color: var(--caf-muted);
+}
+
+.caf-isolation-crumb {
+  max-width: 14em;
+  padding: var(--caf-space-2) var(--caf-space-4);
+  overflow: hidden;
+  font: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--caf-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--caf-space-4);
+
+  &:is(button) {
+    cursor: pointer;
+
+    &:hover {
+      color: var(--caf-text);
+      background: color-mix(in srgb, var(--caf-accent) 14%, transparent);
+    }
+  }
+
+  &.is-current {
+    font-weight: 600;
+    color: var(--caf-text);
+  }
+}
+
+.caf-isolation-spacer {
+  flex: 1;
+  min-width: var(--caf-space-8);
+}
+
+.caf-isolation-exit {
+  flex: none;
+  padding: var(--caf-space-4) var(--caf-space-12);
+  font: inherit;
+  font-weight: 600;
+  color: var(--caf-text);
+  background: color-mix(in srgb, var(--caf-accent) 22%, transparent);
+  border: 1px solid var(--caf-border);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, var(--caf-accent) 34%, transparent);
+    border-color: var(--caf-accent);
+  }
+}
+
+// The preview while isolating: only the isolated layer (and what is inside
+// it) is visible. `visibility` (not display) keeps every box where it is, so
+// the layer doesn't move and its svg/group parents still render it.
+// Inherited, so the preset's own visibility rules inside the layer still win.
+.preview.is-isolating {
+  visibility: hidden;
+
+  [data-caf-isolated] {
+    visibility: visible;
+  }
+}
+
+// Fit to view: the zoom eases in and out.
+.preview.is-fitting {
+  transition: transform 0.25s ease;
+}
+
+// Layers / Timeline rows outside the isolated layer.
+.caf-is-outside-isolation {
+  opacity: 0.4;
+}

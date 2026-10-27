@@ -116,6 +116,8 @@ body {
   align-items: center;
   gap: 6px;
   min-width: 0;
+  // Double-click isolates the layer: don't also select the name as text.
+  user-select: none;
 
   > .caf-text-xs {
     min-width: 0;

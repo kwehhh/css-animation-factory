@@ -6,6 +6,7 @@ import PauseIcon from '@material-ui/icons/Pause';
 import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
 import SkipNextIcon from '@material-ui/icons/SkipNext';
 import LinearScaleIcon from '@material-ui/icons/LinearScale';
+import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import TimelineLane from './TimelineLane.jsx';
 import SpeedControl from './SpeedControl.jsx';
 import { useTimeline, useTimelineFrame } from '../../timeline/useTimeline.js';
@@ -28,7 +29,7 @@ const KEY_STEP_MS = 100;
  * animation is not squeezed by a long scene. Play, scrub and keyframe clicks
  * drive the shared scene clock, so the whole preview follows.
  */
-export default function KeyframeIsland({ controller, path, layer, timelineOpen, onOpenTimeline, style }) {
+export default function KeyframeIsland({ controller, path, layer, timelineOpen, onOpenTimeline, isolated, onIsolate, onExitIsolation, style }) {
   const { model, playing, direction, speed } = useTimeline(controller);
   const forwards = playing && direction > 0;
   const backwards = playing && direction < 0;
@@ -101,6 +102,17 @@ export default function KeyframeIsland({ controller, path, layer, timelineOpen, 
           <span className="caf-island-spacer" />
           <span className="caf-island-time caf-mono" ref={ timeRef } />
           <SpeedControl controller={ controller } speed={ speed } className="caf-tl-select caf-island-speed" />
+          <Tooltip title={ isolated ? 'Exit isolation (Esc)' : 'Isolate: show only this layer' }>
+            <IconButton
+              className="caf-iconbtn-nav"
+              size="small"
+              onClick={ () => (isolated ? onExitIsolation() : onIsolate(path)) }
+              aria-label={ isolated ? 'Exit isolation' : 'Isolate this layer' }
+              aria-pressed={ !!isolated }
+            >
+              <CenterFocusStrongIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           { !timelineOpen && (
             <Tooltip title="Show Timeline panel (all layers)">
               <IconButton className="caf-iconbtn-nav" size="small" onClick={ onOpenTimeline } aria-label="Show all layers in the Timeline panel">

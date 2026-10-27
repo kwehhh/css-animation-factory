@@ -7,6 +7,7 @@ import Container from './Container/Container.jsx';
 import AddIcon from '@material-ui/icons/Add';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
@@ -127,6 +128,12 @@ export default class Layers extends React.Component {
     return { byPath, inside };
   }
 
+  /** While a layer is isolated: true for rows that are not it or inside it. */
+  isOutsideIsolation(path) {
+    const { isolatedPath = [] } = this.props;
+    return isolatedPath.length > 0 && !isolatedPath.every((index, i) => path[i] === index);
+  }
+
   getMenuItems(elements, path = [], animation = this.getAnimationIndex()) {
     if (elements) {
       return elements.map((item, i) => {
@@ -138,6 +145,7 @@ export default class Layers extends React.Component {
           path: nextPath,
           animationNames: [...new Set((animation.byPath.get(key) || []).map((entry) => entry.name))],
           animatedInside: animation.inside.has(key),
+          outsideIsolation: this.isOutsideIsolation(nextPath),
           items: this.getMenuItems(item.elements, nextPath, animation)
         }
       });
@@ -145,6 +153,29 @@ export default class Layers extends React.Component {
 
     return [];
 
+  }
+
+  // Isolate the selected layer (or leave isolation): the toolbar's toggle.
+  renderIsolateButton() {
+    const { activePath = [], isolatedPath = [] } = this.props;
+    const isolating = isolatedPath.length > 0;
+    const label = isolating ? 'Exit isolation (Esc)' : 'Isolate selected layer (or double-click a layer)';
+    return (
+      <Tooltip title={ label }>
+        <span style={{ display: 'inline-flex' }}>
+          <IconButton
+            className="caf-iconbtn-nav"
+            size="small"
+            onClick={ () => (isolating ? this.props.onExitIsolation?.() : this.props.onIsolate?.(activePath)) }
+            disabled={ !isolating && !activePath.length }
+            aria-label={ isolating ? 'Exit isolation' : 'Isolate selected layer' }
+            aria-pressed={ isolating }
+          >
+            <CenterFocusStrongIcon fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip>
+    );
   }
 
   render() {
@@ -159,7 +190,7 @@ export default class Layers extends React.Component {
     };
 
     const itemRenderer = (item) => {
-      const { label, hidden, path, animationNames = [], animatedInside } = item;
+      const { label, hidden, path, animationNames = [], animatedInside, outsideIsolation } = item;
       const handleToggleHidden = (e) => this.props.onToggleHidden?.(e, path);
       const handleRemove = (e) => this.props.onRemove?.(e, path);
 
@@ -194,7 +225,15 @@ export default class Layers extends React.Component {
       }
 
       return (
-        <Layout display="flex" alignItems="center" justifyContent="space-between" itemSpacing={ 0 }>
+        <Layout
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          itemSpacing={ 0 }
+          // Double-click isolates the layer (Illustrator's double-click into a group).
+          onDoubleClick={ () => this.props.onIsolate?.(path) }
+          className={ outsideIsolation ? 'caf-is-outside-isolation' : undefined }
+        >
           <span className="caf-layer-name">
             <Text className="caf-text-xs" style={ overflowStyle }>{ label }</Text>
             { badge }
@@ -261,6 +300,7 @@ export default class Layers extends React.Component {
                   </IconButton>
                 </span>
               </Tooltip>
+              { this.renderIsolateButton() }
               <Tooltip title="Clone Selected Layer">
                 <span style={{ display: 'inline-flex' }}>
                   <IconButton

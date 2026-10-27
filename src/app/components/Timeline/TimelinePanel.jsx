@@ -47,6 +47,7 @@ export default function TimelinePanel({
   maxHeight,
   defaultHeight,
   animatedOnly,
+  isolatedPath = [],
   onAnimatedOnlyChange,
   onResize,
   onResizeEnd,
@@ -300,7 +301,12 @@ export default function TimelinePanel({
               <div
                 key={ row.key }
                 data-row={ row.key }
-                className={ classNames('caf-tl-row', { 'is-selected': selected, 'is-hidden': row.hidden, 'is-static': !entries.length }) }
+                className={ classNames('caf-tl-row', {
+                  'is-selected': selected,
+                  'is-hidden': row.hidden,
+                  'is-static': !entries.length,
+                  'caf-is-outside-isolation': isolatedPath.length > 0 && !isolatedPath.every((index, i) => row.path[i] === index),
+                }) }
               >
                 <button
                   type="button"
