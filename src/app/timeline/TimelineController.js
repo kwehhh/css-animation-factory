@@ -6,6 +6,16 @@ const MODEL_REFRESH_MS = 400;
 // A frame gap longer than this (background tab, breakpoint) is not played
 // through: the clock resumes where it was instead of jumping ahead.
 const MAX_FRAME_MS = 100;
+// Playback rates allowed (custom ones included): 1/20x to 16x.
+export const MIN_SPEED = 0.05;
+export const MAX_SPEED = 16;
+
+/** A usable playback rate, or null. */
+export function clampSpeed(speed) {
+  const n = Number(speed);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return Math.min(MAX_SPEED, Math.max(MIN_SPEED, n));
+}
 
 /**
  * A CSS animation its element no longer names (its class was removed, its
@@ -41,8 +51,10 @@ export default class TimelineController {
     this.getRoot = getRoot;
     this.time = 0;
     this.playing = playing;
+    // 1 = forwards, -1 = backwards.
+    this.direction = 1;
     this.loop = loop;
-    this.speed = speed;
+    this.speed = clampSpeed(speed) || 1;
     this.model = EMPTY_MODEL;
     this.frameListeners = new Set();
     this.changeListeners = new Set();
@@ -108,12 +120,15 @@ export default class TimelineController {
     const { length } = this.model;
     if (this.playing && this.lastFrame !== null && length > 0) {
       const dt = Math.min(MAX_FRAME_MS, now - this.lastFrame);
-      let time = this.time + dt * this.speed;
-      if (time >= length) {
+      let time = this.time + dt * this.speed * this.direction;
+      // Past either end: loop round to the other end, or stop there.
+      const past = this.direction > 0 ? time >= length : time <= 0;
+      if (past) {
+        const end = this.direction > 0 ? length : 0;
         if (this.loop) {
-          time = 0;
+          time = length - end;
         } else {
-          time = length;
+          time = end;
           this.playing = false;
           this.emitChange();
         }
@@ -159,10 +174,14 @@ export default class TimelineController {
 
   // --- Transport ------------------------------------------------------------
 
-  play() {
-    if (this.playing) return;
-    // Playing from the end starts over, like any player.
-    if (!this.loop && this.time >= this.model.length) this.setTime(0);
+  /** Play forwards (1), backwards (-1), or on in the current direction. */
+  play(direction = this.direction) {
+    if (this.playing && direction === this.direction) return;
+    this.direction = direction < 0 ? -1 : 1;
+    // Playing from the far end starts over, like any player.
+    const { length } = this.model;
+    if (this.direction > 0 && this.time >= length) this.setTime(0);
+    if (this.direction < 0 && this.time <= 0) this.setTime(length);
     this.playing = true;
     this.lastFrame = null;
     this.emitChange();
@@ -195,7 +214,9 @@ export default class TimelineController {
   }
 
   setSpeed(speed) {
-    this.speed = Number(speed) || 1;
+    const next = clampSpeed(speed);
+    if (next === null || next === this.speed) return;
+    this.speed = next;
     this.emitChange();
   }
 

@@ -89,6 +89,27 @@
   pointer-events: none;
 }
 
+// Play backwards: the play triangle, mirrored.
+.caf-icon-flip {
+  transform: scaleX(-1);
+}
+
+// Custom playback rate field (replaces the speed menu while you type).
+.caf-tl-speed-custom {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--caf-space-2);
+  color: var(--caf-muted);
+
+  input {
+    width: 4.5em;
+
+    &[aria-invalid="true"] {
+      border-color: #ff6b6b;
+    }
+  }
+}
+
 // --- Island -------------------------------------------------------------
 
 .caf-island-wrap {
@@ -147,6 +168,12 @@
 
 .caf-island-time {
   color: var(--caf-muted);
+}
+
+// The island's speed menu: a compact chip in the header.
+.caf-island-speed {
+  max-width: 7em;
+  font-size: 11px;
 }
 
 .caf-island-computed {

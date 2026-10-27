@@ -11,12 +11,12 @@ import RepeatIcon from '@material-ui/icons/Repeat';
 import CloseIcon from '@material-ui/icons/Close';
 import PanelResizeHandle from '../PanelResizeHandle/PanelResizeHandle.jsx';
 import TimelineLane from './TimelineLane.jsx';
+import SpeedControl from './SpeedControl.jsx';
 import { useTimeline, useTimelineFrame } from '../../timeline/useTimeline.js';
 import { formatTick, formatTime, pathKey, rulerTicks } from '../../timeline/timelineModel.js';
 import { keepFocusOnMouseDown } from '../../../util/keyboard.js';
 import './Timeline.scss';
 
-export const SPEEDS = [0.25, 0.5, 1, 2];
 // Arrow keys on the ruler move this far (ms); Shift moves 10x.
 const KEY_STEP_MS = 100;
 
@@ -35,7 +35,7 @@ function flattenLayers(elements = [], path = [], depth = 0, hidden = false, out 
  * Bottom-docked Timeline: every layer as a row with its animations as bars and
  * a diamond per keyframe, one playhead across all of them, a ruler you can
  * click or drag to scrub, and transport (start, previous/next keyframe,
- * play/pause, loop, speed). Clicking a layer name selects it, like the Layers
+ * play backwards/forwards, loop, speed). Clicking a layer name selects it, like the Layers
  * panel; clicking a diamond jumps to that keyframe and selects its layer.
  */
 export default function TimelinePanel({
@@ -54,7 +54,9 @@ export default function TimelinePanel({
   onReveal,
   onClose,
 }) {
-  const { model, playing, loop, speed } = useTimeline(controller);
+  const { model, playing, direction, loop, speed } = useTimeline(controller);
+  const forwards = playing && direction > 0;
+  const backwards = playing && direction < 0;
   const { length } = model;
   const hasAnimations = length > 0;
 
@@ -186,16 +188,30 @@ export default function TimelinePanel({
               </IconButton>
             </span>
           </Tooltip>
-          <Tooltip title={ `${playing ? 'Pause' : 'Play'} (Space)` }>
+          <Tooltip title={ backwards ? 'Pause (K)' : 'Play backwards (J)' }>
+            <span className="caf-tl-btn-wrap">
+              <IconButton
+                className="caf-iconbtn-nav"
+                size="small"
+                onClick={ () => (backwards ? controller.pause() : controller.play(-1)) }
+                disabled={ !hasAnimations }
+                aria-label={ backwards ? 'Pause' : 'Play backwards' }
+                aria-pressed={ backwards }
+              >
+                { backwards ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" className="caf-icon-flip" /> }
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title={ forwards ? 'Pause (Space or K)' : 'Play (Space or L)' }>
             <span className="caf-tl-btn-wrap">
               <IconButton
                 className="caf-iconbtn-nav caf-tl-play"
                 size="small"
-                onClick={ () => controller.toggle() }
+                onClick={ () => (forwards ? controller.pause() : controller.play(1)) }
                 disabled={ !hasAnimations }
-                aria-label={ playing ? 'Pause' : 'Play' }
+                aria-label={ forwards ? 'Pause' : 'Play' }
               >
-                { playing ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" /> }
+                { forwards ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" /> }
               </IconButton>
             </span>
           </Tooltip>
@@ -222,17 +238,10 @@ export default function TimelinePanel({
           <span className="caf-tl-time caf-mono" ref={ timeRef } />
         </div>
         <div className="caf-tl-options">
-          <label className="caf-tl-option">
+          <span className="caf-tl-option">
             <span>Speed</span>
-            <select
-              className="caf-tl-select"
-              value={ speed }
-              onChange={ (e) => controller.setSpeed(Number(e.target.value)) }
-              aria-label="Playback speed"
-            >
-              { SPEEDS.map((s) => <option key={ s } value={ s }>{ `${s}×` }</option>) }
-            </select>
-          </label>
+            <SpeedControl controller={ controller } speed={ speed } />
+          </span>
           <label className="caf-tl-option">
             <input
               type="checkbox"

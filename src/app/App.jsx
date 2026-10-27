@@ -13,8 +13,8 @@ import HistoryPanel from './components/HistoryPanel/HistoryPanel.jsx';
 import PanelResizeHandle from './components/PanelResizeHandle/PanelResizeHandle.jsx';
 import Preview from './components/Preview.jsx';
 import KeyframeIsland from './components/Timeline/KeyframeIsland.jsx';
-import TimelinePanel, { SPEEDS } from './components/Timeline/TimelinePanel.jsx';
-import TimelineController from './timeline/TimelineController.js';
+import TimelinePanel from './components/Timeline/TimelinePanel.jsx';
+import TimelineController, { clampSpeed } from './timeline/TimelineController.js';
 import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import { indentFormatter } from '../util/CSSUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
@@ -92,7 +92,7 @@ function readStoredTimeline() {
     if (typeof stored.open === 'boolean') settings.open = stored.open;
     if (stored.height >= TIMELINE_HEIGHT.min && stored.height <= TIMELINE_HEIGHT.max) settings.height = stored.height;
     if (typeof stored.loop === 'boolean') settings.loop = stored.loop;
-    if (SPEEDS.includes(stored.speed)) settings.speed = stored.speed;
+    if (clampSpeed(stored.speed) === stored.speed) settings.speed = stored.speed;
     if (typeof stored.animatedOnly === 'boolean') settings.animatedOnly = stored.animatedOnly;
   } catch {
     // Storage blocked or corrupt: use the defaults.
@@ -693,10 +693,19 @@ export default class App extends React.Component {
    * typing, not the animation), and Space still presses a focused button.
    */
   handleKeyDown = (e) => {
-    if (e.key === ' ' && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+    const plain = !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey;
+    if (e.key === ' ' && plain) {
       if (e.defaultPrevented || isActivatableTarget(e.target) || this.addElementBefore) return;
       e.preventDefault();
       this.timeline.toggle();
+      return;
+    }
+    // J / K / L: play backwards / pause / play forwards, as in video editors.
+    const transport = { j: () => this.timeline.play(-1), k: () => this.timeline.pause(), l: () => this.timeline.play(1) }[e.key.toLowerCase()];
+    if (transport && plain) {
+      if (e.defaultPrevented || isEditableTarget(e.target) || this.addElementBefore) return;
+      e.preventDefault();
+      transport();
       return;
     }
     if (e.defaultPrevented || !(e.metaKey || e.ctrlKey) || e.altKey) return;

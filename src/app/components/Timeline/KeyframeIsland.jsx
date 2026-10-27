@@ -7,6 +7,7 @@ import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
 import SkipNextIcon from '@material-ui/icons/SkipNext';
 import LinearScaleIcon from '@material-ui/icons/LinearScale';
 import TimelineLane from './TimelineLane.jsx';
+import SpeedControl from './SpeedControl.jsx';
 import { useTimeline, useTimelineFrame } from '../../timeline/useTimeline.js';
 import { computedSummary, formatTime, layerSpan, localTime, pathKey } from '../../timeline/timelineModel.js';
 import { keepFocusOnMouseDown } from '../../../util/keyboard.js';
@@ -28,7 +29,9 @@ const KEY_STEP_MS = 100;
  * drive the shared scene clock, so the whole preview follows.
  */
 export default function KeyframeIsland({ controller, path, layer, timelineOpen, onOpenTimeline, style }) {
-  const { model, playing } = useTimeline(controller);
+  const { model, playing, direction, speed } = useTimeline(controller);
+  const forwards = playing && direction > 0;
+  const backwards = playing && direction < 0;
   const key = pathKey(path);
   const entries = model.byPath.get(key) || [];
   const span = layerSpan(entries);
@@ -97,6 +100,7 @@ export default function KeyframeIsland({ controller, path, layer, timelineOpen, 
           </span>
           <span className="caf-island-spacer" />
           <span className="caf-island-time caf-mono" ref={ timeRef } />
+          <SpeedControl controller={ controller } speed={ speed } className="caf-tl-select caf-island-speed" />
           { !timelineOpen && (
             <Tooltip title="Show Timeline panel (all layers)">
               <IconButton className="caf-iconbtn-nav" size="small" onClick={ onOpenTimeline } aria-label="Show all layers in the Timeline panel">
@@ -117,14 +121,25 @@ export default function KeyframeIsland({ controller, path, layer, timelineOpen, 
                 <SkipPreviousIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title={ `${playing ? 'Pause' : 'Play'} (Space)` }>
+            <Tooltip title={ backwards ? 'Pause (K)' : 'Play backwards (J)' }>
+              <IconButton
+                className="caf-iconbtn-nav"
+                size="small"
+                onClick={ () => (backwards ? controller.pause() : controller.play(-1)) }
+                aria-label={ backwards ? 'Pause' : 'Play backwards' }
+                aria-pressed={ backwards }
+              >
+                { backwards ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" className="caf-icon-flip" /> }
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={ forwards ? 'Pause (Space or K)' : 'Play (Space or L)' }>
               <IconButton
                 className="caf-iconbtn-nav caf-island-play"
                 size="small"
-                onClick={ () => controller.toggle() }
-                aria-label={ playing ? 'Pause' : 'Play' }
+                onClick={ () => (forwards ? controller.pause() : controller.play(1)) }
+                aria-label={ forwards ? 'Pause' : 'Play' }
               >
-                { playing ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" /> }
+                { forwards ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" /> }
               </IconButton>
             </Tooltip>
             <Tooltip title="Next keyframe">

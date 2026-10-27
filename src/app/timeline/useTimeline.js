@@ -7,6 +7,7 @@ import React from 'react';
 const readTimeline = (controller) => ({
   model: controller.model,
   playing: controller.playing,
+  direction: controller.direction,
   loop: controller.loop,
   speed: controller.speed
 });
