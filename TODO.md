@@ -41,10 +41,10 @@
 # UI
 ## Add Zoom functionality to Preview (like how Storybook does it)
 ## Elements Panel
-### Whole-animation JSON (view / copy / paste to import)
-The Layers panel had a "JSON Data" button (monitor icon) from 2021-10-24 ("Clone Wars") that was never
-wired to anything. Removed 2026-10-27. If wanted later: a dialog with the whole document (elements,
-classes, keyframes, css) as JSON, with Copy and an Import that replaces the document as one undo step.
+### ~~Whole-animation JSON (view / copy / paste to import)~~
+Done 2026-10-27: header **JSON** → "Animation JSON" dialog (Copy, Revert, Import as one undo step; preset
+files paste in too). It replaces the never-wired "JSON Data" button (2021-10-24, removed 2026-10-27).
+Ideas: Download / Open file, and Import that merges into the current animation instead of replacing it.
 ### Option to Clone Element
 ### Option to Add New Element
 ## ~~Show Timeline Marker~~ (done 2026-10-27: keyframe island for the selected layer + Timeline panel for all layers)

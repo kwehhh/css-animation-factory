@@ -1,0 +1,30 @@
+// Animation JSON dialog: a note, the error (if any), and a tall code pane.
+.caf-json-note {
+  margin: 0 0 var(--caf-space-12);
+  color: var(--caf-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.caf-json-error {
+  margin-bottom: var(--caf-space-8);
+  color: #ff6b6b;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+
+  :root[data-theme="light"] & {
+    color: #c62828;
+  }
+}
+
+.caf-json-code {
+  height: 60vh;
+  border: 1px solid var(--caf-border);
+}
+
+.caf-json-status {
+  flex: 1;
+  padding-left: var(--caf-space-8);
+  color: var(--caf-muted);
+  font-size: 13px;
+}

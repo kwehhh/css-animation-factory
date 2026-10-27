@@ -8,6 +8,7 @@ import AnimationContainer from './components/AnimationContainer/AnimationContain
 import AppHeader from './components/AppHeader/AppHeader.jsx';
 import ElementEditor from './components/ElementEditor.jsx';
 import ExportModal from './components/ExportModal/ExportModal.jsx';
+import AnimationJsonDialog from './components/AnimationJson/AnimationJsonDialog.jsx';
 import Layers from './components/Layers.jsx';
 import HistoryPanel from './components/HistoryPanel/HistoryPanel.jsx';
 import PanelResizeHandle from './components/PanelResizeHandle/PanelResizeHandle.jsx';
@@ -20,6 +21,7 @@ import { convertCamelToKebabCase } from '../util/StringUtil.js';
 import { indentFormatter } from '../util/CSSUtil.js';
 import { svgToElements } from '../util/svgToElements.js';
 import { cssToModel } from '../util/cssToModel.js';
+import { animationToJson, readAnimationJson, countLayers } from '../util/animationJson.js';
 import { isActivatableTarget, isEditableTarget } from '../util/keyboard.js';
 import { getMuiTheme } from './muiTheme.js';
 import "./App.scss";
@@ -147,6 +149,7 @@ export default class App extends React.Component {
       showElementContainer: false,
       isElementEditorExpanded: true,
       showExport: false,
+      showJson: false,
       showPresets: false,
       presets: [],
       showHistoryPanel: false,
@@ -214,6 +217,44 @@ export default class App extends React.Component {
   handleHideExport = (e) => {
     if (e?.stopPropagation) e.stopPropagation();
     this.setState({ showExport: false });
+  }
+
+  handleShowJson = (e) => {
+    if (e?.stopPropagation) e.stopPropagation();
+    this.setState({ showJson: true });
+  }
+
+  handleHideJson = () => {
+    this.setState({ showJson: false });
+  }
+
+  getAnimationJson = () => animationToJson(this.state);
+
+  /**
+   * Animation JSON dialog → Import: the pasted animation (or preset file)
+   * replaces the current one, as one undo step. Returns what is wrong with
+   * the text, or null when it was imported.
+   */
+  handleImportJson = (text) => {
+    let doc;
+    try {
+      doc = readAnimationJson(text, (data) => this.expandPreset(data));
+    } catch (err) {
+      return err.message;
+    }
+    const layers = countLayers(doc.elements);
+    this.noteHistoryChange({ label: 'Import JSON', detail: doc.title || `${layers} layer${layers === 1 ? '' : 's'}` });
+    this.setState({
+      showJson: false,
+      elements: doc.elements,
+      classes: doc.classes,
+      keyframes: doc.keyframes,
+      css: doc.css,
+      activePath: [],
+      isolatedPath: [],
+      isolationTransform: null
+    });
+    return null;
   }
 
   handleToggleLayersPanel = (e) => {
@@ -1306,6 +1347,7 @@ export default class App extends React.Component {
           onUndo={ this.handleUndo }
           onRedo={ this.handleRedo }
           onShowExport={ this.handleShowExport }
+          onShowJson={ this.handleShowJson }
           onToggleLayersPanel={ this.handleToggleLayersPanel }
           onToggleElementPanel={ this.handleToggleElementPanel }
           onToggleHistoryPanel={ this.handleToggleHistoryPanel }
@@ -1322,6 +1364,12 @@ export default class App extends React.Component {
           onClose={ this.handleHideExport }
           elements={ this.state.elements }
           css={ this.getDisplayCSS() }
+        />
+        <AnimationJsonDialog
+          open={ this.state.showJson }
+          getJson={ this.getAnimationJson }
+          onImport={ this.handleImportJson }
+          onClose={ this.handleHideJson }
         />
         <Preview
           { ...commonProps }

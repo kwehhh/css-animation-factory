@@ -34,6 +34,7 @@ export default function AppHeader({
   onUndo,
   onRedo,
   onShowExport,
+  onShowJson,
   onToggleLayersPanel,
   onToggleElementPanel,
   onToggleHistoryPanel,
@@ -175,6 +176,11 @@ export default function AppHeader({
             </IconButton>
           </Tooltip>
           <Button type="secondary" size="mini" onClick={onShowPresets}>Presets</Button>
+          <Tooltip title="The whole animation as JSON: copy it, or paste one in to import">
+            <span>
+              <Button type="secondary" size="mini" onClick={onShowJson}>JSON</Button>
+            </span>
+          </Tooltip>
           <Button type="secondary" size="mini" onClick={onShowExport}>Export</Button>
         </Layout>
       </Layout>

@@ -13,32 +13,7 @@ require('codemirror/mode/xml/xml');
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 import { buildExportHtml } from '../../../util/HtmlUtil.js';
-
-function copyToClipboard(text) {
-  try {
-    if (navigator?.clipboard?.writeText) {
-      return navigator.clipboard.writeText(text).catch(() => {});
-    }
-  } catch (e) {
-    // fall through to legacy fallback
-  }
-
-  // Legacy fallback for older browsers / permission issues.
-  try {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.left = '-9999px';
-    textarea.style.top = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-  } catch (e) {
-    // ignore
-  }
-}
+import { copyToClipboard } from '../../../util/clipboard.js';
 
 export default function ExportModal({ open, onClose, elements, css }) {
   const html = buildExportHtml(elements);

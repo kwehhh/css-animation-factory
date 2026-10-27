@@ -22,6 +22,9 @@ CSS Animation Factory - Sprinkle that CSS into the factory yo!
 - **Compiled HTML**: the layer's markup, exactly what Export writes for it. Read-only.
 - **Isolation mode** (Layers toolbar target button, or double-click a layer): only that layer shows, fitted to the view. Esc leaves.
 
+### Animation JSON
+- Header **JSON**: the whole animation (layers, classes, keyframes, the preset's CSS) as JSON, in the same format as the preset files in `src/data`. **Copy** it, or paste one in (a preset file works too) and **Import**: it replaces the current animation as one undo step. Anything that would run code or break the app (event handlers, `javascript:` links, `<script>`, bad tag names) is refused with the reason.
+
 ### Themes
 - Header ☀/☾: light or dark. Header palette button: **Neutral** (near-black and grey, after MotionCraft) or the NURVUS navy (default). The violet accent stays in both. Both choices are remembered.
 
