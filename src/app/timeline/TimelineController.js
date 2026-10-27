@@ -8,6 +8,21 @@ const MODEL_REFRESH_MS = 400;
 const MAX_FRAME_MS = 100;
 
 /**
+ * A CSS animation its element no longer names (its class was removed, its
+ * animation renamed). Chrome keeps one alive if it was paused through the API,
+ * as every animation here is: it no longer renders, but it would still show
+ * in the timelines and the Layers badges.
+ */
+function isOrphanedCssAnimation(anim) {
+  const target = anim.animationName && anim.effect && anim.effect.target;
+  if (!target) return false;
+  const names = window.getComputedStyle(target, anim.effect.pseudoElement || null).animationName
+    .split(',')
+    .map((name) => name.trim().replace(/^["']|["']$/g, ''));
+  return !names.includes(anim.animationName);
+}
+
+/**
  * One clock for the whole preview. Every CSS animation under the preview root
  * is paused and moved to the same scene time each frame, so play, pause,
  * scrub, loop and speed apply to all of them at once and the preview always
@@ -77,7 +92,11 @@ export default class TimelineController {
     const root = this.getRoot && this.getRoot();
     if (!root || !root.getAnimations) return;
 
-    const animations = root.getAnimations({ subtree: true });
+    const animations = root.getAnimations({ subtree: true }).filter((anim) => {
+      if (!isOrphanedCssAnimation(anim)) return true;
+      anim.cancel();
+      return false;
+    });
     const listChanged = animations.length !== this.animations.length
       || animations.some((anim, i) => anim !== this.animations[i]);
     this.animations = animations;
