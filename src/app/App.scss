@@ -201,6 +201,46 @@ body {
   line-height: inherit;
 }
 
+// Comments (the preset's read-only CSS) and line numbers: material's #546e7a
+// is 2.6-3.3:1 on our dark panels; the same slate, lighter, is ≥ 4.6:1.
+.cm-s-material {
+  .CodeMirror-linenumber,
+  .cm-comment { color: #8796a5; }
+}
+
+// Light theme: "material" is a dark theme. With its background made
+// transparent above, its near-white text (`:` `(` `;` in CSS, JSON's
+// punctuation) vanished on the light panels and its pale yellows/greens were
+// under 2:1. Same color families, darkened to ≥ 4.5:1 on every light surface.
+:root[data-theme="light"] .cm-s-material {
+  &.CodeMirror,
+  .cm-variable-2 { color: var(--caf-text); }
+  .CodeMirror-linenumber,
+  .CodeMirror-guttermarker,
+  .CodeMirror-guttermarker-subtle,
+  .cm-comment { color: #5f6b76; }
+  .cm-keyword,
+  .cm-attribute,
+  .cm-property { color: #7c3aed; }
+  .cm-operator { color: #0e7490; }
+  .cm-variable,
+  .cm-string-2,
+  .cm-tag,
+  .cm-number { color: #cf222e; }
+  .cm-builtin,
+  .cm-meta,
+  .cm-qualifier,
+  .cm-type,
+  .cm-variable-3 { color: #8a6100; }
+  .cm-atom { color: #b2470b; }
+  .cm-def { color: #0550ae; }
+  .cm-string { color: #116329; }
+  .CodeMirror-cursor { border-left-color: var(--caf-text); }
+  div.CodeMirror-selected,
+  &.CodeMirror-focused div.CodeMirror-selected { background: rgba(80, 79, 246, 0.16); }
+  .CodeMirror-matchingbracket { color: var(--caf-text) !important; }
+}
+
 // Material UI accents
 .MuiTabs-indicator {
   background-color: var(--caf-accent) !important;
