@@ -98,8 +98,9 @@ export default class ElementEditor extends React.Component {
   }
 
   isEditingSource() {
-    const pane = this.sourcePaneRef.current;
-    return !!this._sourceApplyTimer || !!(pane && pane.contains(document.activeElement));
+    // Focus in the code editor itself; not the JSON / Compiled CSS tabs above it.
+    const editor = this.sourcePaneRef.current && this.sourcePaneRef.current.querySelector('.CodeMirror');
+    return !!this._sourceApplyTimer || !!(editor && editor.contains(document.activeElement));
   }
 
   /** Both panes from the document (a no-op when they already match it). */
