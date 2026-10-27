@@ -170,6 +170,14 @@ body {
   line-height: 1.5;
 }
 
+// A line above an Element Editor code pane (the HTML tab's "Read-only: …").
+.caf-source-note {
+  margin-bottom: var(--caf-space-8);
+  color: var(--caf-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 // Back-compat (older uses)
 .logo {
   @extend .caf-title;

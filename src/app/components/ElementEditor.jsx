@@ -25,8 +25,10 @@ import { getCSSfromStyleObj, indentFormatter } from '../../util/CSSUtil.js';
 import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
 import { fieldId } from '../../util/StringUtil.js';
+import { renderElementToHtml } from '../../util/HtmlUtil.js';
 require('codemirror/mode/css/css');
 require('codemirror/mode/javascript/javascript');
+require('codemirror/mode/xml/xml');
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 
@@ -60,7 +62,8 @@ export default class ElementEditor extends React.Component {
       sourceMode: 'css',
       sourceText: {
         json: '',
-        css: ''
+        css: '',
+        html: ''
       },
       sourceError: {
         json: null,
@@ -82,7 +85,7 @@ export default class ElementEditor extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    // The JSON / Compiled CSS panes follow the document: a new selection, an
+    // The JSON / CSS / HTML panes follow the document: a new selection, an
     // edit in the form next to them, undo, a preset. Not while you are typing
     // in a pane (or your edit is about to apply): regenerating would reformat
     // the code under your cursor. It catches up on the next change after.
@@ -98,18 +101,19 @@ export default class ElementEditor extends React.Component {
   }
 
   isEditingSource() {
-    // Focus in the code editor itself; not the JSON / Compiled CSS tabs above it.
+    // Focus in the code editor itself; not the JSON / CSS / HTML tabs above it.
     const editor = this.sourcePaneRef.current && this.sourcePaneRef.current.querySelector('.CodeMirror');
     return !!this._sourceApplyTimer || !!(editor && editor.contains(document.activeElement));
   }
 
-  /** Both panes from the document (a no-op when they already match it). */
+  /** Every pane from the document (a no-op when they already match it). */
   syncSourceText() {
     const json = this.getGeneratedSourceValue('json', this.props.elementProps);
     const css = this.getGeneratedSourceValue('css', this.props.elementProps);
+    const html = this.getGeneratedSourceValue('html', this.props.elementProps);
     const { sourceText = {}, sourceError = {} } = this.state;
-    if (json === sourceText.json && css === sourceText.css && !sourceError.json && !sourceError.css) return;
-    this.setState({ sourceText: { json, css }, sourceError: { json: null, css: null } });
+    if (json === sourceText.json && css === sourceText.css && html === sourceText.html && !sourceError.json && !sourceError.css) return;
+    this.setState({ sourceText: { json, css, html }, sourceError: { json: null, css: null } });
   }
 
   handleTabChange(e, value) {
@@ -268,7 +272,21 @@ export default class ElementEditor extends React.Component {
     return `${blocks.join('\n\n')}\n`;
   }
 
+  /**
+   * The layer's markup, exactly what Export writes for it: tag, classes and
+   * attributes (the layer name is not exported), hidden layers inside left
+   * out. Read-only: turning edited HTML back into layers is a bigger job.
+   */
+  getCompiledHtml(elementProps) {
+    if (!elementProps) return '';
+    const markup = renderElementToHtml(elementProps);
+    return elementProps.hidden
+      ? `<!-- This layer is hidden: Export leaves it out -->\n${markup}`
+      : markup;
+  }
+
   getGeneratedSourceValue(mode, elementProps) {
+    if (mode === 'html') return this.getCompiledHtml(elementProps);
     return mode === 'css'
       ? this.getCompiledCss(elementProps)
       : JSON.stringify(this.getSourcePayload(elementProps), null, 2);
@@ -276,6 +294,7 @@ export default class ElementEditor extends React.Component {
 
   handleSourceBeforeChange(editor, data, value) {
     const mode = this.state.sourceMode;
+    if (mode === 'html') return; // read-only
     this.setState((prevState) => ({
       sourceText: { ...prevState.sourceText, [mode]: value },
       sourceError: { ...prevState.sourceError, [mode]: null }
@@ -445,34 +464,43 @@ export default class ElementEditor extends React.Component {
   renderSourcePane(elementProps) {
     const mode = this.state.sourceMode;
     const err = this.state.sourceError?.[mode];
+    // Three tabs share a pane as narrow as 284px (the Add dialog): each takes
+    // its label's width plus an equal share of the rest. MUI's 160px minimum
+    // pushed one off; at its 14px and 12px sides "Compiled HTML" wrapped.
+    const tabStyle = { color: 'var(--caf-text)', minWidth: 0, flex: '1 1 auto', padding: '6px 4px', fontSize: 13 };
     return (
       <div ref={ this.sourcePaneRef } style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Tabs
           value={ this.state.sourceMode }
           onChange={ this.handleSourceModeChange }
-          variant="fullWidth"
           style={{ color: 'var(--caf-text)', marginBottom: 10 }}
         >
-          <Tab value="json" label="JSON" style={{ color: 'var(--caf-text)' }} />
-          <Tab value="css" label="Compiled CSS" style={{ color: 'var(--caf-text)' }} />
+          <Tab value="json" label="JSON" style={ tabStyle } />
+          <Tab value="css" label="Compiled CSS" style={ tabStyle } />
+          <Tab value="html" label="Compiled HTML" style={ tabStyle } />
         </Tabs>
         { err && (
           <div style={{ color: '#ff6b6b', fontSize: 12, marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             { err }
           </div>
         ) }
+        { mode === 'html' && (
+          <div className="caf-source-note">
+            Read-only: the markup Export writes for this layer.
+          </div>
+        ) }
         <div style={{ border: '1px solid var(--caf-border)', flex: 1, minHeight: 0 }}>
           <CodeMirror
             value={ this.state.sourceText?.[mode] || this.getGeneratedSourceValue(mode, elementProps) }
             options={{
-              mode: this.state.sourceMode === 'css' ? 'css' : 'javascript',
+              mode: { json: 'javascript', css: 'css', html: { name: 'xml', htmlMode: true } }[mode],
               // Long CSS values (gradients, transforms) wrap instead of running
-              // off the panel. JSON stays unwrapped: an SVG path's `d` is one
-              // huge line that would fill the whole pane.
-              lineWrapping: this.state.sourceMode === 'css',
+              // off the panel. JSON and HTML stay unwrapped: an SVG path's `d`
+              // is one huge line that would fill the whole pane.
+              lineWrapping: mode === 'css',
               theme: 'material',
               lineNumbers: true,
-              readOnly: false
+              readOnly: mode === 'html'
             }}
             editorDidMount={(editor) => editor.setSize(null, '100%')}
             onBeforeChange={ this.handleSourceBeforeChange }

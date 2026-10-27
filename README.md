@@ -14,8 +14,13 @@ CSS Animation Factory - Sprinkle that CSS into the factory yo!
 ### Timeline
 - Select a layer: a keyframe island floats over the preview with its animations, a diamond per keyframe, a scrubber and the animated properties' current values.
 - Header ⋯ button (LinearScale icon): the Timeline panel, every layer on one time axis. Click or drag the ruler to scrub; click a diamond to jump to that keyframe; drag the panel's top edge to resize.
-- **Space** plays/pauses. Play, pause, scrub, loop and speed apply to the whole preview at once.
+- **Space** plays/pauses; **J / K / L** play backwards / pause / play forwards. Speed: 1/10× to 4×, or Custom… (a decimal or a fraction). Play, pause, scrub, loop and speed apply to the whole preview at once.
 - Works with any CSS animation (class properties, the `animation` shorthand, raw preset CSS): it reads what the browser is running.
+
+### Element Editor
+- **JSON** and **Compiled CSS**: the selected layer's data and CSS (classes + the @keyframes it runs). Both are editable and follow every change.
+- **Compiled HTML**: the layer's markup, exactly what Export writes for it. Read-only.
+- **Isolation mode** (Layers toolbar target button, or double-click a layer): only that layer shows, fitted to the view. Esc leaves.
 
 ### Branches
 1. All commits go to brain `main`
