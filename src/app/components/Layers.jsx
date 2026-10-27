@@ -6,7 +6,6 @@ import AddNewElement from './AddNewElement.jsx';
 import Container from './Container/Container.jsx';
 import AddIcon from '@material-ui/icons/Add';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
@@ -211,18 +210,6 @@ export default class Layers extends React.Component {
               </Tooltip>
             </Layout>
             <Layout display="flex" alignItems="center" itemSpacing={ 0 }>
-              <Tooltip title="JSON Data">
-                <span style={{ display: 'inline-flex' }}>
-                  <IconButton
-                    className="caf-iconbtn-nav"
-                    size="small"
-                    onClick={ (e) => e.stopPropagation() }
-                    aria-label="JSON Data"
-                  >
-                    <DesktopWindowsIcon fontSize="small" />
-                  </IconButton>
-                </span>
-              </Tooltip>
               <Tooltip title="Add New Element">
                 <span style={{ display: 'inline-flex' }}>
                   <IconButton
