@@ -401,9 +401,10 @@ export default class ElementEditor extends React.Component {
     return (
       <React.Fragment>
         <div>
-          Name
+          <label htmlFor={ this.fid('element', 'name') }>Layer name</label>
           <input
             id={ this.fid('element', 'name') }
+            title="The name in the Layers panel and the Timeline. It is not exported to the HTML or CSS."
             style={{
               display: 'block',
               background: 'var(--caf-input-bg)',
