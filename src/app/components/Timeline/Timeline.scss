@@ -105,7 +105,7 @@
     width: 4.5em;
 
     &[aria-invalid="true"] {
-      border-color: #ff6b6b;
+      border-color: var(--nv-danger);
     }
   }
 }

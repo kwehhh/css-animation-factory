@@ -63,8 +63,8 @@ module.exports = {
       ],
     }),
     new HtmlWebpackPlugin({
-      // `data-theme="dark"` lives on <html> in the template so @nurvus/ui's
-      // runtime tokens (light by default) render dark from the first paint.
+      // The template sets data-theme="tokyo-neon" on <html> and applies the
+      // saved @nurvus/ui theme before the first paint.
       template: 'src/index.html',
       title: 'CSS Animation Factory'
     }),

@@ -1,17 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="tokyo-neon">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= htmlWebpackPlugin.options.title %></title>
     <!-- No favicon yet: an empty one stops the browser's /favicon.ico 404. -->
     <link rel="icon" href="data:,">
-    <!-- Apply the saved theme + palette before anything paints (App keeps them in sync). -->
+    <!-- Apply the saved @nurvus/ui theme before anything paints (App keeps it in sync).
+         Also carries over the old light/dark toggle and Neutral palette choices. -->
     <script>
       try {
-        if (localStorage.getItem('caf.theme') === 'light') document.documentElement.dataset.theme = 'light';
-        if (localStorage.getItem('caf.palette') === 'neutral') document.documentElement.dataset.cafPalette = 'neutral';
-      } catch (e) { /* storage blocked: stay dark */ }
+        var KEY = 'nurvus.theme', saved = localStorage.getItem(KEY);
+        var oldTheme = localStorage.getItem('caf.theme'), oldPalette = localStorage.getItem('caf.palette');
+        if (!saved && (oldTheme || oldPalette)) {
+          saved = oldTheme === 'light' ? 'apollo-white' : oldPalette === 'neutral' ? 'nether' : 'tokyo-neon';
+          localStorage.setItem(KEY, saved);
+        }
+        localStorage.removeItem('caf.theme');
+        localStorage.removeItem('caf.palette');
+        if (saved) document.documentElement.setAttribute('data-theme', saved);
+      } catch (e) { /* storage blocked: stay on Tokyo Neon */ }
     </script>
 </head>
 <body>

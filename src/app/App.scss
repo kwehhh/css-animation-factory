@@ -201,44 +201,38 @@ body {
   line-height: inherit;
 }
 
-// Comments (the preset's read-only CSS) and line numbers: material's #546e7a
-// is 2.6-3.3:1 on our dark panels; the same slate, lighter, is ≥ 4.6:1.
+// Code panes take the active theme's code colors (@nurvus/ui --nv-syntax-*),
+// in every theme. "material" stays as the base layer; these win over it.
+// Every --nv-syntax-* color is checked at >= 4.5:1 on --nv-bg, the panel
+// color behind the panes.
 .cm-s-material {
-  .CodeMirror-linenumber,
-  .cm-comment { color: #8796a5; }
-}
-
-// Light theme: "material" is a dark theme. With its background made
-// transparent above, its near-white text (`:` `(` `;` in CSS, JSON's
-// punctuation) vanished on the light panels and its pale yellows/greens were
-// under 2:1. Same color families, darkened to ≥ 4.5:1 on every light surface.
-:root[data-theme="light"] .cm-s-material {
   &.CodeMirror,
-  .cm-variable-2 { color: var(--caf-text); }
+  .cm-variable,
+  .cm-variable-2,
+  .cm-variable-3,
+  .CodeMirror-matchingbracket { color: var(--nv-text) !important; }
   .CodeMirror-linenumber,
   .CodeMirror-guttermarker,
-  .CodeMirror-guttermarker-subtle,
-  .cm-comment { color: #5f6b76; }
+  .CodeMirror-guttermarker-subtle { color: var(--nv-text-subtle); }
+  .cm-operator,
+  .cm-bracket { color: var(--nv-text-muted); }
+  .cm-comment { color: var(--nv-syntax-comment); }
   .cm-keyword,
-  .cm-attribute,
-  .cm-property { color: #7c3aed; }
-  .cm-operator { color: #0e7490; }
-  .cm-variable,
-  .cm-string-2,
-  .cm-tag,
-  .cm-number { color: #cf222e; }
-  .cm-builtin,
   .cm-meta,
+  .cm-type { color: var(--nv-syntax-keyword); }
+  .cm-def,
   .cm-qualifier,
-  .cm-type,
-  .cm-variable-3 { color: #8a6100; }
-  .cm-atom { color: #b2470b; }
-  .cm-def { color: #0550ae; }
-  .cm-string { color: #116329; }
-  .CodeMirror-cursor { border-left-color: var(--caf-text); }
+  .cm-builtin { color: var(--nv-syntax-function); }
+  .cm-tag { color: var(--nv-syntax-tag); }
+  .cm-string,
+  .cm-string-2 { color: var(--nv-syntax-string); }
+  .cm-property,
+  .cm-attribute { color: var(--nv-syntax-attr); }
+  .cm-number,
+  .cm-atom { color: var(--nv-syntax-number); }
+  .CodeMirror-cursor { border-left-color: var(--nv-cursor); }
   div.CodeMirror-selected,
-  &.CodeMirror-focused div.CodeMirror-selected { background: rgba(80, 79, 246, 0.16); }
-  .CodeMirror-matchingbracket { color: var(--caf-text) !important; }
+  &.CodeMirror-focused div.CodeMirror-selected { background: var(--nv-selection); }
 }
 
 // Material UI accents
@@ -293,12 +287,12 @@ body {
 // Button
 .MuiButton-containedPrimary.nv-btn {
   background: var(--caf-accent-strong);
-  color: #fff;
+  color: var(--nv-on-accent);
   box-shadow: 0 0 14px var(--caf-glow);
 }
 
-// Nurvus DS buttons (header Export / Presets, modal actions). The DS default
-// text is dark navy — invisible on our dark chrome — so recolor to neon-on-dark.
+// Nurvus DS buttons (header Export / Presets, modal actions): the factory's
+// own look, text on an accent tint, in every theme.
 .nurvus.button {
   color: var(--caf-text) !important;
   background: rgba(110, 109, 248, 0.14) !important;
@@ -363,8 +357,8 @@ body {
 
 // Nurvus menu can ship more-specific active styles; override them here.
 .nurvus.menu {
-  // @nurvus/ui gives the menu its own surface (#403960 up to alpha.1, the
-  // --base--50 token since alpha.2). Let the panel's surface show through.
+  // @nurvus/ui gives the menu its own surface (the theme's --nv-bg). Let the
+  // panel's surface show through.
   background: transparent;
 
   .menu-item.active,

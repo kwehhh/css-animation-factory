@@ -8,13 +8,9 @@
 
 .caf-json-error {
   margin-bottom: var(--caf-space-8);
-  color: #ff6b6b;
+  color: var(--nv-danger);
   font-size: 13px;
   overflow-wrap: anywhere;
-
-  :root[data-theme="light"] & {
-    color: #c62828;
-  }
 }
 
 .caf-json-code {

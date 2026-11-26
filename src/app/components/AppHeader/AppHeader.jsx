@@ -1,6 +1,6 @@
 import React from 'react';
-import { Layout, Button } from '@nurvus/ui';
-import { Tooltip } from '@material-ui/core';
+import { Layout, Button, themes } from '@nurvus/ui';
+import { Tooltip, Menu, MenuItem, ListSubheader } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import TuneIcon from '@material-ui/icons/Tune';
@@ -8,8 +8,6 @@ import LinearScaleIcon from '@material-ui/icons/LinearScale';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
 import HistoryIcon from '@material-ui/icons/History';
-import WbSunnyIcon from '@material-ui/icons/WbSunny';
-import NightsStayIcon from '@material-ui/icons/NightsStay';
 import PaletteOutlinedIcon from '@material-ui/icons/PaletteOutlined';
 import { IS_MAC, shortcutLabel } from '../../../util/keyboard.js';
 import './AppHeader.scss';
@@ -21,6 +19,66 @@ const autosaveText = (autosave) => {
   const time = new Date(autosave.time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   return autosave.status === 'restored' ? `Restored your work from ${time}` : `Saved ${time}`;
 };
+
+/**
+ * One menu for every @nurvus/ui theme (light first, then dark). Each row shows
+ * the theme's own background and accent, its name and its keywords.
+ */
+function ThemeMenu({ theme, onSelectTheme }) {
+  const [anchor, setAnchor] = React.useState(null);
+  const current = themes.find((t) => t.id === theme) || themes[0];
+  const label = `Theme: ${current.name}`;
+  const pick = (id) => {
+    setAnchor(null);
+    if (id !== theme) onSelectTheme(id);
+  };
+  const items = [];
+  [['light', 'Light'], ['dark', 'Dark']].forEach(([mode, title]) => {
+    items.push(<ListSubheader key={mode} className="caf-theme-group">{title}</ListSubheader>);
+    themes.filter((t) => t.mode === mode).forEach((t) => {
+      items.push(
+        <MenuItem key={t.id} selected={t.id === theme} onClick={() => pick(t.id)} className="caf-theme-item">
+          <span className="caf-theme-swatch" style={{ background: t.colors.bg, borderColor: t.colors['accent-fill'] }} aria-hidden="true">
+            <span style={{ background: t.colors['accent-fill'] }} />
+          </span>
+          <span className="caf-theme-text">
+            <span className="caf-theme-name">{t.name}</span>
+            <span className="caf-theme-keywords">{t.keywords}</span>
+          </span>
+        </MenuItem>
+      );
+    });
+  });
+  return (
+    <>
+      <Tooltip title={label}>
+        <IconButton
+          className="caf-iconbtn-nav"
+          size="small"
+          onClick={(e) => setAnchor(e.currentTarget)}
+          aria-label={label}
+          aria-haspopup="menu"
+          aria-controls={anchor ? 'caf-theme-menu' : undefined}
+          aria-expanded={anchor ? 'true' : undefined}
+        >
+          <PaletteOutlinedIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Menu
+        id="caf-theme-menu"
+        anchorEl={anchor}
+        open={!!anchor}
+        onClose={() => setAnchor(null)}
+        getContentAnchorEl={null}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        MenuListProps={{ dense: true, 'aria-label': 'Theme' }}
+      >
+        {items}
+      </Menu>
+    </>
+  );
+}
 
 export default function AppHeader({
   navHeight,
@@ -40,9 +98,7 @@ export default function AppHeader({
   onToggleHistoryPanel,
   onToggleTimeline,
   theme,
-  onToggleTheme,
-  palette,
-  onTogglePalette,
+  onSelectTheme,
   onShowPresets,
 }) {
   return (
@@ -152,29 +208,7 @@ export default function AppHeader({
               <LinearScaleIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          {/* Shows where a click takes you: the sun in dark mode, the moon in light. */}
-          <Tooltip title={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}>
-            <IconButton
-              className="caf-iconbtn-nav"
-              size="small"
-              onClick={onToggleTheme}
-              aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
-            >
-              {theme === 'light' ? <NightsStayIcon fontSize="small" /> : <WbSunnyIcon fontSize="small" />}
-            </IconButton>
-          </Tooltip>
-          {/* Pressed = the neutral palette (grey, after MotionCraft); off = the NURVUS navy. */}
-          <Tooltip title={palette === 'neutral' ? 'Neutral palette is on: click for the NURVUS navy' : 'Neutral palette: grey instead of navy'}>
-            <IconButton
-              className="caf-iconbtn-nav"
-              size="small"
-              onClick={onTogglePalette}
-              aria-label="Neutral palette"
-              aria-pressed={palette === 'neutral'}
-            >
-              <PaletteOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <ThemeMenu theme={theme} onSelectTheme={onSelectTheme} />
           <Button type="secondary" size="mini" onClick={onShowPresets}>Presets</Button>
           <Tooltip title="The whole animation as JSON: copy it, or paste one in to import">
             <span>

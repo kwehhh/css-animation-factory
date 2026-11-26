@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { Menu, Link } from '@nurvus/ui';
+import { Menu, Link, getTheme, setTheme } from '@nurvus/ui';
 import { Drawer } from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/core/styles';
 import _ from "lodash";
@@ -47,9 +47,8 @@ const ISOLATION_BAR_GAP = 8;
 const ISOLATION_BAR_HEIGHT = 36;
 const ISOLATION_FIT_SHARE = 0.85;
 const ISOLATION_SCALE = { min: 0.25, max: 8 };
-// 'dark' | 'light'. index.html applies the saved value before first paint.
-const THEME_STORAGE_KEY = 'caf.theme';
-const PALETTE_STORAGE_KEY = 'caf.palette';
+// The factory's default @nurvus/ui theme (index.html sets it on <html> too).
+const DEFAULT_THEME = 'tokyo-neon';
 
 // Undo/redo history. Only the animation itself is undoable; selection and
 // panel layout are UI state and stay where they are.
@@ -161,10 +160,9 @@ export default class App extends React.Component {
       isolationTransform: null,
       timelineHeight: timeline.height,
       timelineAnimatedOnly: timeline.animatedOnly,
-      // data-theme on <html> drives both the factory's --caf-* tokens and @nurvus/ui.
-      theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
-      // 'nurvus' (the navy) or 'neutral' (grey, after MotionCraft); index.html applies it before paint.
-      palette: document.documentElement.dataset.cafPalette === 'neutral' ? 'neutral' : 'nurvus',
+      // The @nurvus/ui theme id: data-theme on <html> drives both the factory's
+      // --caf-* tokens and @nurvus/ui. index.html applies the saved one before paint.
+      theme: getTheme(document.documentElement.dataset.theme) ? document.documentElement.dataset.theme : DEFAULT_THEME,
       // Header status of the last autosave: { status: 'saved' | 'restored' | 'failed', time }.
       autosave: null,
       // Render copy of this.history (see syncHistoryView).
@@ -421,6 +419,8 @@ export default class App extends React.Component {
 
   // Restore the autosaved animation, or fetch the default JSON preset
   componentDidMount() {
+    // A saved theme id that no longer exists: fall back to the default.
+    if (!getTheme(document.documentElement.dataset.theme)) setTheme(DEFAULT_THEME, { persist: false });
     document.addEventListener('keydown', this.handleKeyDown);
     // pagehide (not unload, which Chrome blocks) fires on reload, tab close and
     // navigation: write a pending autosave before the page goes.
@@ -841,27 +841,10 @@ export default class App extends React.Component {
     this.handleJumpToHistory(this.history.index + 1);
   }
 
-  handleToggleTheme = () => {
-    const theme = this.state.theme === 'light' ? 'dark' : 'light';
-    document.documentElement.dataset.theme = theme;
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch {
-      // Storage blocked: the theme still applies for this visit.
-    }
-    this.setState({ theme });
-  }
-
-  handleTogglePalette = () => {
-    const palette = this.state.palette === 'neutral' ? 'nurvus' : 'neutral';
-    if (palette === 'neutral') document.documentElement.dataset.cafPalette = palette;
-    else delete document.documentElement.dataset.cafPalette;
-    try {
-      window.localStorage.setItem(PALETTE_STORAGE_KEY, palette);
-    } catch {
-      // Storage blocked: the palette still applies for this visit.
-    }
-    this.setState({ palette });
+  // One theme menu (header): setTheme sets data-theme on <html> and saves it.
+  handleSelectTheme = (id) => {
+    setTheme(id);
+    this.setState({ theme: id });
   }
 
   handleToggleHistoryPanel = () => {
@@ -1354,9 +1337,7 @@ export default class App extends React.Component {
           showTimeline={ this.state.showTimeline }
           onToggleTimeline={ this.handleToggleTimeline }
           theme={ this.state.theme }
-          onToggleTheme={ this.handleToggleTheme }
-          palette={ this.state.palette }
-          onTogglePalette={ this.handleTogglePalette }
+          onSelectTheme={ this.handleSelectTheme }
           onShowPresets={ this.handleShowPresets }
         />
         <ExportModal
@@ -1557,7 +1538,7 @@ export default class App extends React.Component {
   render() {
     // MUI components (fields, buttons, sliders, dialogs) follow the theme too.
     return (
-      <ThemeProvider theme={ getMuiTheme(this.state.theme, this.state.palette) }>
+      <ThemeProvider theme={ getMuiTheme(this.state.theme) }>
         { this.renderApp() }
       </ThemeProvider>
     );

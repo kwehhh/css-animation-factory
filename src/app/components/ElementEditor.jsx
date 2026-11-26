@@ -480,7 +480,7 @@ export default class ElementEditor extends React.Component {
           <Tab value="html" label="Compiled HTML" style={ tabStyle } />
         </Tabs>
         { err && (
-          <div style={{ color: '#ff6b6b', fontSize: 12, marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ color: 'var(--nv-danger)', fontSize: 12, marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             { err }
           </div>
         ) }
