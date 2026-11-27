@@ -1,6 +1,8 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { Menu, Link, getTheme, setTheme } from '@nurvus/ui';
+// @nurvus/ui ships only Apollo White in its core CSS; the theme menu offers all seven, so load them all.
+import '@nurvus/ui/themes/all.css';
 import { Drawer } from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/core/styles';
 import _ from "lodash";
